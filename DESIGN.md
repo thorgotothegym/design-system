@@ -26,15 +26,15 @@ Contrast ratios below are WCAG 2.x, computed with a script from these exact OKLC
 | `bg.surface` | `oklch(0.10 0 0)` | cards, popovers |
 | `bg.subtle` | `oklch(0.12 0 0)` | muted areas |
 | `bg.input` | `oklch(0.15 0 0)` | field background, secondary surfaces |
-| `text.default` | `oklch(0.75 0.15 145)` | 9.87:1 on `bg.base` |
-| `text.muted` | `oklch(0.62 0.09 145)` | 5.93:1 on `bg.base` |
-| `text.placeholder` | `oklch(0.58 0.08 145)` | 4.75:1 on `bg.input` |
-| `brand.primary` | `oklch(0.70 0.18 145)` | 8.33:1 on `bg.base` |
-| `text.on-primary` | `oklch(0.08 0 0)` | 8.33:1 on `brand.primary` |
-| `text.danger` | `oklch(0.70 0.19 25)` | 7.14:1 on `bg.base` |
+| `text.default` | `oklch(0.75 0.15 145)` | 9.82:1 on `bg.base` |
+| `text.muted` | `oklch(0.62 0.09 145)` | 5.94:1 on `bg.base` |
+| `text.placeholder` | `oklch(0.58 0.08 145)` | 4.76:1 on `bg.input` |
+| `brand.primary` | `oklch(0.70 0.18 145)` | 8.29:1 on `bg.base` |
+| `text.on-primary` | `oklch(0.08 0 0)` | 8.29:1 on `brand.primary` |
+| `text.danger` | `oklch(0.70 0.19 25)` | 7.15:1 on `bg.base` |
 | `border.decorative` | `oklch(0.20 0.05 145)` | 1.16:1. Decoration only (cards, dividers). Never as the only boundary of a control |
 | `border.control` | `oklch(0.50 0.10 145)` | 3.62:1 on `bg.base`, 3.43:1 on `bg.input` (min 3:1) |
-| `focus.ring` | `oklch(0.70 0.18 145)` | 8.33:1 on `bg.base` |
+| `focus.ring` | `oklch(0.70 0.18 145)` | 8.29:1 on `bg.base` |
 
 Differences from the personal site, on purpose (the site values failed AA):
 - Muted text was `oklch(0.50 0.08 145)` at 3.59:1. Raised.
@@ -48,22 +48,24 @@ Differences from the personal site, on purpose (the site values failed AA):
 | --- | --- | --- |
 | `bg.base` | `oklch(0.98 0.01 145)` | |
 | `bg.surface` / `bg.input` | `oklch(1 0 0)` | |
-| `bg.subtle` | `oklch(0.95 0.015 145)` | 1.09:1 against `bg.base`. 14.88:1 with `text.default` and 6.31:1 with `text.muted` on top of it |
+| `bg.subtle` | `oklch(0.95 0.015 145)` | 1.09:1 against `bg.base`. 14.91:1 with `text.default` and 6.29:1 with `text.muted` on top of it |
 | `text.default` | `oklch(0.22 0.04 145)` | 16.23:1 on `bg.base` |
-| `text.muted` | `oklch(0.45 0.05 145)` | 6.89:1 on `bg.base` |
-| `text.placeholder` | `oklch(0.50 0.05 145)` | 5.86:1 on `bg.input` |
-| `brand.primary` | `oklch(0.45 0.14 145)` | 6.64:1 on `bg.base`. Also valid for links |
-| `text.on-primary` | `oklch(0.98 0.01 145)` | 6.64:1 on `brand.primary` |
-| `text.danger` | `oklch(0.50 0.20 27)` | 6.31:1 on `bg.base` |
+| `text.muted` | `oklch(0.45 0.05 145)` | 6.85:1 on `bg.base` |
+| `text.placeholder` | `oklch(0.50 0.05 145)` | 5.87:1 on `bg.input` |
+| `brand.primary` | `oklch(0.45 0.14 145)` | 6.61:1 on `bg.base`. Also valid for links |
+| `text.on-primary` | `oklch(0.98 0.01 145)` | 6.61:1 on `brand.primary` |
+| `text.danger` | `oklch(0.50 0.20 27)` | 6.27:1 on `bg.base` |
 | `border.decorative` | `oklch(0.90 0.03 145)` | 1.26:1 on `bg.base`. Decoration only, same rule as in dark: never the only boundary of a control |
-| `border.control` | `oklch(0.60 0.07 145)` | 3.63:1 on `bg.base` |
-| `focus.ring` | `oklch(0.45 0.14 145)` | same value as `brand.primary`: 6.64:1 on `bg.base`, 7.01:1 on `bg.input` |
+| `border.control` | `oklch(0.60 0.07 145)` | 3.60:1 on `bg.base` |
+| `focus.ring` | `oklch(0.45 0.14 145)` | same value as `brand.primary`: 6.61:1 on `bg.base`, 7.00:1 on `bg.input` |
 
 ### 2.3 Rules
 
 - Text needs 4.5:1, large text and control boundaries need 3:1, in BOTH themes.
 - Every new semantic color needs a light and a dark value and a measured ratio in this table.
 - A contrast script must run in CI over the token files and fail the build on any pair below its minimum. Do not lower a minimum to pass.
+  - Implemented in `packages/tokens/scripts/contrast` (`pnpm --filter @aleixvidal/tokens contrast`, also part of `pnpm test`). The pairs are declared in `pairs.ts`; a semantic color that no pair mentions fails the script.
+  - The ratios in the tables above are the ones the script prints. It measures the 8-bit colors a browser paints (what axe and devtools report), not unrounded values. When a token changes, re-run it and update the tables.
 - Keep colors inside sRGB, or provide an sRGB-safe value. Out-of-gamut values are silently clipped and the measured ratio stops being true.
 - The `.dark` / `:root` duplication on the personal site is not carried over: tokens have a single source and the theme is switched by one attribute or class.
 
