@@ -1,0 +1,20 @@
+{
+  "name": "@aleixvidal/storybook",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo 'Storybook is added in T03'",
+    "storybook": "echo 'Storybook is added in T03'",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@aleixvidal/eslint-config": "workspace:*",
+    "@aleixvidal/typescript-config": "workspace:*",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
