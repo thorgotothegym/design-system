@@ -1,0 +1,11 @@
+node_modules
+dist
+.turbo
+coverage
+pnpm-lock.yaml
+.changeset/*.md
+AGENTS.md
+BACKLOG.md
+DESIGN.md
+CLAUDE.md
+copilot-instructions.md

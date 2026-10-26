@@ -4,14 +4,20 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "storybook": "turbo run storybook",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "size": "turbo run size",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "changeset": "changeset"
   },
   "devDependencies": {
+    "@changesets/cli": "3.0.3",
     "prettier": "3.9.6",
     "turbo": "^2.11.10",
-    "typescript": "7.0.2"
+    "typescript": "catalog:"
   },
   "packageManager": "pnpm@11.25.0",
   "engines": {
