@@ -3,26 +3,33 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "*.css"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./css": "./dist/tokens.css",
+    "./tailwind.css": "./dist/tailwind.css"
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsup && tsc -p tsconfig.build.json",
+    "generate": "node scripts/build-tokens.ts",
+    "build": "pnpm generate && tsup && tsc -p tsconfig.build.json && cp generated/*.css dist/",
     "lint": "eslint . --max-warnings 0",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "typecheck": "pnpm generate && tsc --noEmit",
+    "test": "pnpm generate && vitest run"
   },
   "devDependencies": {
     "@aleixvidal/eslint-config": "workspace:*",
     "@aleixvidal/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
     "eslint": "catalog:",
+    "style-dictionary": "5.7.1",
     "tsup": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

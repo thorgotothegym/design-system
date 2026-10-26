@@ -48,14 +48,16 @@ Differences from the personal site, on purpose (the site values failed AA):
 | --- | --- | --- |
 | `bg.base` | `oklch(0.98 0.01 145)` | |
 | `bg.surface` / `bg.input` | `oklch(1 0 0)` | |
+| `bg.subtle` | `oklch(0.95 0.015 145)` | 1.09:1 against `bg.base`. 14.88:1 with `text.default` and 6.31:1 with `text.muted` on top of it |
 | `text.default` | `oklch(0.22 0.04 145)` | 16.23:1 on `bg.base` |
 | `text.muted` | `oklch(0.45 0.05 145)` | 6.89:1 on `bg.base` |
 | `text.placeholder` | `oklch(0.50 0.05 145)` | 5.86:1 on `bg.input` |
 | `brand.primary` | `oklch(0.45 0.14 145)` | 6.64:1 on `bg.base`. Also valid for links |
 | `text.on-primary` | `oklch(0.98 0.01 145)` | 6.64:1 on `brand.primary` |
 | `text.danger` | `oklch(0.50 0.20 27)` | 6.31:1 on `bg.base` |
+| `border.decorative` | `oklch(0.90 0.03 145)` | 1.26:1 on `bg.base`. Decoration only, same rule as in dark: never the only boundary of a control |
 | `border.control` | `oklch(0.60 0.07 145)` | 3.63:1 on `bg.base` |
-| `focus.ring` | `oklch(0.45 0.14 145)` | at least as dark as the 5.33:1 value that was checked |
+| `focus.ring` | `oklch(0.45 0.14 145)` | same value as `brand.primary`: 6.64:1 on `bg.base`, 7.01:1 on `bg.input` |
 
 ### 2.3 Rules
 
@@ -72,10 +74,39 @@ Differences from the personal site, on purpose (the site values failed AA):
 - **Open decision:** whether helper text and long-form copy use a proportional sans (`font.sans` token) for readability. Until decided, everything is mono and the token exists so it can change in one place.
 - The type scale, weights and line heights are tokens. Define them once, document them in a Storybook story, and never hardcode sizes.
 
+Defined values (T01). `font.sans` currently resolves to the same stack as `font.mono`.
+
+| Token | Size | Line height |
+| --- | --- | --- |
+| `text.xs` | `0.75rem` | `1rem` |
+| `text.sm` | `0.875rem` | `1.25rem` |
+| `text.md` | `1rem` | `1.5rem` |
+| `text.lg` | `1.125rem` | `1.75rem` |
+| `text.xl` | `1.25rem` | `1.75rem` |
+| `text.2xl` | `1.5rem` | `2rem` |
+| `text.3xl` | `1.875rem` | `2.25rem` |
+
+- Weights: `regular` 400, `medium` 500, `bold` 700.
+- Line heights (unitless, for text that is not paired with a size): `tight` 1.25, `normal` 1.5, `relaxed` 1.75.
+- Font files are not loaded by the tokens package. Until a font is loaded by the consumer, the `monospace` fallback renders.
+
 ## 4. Shape and spacing
 
 - Base radius `0.25rem`. Derived scale: `sm` = base - 4px (0), `md` = base - 2px (2px), `lg` = base (4px), `xl` = base + 4px (8px). Corners stay tight; this is part of the look.
 - Spacing is a token scale on a 4px grid. No arbitrary pixel values in components.
+
+Defined spacing steps (T01). Each step is `n * 0.25rem` (4px at the default root size; rem so it follows the user's font size): `0`, `1`, `2`, `3`, `4`, `5`, `6`, `8`, `10`, `12`, `16`, `20`, `24`.
+
+Defined elevation (T01), four levels, no glow. These are shadows, not semantic colors, so they have no contrast pair. On the near-black dark theme they are subtle by design; do not rely on shadow alone to separate surfaces, pair it with `border.decorative`.
+
+| Token | Value |
+| --- | --- |
+| `shadow.none` | `none` |
+| `shadow.sm` | `0 1px 2px 0 oklch(0 0 0 / 0.4)` |
+| `shadow.md` | `0 4px 8px -2px oklch(0 0 0 / 0.5)` |
+| `shadow.lg` | `0 12px 24px -4px oklch(0 0 0 / 0.6)` |
+
+There is no z-index scale yet. It is added with the first component that needs stacking (popover, select).
 
 ## 5. Effects (terminal flair)
 
