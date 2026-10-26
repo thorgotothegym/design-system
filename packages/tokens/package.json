@@ -22,7 +22,8 @@
     "build": "pnpm generate && tsup && tsc -p tsconfig.build.json && cp generated/*.css dist/",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "pnpm generate && tsc --noEmit",
-    "test": "pnpm generate && vitest run"
+    "contrast": "node scripts/check-contrast.ts",
+    "test": "pnpm generate && pnpm contrast && vitest run"
   },
   "devDependencies": {
     "@aleixvidal/eslint-config": "workspace:*",

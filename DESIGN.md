@@ -64,6 +64,8 @@ Differences from the personal site, on purpose (the site values failed AA):
 - Text needs 4.5:1, large text and control boundaries need 3:1, in BOTH themes.
 - Every new semantic color needs a light and a dark value and a measured ratio in this table.
 - A contrast script must run in CI over the token files and fail the build on any pair below its minimum. Do not lower a minimum to pass.
+  - Implemented in `packages/tokens/scripts/contrast` (`pnpm --filter @aleixvidal/tokens contrast`, also part of `pnpm test`). The pairs are declared in `pairs.ts`; a semantic color that no pair mentions fails the script.
+  - The script measures the 8-bit colors a browser paints (what axe and devtools report), so its ratios can differ by up to about 0.05 from the unrounded values in the tables above. Both must clear the minimum.
 - Keep colors inside sRGB, or provide an sRGB-safe value. Out-of-gamut values are silently clipped and the measured ratio stops being true.
 - The `.dark` / `:root` duplication on the personal site is not carried over: tokens have a single source and the theme is switched by one attribute or class.
 
