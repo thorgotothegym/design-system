@@ -1,0 +1,94 @@
+{
+  "palette": {
+    "neutral": {
+      "l8": {
+        "$type": "color",
+        "$value": "oklch(0.08 0 0)"
+      },
+      "l10": {
+        "$type": "color",
+        "$value": "oklch(0.10 0 0)"
+      },
+      "l12": {
+        "$type": "color",
+        "$value": "oklch(0.12 0 0)"
+      },
+      "l15": {
+        "$type": "color",
+        "$value": "oklch(0.15 0 0)"
+      },
+      "l100": {
+        "$type": "color",
+        "$value": "oklch(1 0 0)"
+      }
+    },
+    "green": {
+      "l75-c150": {
+        "$type": "color",
+        "$value": "oklch(0.75 0.15 145)"
+      },
+      "l62-c90": {
+        "$type": "color",
+        "$value": "oklch(0.62 0.09 145)"
+      },
+      "l58-c80": {
+        "$type": "color",
+        "$value": "oklch(0.58 0.08 145)"
+      },
+      "l70-c180": {
+        "$type": "color",
+        "$value": "oklch(0.70 0.18 145)"
+      },
+      "l20-c50": {
+        "$type": "color",
+        "$value": "oklch(0.20 0.05 145)"
+      },
+      "l50-c100": {
+        "$type": "color",
+        "$value": "oklch(0.50 0.10 145)"
+      },
+      "l98-c10": {
+        "$type": "color",
+        "$value": "oklch(0.98 0.01 145)"
+      },
+      "l95-c15": {
+        "$type": "color",
+        "$value": "oklch(0.95 0.015 145)"
+      },
+      "l22-c40": {
+        "$type": "color",
+        "$value": "oklch(0.22 0.04 145)"
+      },
+      "l45-c50": {
+        "$type": "color",
+        "$value": "oklch(0.45 0.05 145)"
+      },
+      "l50-c50": {
+        "$type": "color",
+        "$value": "oklch(0.50 0.05 145)"
+      },
+      "l45-c140": {
+        "$type": "color",
+        "$value": "oklch(0.45 0.14 145)"
+      },
+      "l90-c30": {
+        "$type": "color",
+        "$value": "oklch(0.90 0.03 145)"
+      },
+      "l60-c70": {
+        "$type": "color",
+        "$value": "oklch(0.60 0.07 145)"
+      }
+    },
+    "red": {
+      "l70-c190-h25": {
+        "$type": "color",
+        "$value": "oklch(0.70 0.19 25)"
+      },
+      "l50-c200-h27": {
+        "$type": "color",
+        "$value": "oklch(0.50 0.20 27)"
+      }
+    }
+  }
+}
