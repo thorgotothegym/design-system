@@ -35,5 +35,8 @@
     "tsup": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
+  },
+  "dependencies": {
+    "@aleixvidal/tokens": "workspace:*"
   }
 }
