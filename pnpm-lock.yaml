@@ -133,6 +133,10 @@ importers:
   packages/typescript-config: {}
 
   packages/ui:
+    dependencies:
+      '@aleixvidal/tokens':
+        specifier: workspace:*
+        version: link:../tokens
     devDependencies:
       '@aleixvidal/eslint-config':
         specifier: workspace:*
