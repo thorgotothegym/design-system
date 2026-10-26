@@ -14,8 +14,7 @@ This file only adds things specific to Claude Code.
 - Run the quality gates from AGENTS.md section 4 yourself and fix failures before reporting completion. Report the real result of each command.
 
 ## Commits and PRs
-- Keep the `Co-Authored-By` trailer in commit messages.
-- Do not add session links or "Generated with" footers to PR descriptions.
+- Do not add Co-Authored-By trailers, session links, "Generated with" footers or any other tool-generated attribution to commit messages or PR descriptions.
 
 ## Skills
 

@@ -59,6 +59,22 @@ describe("function style", () => {
     expect(ids).toContain("prefer-arrow-callback");
   });
 
+  it("should reject function expressions assigned to a const", async () => {
+    const ids = await ruleIds(
+      "export const getLabel = function () { return 'a'; };\n",
+    );
+
+    expect(ids).toContain("no-restricted-syntax");
+  });
+
+  it("should accept methods and accessors, which cannot be arrow functions", async () => {
+    const ids = await ruleIds(
+      "export const label = { get text() { return 'a'; }, format() { return 'b'; } };\nexport class Label { format() { return 'c'; } }\n",
+    );
+
+    expect(ids).toEqual([]);
+  });
+
   it("should accept const arrow functions", async () => {
     const ids = await ruleIds(
       "export const getLabel = (id: string) => id;\nexport const doubled = [1].map((n) => n * 2);\n",

@@ -5,12 +5,8 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["src/**/*.{ts,tsx}"],
-      // Tests, stories and barrel files hold no logic of their own.
-      exclude: [
-        "src/**/*.test.{ts,tsx}",
-        "src/**/*.stories.tsx",
-        "src/**/index.ts",
-      ],
+      // Only tests and stories are excluded, so a new file with no test still counts.
+      exclude: ["src/**/*.test.{ts,tsx}", "src/**/*.stories.{ts,tsx}"],
       // Starting point from AGENTS.md section 9. Never lower these to pass; raise them when coverage allows.
       thresholds: { lines: 80, branches: 80 },
     },

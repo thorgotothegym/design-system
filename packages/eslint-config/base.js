@@ -27,6 +27,17 @@ export const config = [
       // Functions are `const` arrow functions, never the `function` keyword (AGENTS.md section 5).
       "func-style": ["error", "expression"],
       "prefer-arrow-callback": "error",
+      // Closes the gap in func-style: `const f = function () {}` is also rejected.
+      // Methods and accessors are exempt, they cannot be arrow functions.
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            ":not(MethodDefinition, Property[method=true], Property[kind='get'], Property[kind='set']) > FunctionExpression",
+          message:
+            "Use a const arrow function instead of the function keyword (AGENTS.md section 5).",
+        },
+      ],
     },
   },
   {
