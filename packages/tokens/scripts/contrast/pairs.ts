@@ -15,165 +15,74 @@ export type Pair = {
 
 const both = ["dark", "light"] as const;
 
-const TEXT = 4.5;
-const CONTROL = 3;
+/** Text, and links (`brand.primary`): WCAG AA for normal text. */
+const text = (
+  fg: ColorToken,
+  bg: ColorToken,
+  themes: readonly Theme[] = both,
+  source: Pair["source"] = "derived",
+): Pair => ({ fg, bg, min: 4.5, themes, source });
+
+/** Control boundaries and the focus ring: WCAG 1.4.11 non-text contrast. */
+const control = (
+  fg: ColorToken,
+  bg: ColorToken,
+  themes: readonly Theme[] = both,
+  source: Pair["source"] = "derived",
+): Pair => ({ fg, bg, min: 3, themes, source });
+
+/** Reported but never failed: decoration has no contrast minimum. */
+const decorative = (
+  fg: ColorToken,
+  bg: ColorToken,
+  themes: readonly Theme[] = both,
+  source: Pair["source"] = "derived",
+): Pair => ({ fg, bg, min: null, themes, source });
 
 /**
  * Every foreground/background pair that is checked.
  *
- * `DESIGN.md` pairs are declared in sections 2.1 and 2.2. `derived` pairs apply the same 4.5:1
- * text rule to the backgrounds DESIGN.md does not pair explicitly (`bg.surface`, `bg.subtle`,
- * `bg.input`), so that every background token is exercised by a real text color.
+ * `DESIGN.md` pairs are declared in sections 2.1 and 2.2. `derived` pairs apply the same rules
+ * to backgrounds DESIGN.md does not pair explicitly, so that every background token is
+ * exercised by every text color that can appear on it.
  *
  * Adding a semantic color token makes the gate fail until it appears here, as `fg` or `bg`.
  */
 export const pairs: readonly Pair[] = [
-  {
-    fg: "text.default",
-    bg: "bg.base",
-    min: TEXT,
-    themes: both,
-    source: "DESIGN.md",
-  },
-  {
-    fg: "text.muted",
-    bg: "bg.base",
-    min: TEXT,
-    themes: both,
-    source: "DESIGN.md",
-  },
-  {
-    fg: "text.placeholder",
-    bg: "bg.input",
-    min: TEXT,
-    themes: both,
-    source: "DESIGN.md",
-  },
-  {
-    fg: "brand.primary",
-    bg: "bg.base",
-    min: TEXT,
-    themes: both,
-    source: "DESIGN.md",
-  },
-  {
-    fg: "text.on-primary",
-    bg: "brand.primary",
-    min: TEXT,
-    themes: both,
-    source: "DESIGN.md",
-  },
-  {
-    fg: "text.danger",
-    bg: "bg.base",
-    min: TEXT,
-    themes: both,
-    source: "DESIGN.md",
-  },
-  {
-    fg: "text.default",
-    bg: "bg.subtle",
-    min: TEXT,
-    themes: ["light"],
-    source: "DESIGN.md",
-  },
-  {
-    fg: "text.muted",
-    bg: "bg.subtle",
-    min: TEXT,
-    themes: ["light"],
-    source: "DESIGN.md",
-  },
-  {
-    fg: "border.control",
-    bg: "bg.base",
-    min: CONTROL,
-    themes: both,
-    source: "DESIGN.md",
-  },
-  {
-    fg: "border.control",
-    bg: "bg.input",
-    min: CONTROL,
-    themes: ["dark"],
-    source: "DESIGN.md",
-  },
-  {
-    fg: "focus.ring",
-    bg: "bg.base",
-    min: CONTROL,
-    themes: both,
-    source: "DESIGN.md",
-  },
-  {
-    fg: "focus.ring",
-    bg: "bg.input",
-    min: CONTROL,
-    themes: ["light"],
-    source: "DESIGN.md",
-  },
-  {
-    fg: "border.decorative",
-    bg: "bg.base",
-    min: null,
-    themes: both,
-    source: "DESIGN.md",
-  },
+  text("text.default", "bg.base", both, "DESIGN.md"),
+  text("text.muted", "bg.base", both, "DESIGN.md"),
+  text("text.placeholder", "bg.input", both, "DESIGN.md"),
+  text("brand.primary", "bg.base", both, "DESIGN.md"),
+  text("text.on-primary", "brand.primary", both, "DESIGN.md"),
+  text("text.danger", "bg.base", both, "DESIGN.md"),
+  text("text.default", "bg.subtle", ["light"], "DESIGN.md"),
+  text("text.muted", "bg.subtle", ["light"], "DESIGN.md"),
+  control("border.control", "bg.base", both, "DESIGN.md"),
+  control("border.control", "bg.input", ["dark"], "DESIGN.md"),
+  control("focus.ring", "bg.base", both, "DESIGN.md"),
+  control("focus.ring", "bg.input", ["light"], "DESIGN.md"),
+  decorative("border.decorative", "bg.base", both, "DESIGN.md"),
 
-  {
-    fg: "text.default",
-    bg: "bg.surface",
-    min: TEXT,
-    themes: both,
-    source: "derived",
-  },
-  {
-    fg: "text.muted",
-    bg: "bg.surface",
-    min: TEXT,
-    themes: both,
-    source: "derived",
-  },
-  {
-    fg: "text.default",
-    bg: "bg.subtle",
-    min: TEXT,
-    themes: ["dark"],
-    source: "derived",
-  },
-  {
-    fg: "text.muted",
-    bg: "bg.subtle",
-    min: TEXT,
-    themes: ["dark"],
-    source: "derived",
-  },
-  {
-    fg: "text.default",
-    bg: "bg.input",
-    min: TEXT,
-    themes: both,
-    source: "derived",
-  },
-  {
-    fg: "text.muted",
-    bg: "bg.input",
-    min: TEXT,
-    themes: both,
-    source: "derived",
-  },
-  {
-    fg: "border.control",
-    bg: "bg.input",
-    min: CONTROL,
-    themes: ["light"],
-    source: "derived",
-  },
-  {
-    fg: "focus.ring",
-    bg: "bg.input",
-    min: CONTROL,
-    themes: ["dark"],
-    source: "derived",
-  },
+  // text.default and text.muted on the backgrounds DESIGN.md leaves unpaired.
+  text("text.default", "bg.surface"),
+  text("text.muted", "bg.surface"),
+  text("text.default", "bg.subtle", ["dark"]),
+  text("text.muted", "bg.subtle", ["dark"]),
+  text("text.default", "bg.input"),
+  text("text.muted", "bg.input"),
+
+  // Danger, primary and placeholder text against every background.
+  text("text.danger", "bg.surface"),
+  text("text.danger", "bg.subtle"),
+  text("text.danger", "bg.input"),
+  text("brand.primary", "bg.surface"),
+  text("brand.primary", "bg.subtle"),
+  text("brand.primary", "bg.input"),
+  text("text.placeholder", "bg.base"),
+  text("text.placeholder", "bg.surface"),
+  text("text.placeholder", "bg.subtle"),
+
+  control("border.control", "bg.input", ["light"]),
+  control("focus.ring", "bg.input", ["dark"]),
+  decorative("bg.subtle", "bg.base", ["light"]),
 ];
