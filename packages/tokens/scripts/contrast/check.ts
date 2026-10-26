@@ -29,20 +29,20 @@ export type Report = {
 
 type Resolved = { rgb: Rgb; inGamut: boolean };
 
-function resolve(value: string): Resolved {
+const resolve = (value: string): Resolved => {
   const linear = oklchToLinearSrgb(parseOklch(value));
   return { rgb: linearSrgbToRgb8(linear), inGamut: isInSrgbGamut(linear) };
-}
+};
 
 /**
  * Checks every declared pair in every theme. Fails on: a ratio below its minimum, a color
  * outside sRGB, a pair that names a token a theme does not define, and a semantic token that
  * no pair mentions (so a new color cannot skip the check).
  */
-export function checkContrast(
+export const checkContrast = (
   values: ThemeValues,
   pairs: readonly Pair[],
-): Report {
+): Report => {
   const results: PairResult[] = [];
   const problems: string[] = [];
 
@@ -94,9 +94,9 @@ export function checkContrast(
     problems,
     ok: problems.length === 0 && results.every((r) => r.passed),
   };
-}
+};
 
-export function formatReport(report: Report): string {
+export const formatReport = (report: Report): string => {
   const rows = report.results.map((r) => [
     r.theme,
     `${r.fg} on ${r.bg}`,
@@ -114,4 +114,4 @@ export function formatReport(report: Report): string {
   for (const problem of report.problems) lines.push(`PROBLEM  ${problem}`);
   lines.push(report.ok ? "Contrast gate: OK" : "Contrast gate: FAILED");
   return lines.join("\n");
-}
+};

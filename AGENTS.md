@@ -102,6 +102,7 @@ packages/ui/src/components/<name>/
 - Prefer string-literal unions (`'sm' | 'md' | 'lg'`) over `enum`.
 - Derive types from `cva` with `VariantProps<typeof x>` instead of declaring variants twice.
 - Export the props type of every public component (`ButtonProps`).
+- Declare functions as const arrow functions (`const getLabel = (id: string) => { ... }`), never with the `function` keyword. This applies to components, hooks, helpers and callbacks. Exports stay named. Enforced by ESLint: `func-style: ['error', 'expression']` and `prefer-arrow-callback`.
 
 ### Form components specifically
 
@@ -153,10 +154,31 @@ Include a full "realistic form" story that composes the components together (it 
 
 ## 9. Testing
 
-- Test behavior from the user's point of view (Testing Library queries by role/label), not implementation details.
-- Cover: renders, each variant, keyboard interaction, disabled/error states, controlled and uncontrolled usage, and ref/className forwarding.
-- Do not write tests that only assert snapshots of markup.
+Test behavior from the user's point of view, not implementation details.
+
+### Naming and structure
+- `describe` takes the component or function name. Every `it` title starts with "should": `it('should show the error message when the field is invalid', ...)`.
+- One behavior per test. Inside each test, separate Arrange, Act and Assert with blank lines.
+- No test depends on another test or on execution order.
+
+### Queries and interaction
+- Query by accessible role first (`getByRole`), then label (`getByLabelText`), then text. `data-testid` is the last resort and needs a comment saying why.
+- Use `screen` for queries. Use `userEvent` for every interaction; never `fireEvent`.
+- Do not access DOM nodes directly (`container.querySelector`, `.parentElement`).
+
+### What to cover
+- Renders, each variant, keyboard interaction, disabled and error states, controlled and uncontrolled usage, and ref/className forwarding.
+- Every component also has an automated accessibility check with axe, in addition to the Storybook a11y addon.
 - A bug fix includes a test that fails before the fix.
+
+### What not to do
+- No snapshot tests of markup.
+- No `.only` or `.skip` in merged code.
+- Mock only at the edges: network, timers, browser APIs. Never mock the component under test, its children or the headless primitives (Radix, React Aria).
+- Do not test private helpers directly; test them through the public behavior.
+
+### Coverage
+- Coverage thresholds are enforced by Vitest in CI: 80% for lines and branches in packages/ui as a starting point. Never lower a threshold to pass; raise it when coverage allows.
 
 ## 10. Definition of done (per component)
 

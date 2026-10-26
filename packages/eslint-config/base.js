@@ -1,5 +1,7 @@
+import vitest from "@vitest/eslint-plugin";
 import js from "@eslint/js";
 import eslintConfigPrettier from "eslint-config-prettier";
+import testingLibrary from "eslint-plugin-testing-library";
 import turboPlugin from "eslint-plugin-turbo";
 import tseslint from "typescript-eslint";
 
@@ -22,6 +24,34 @@ export const config = [
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-non-null-assertion": "error",
+      // Functions are `const` arrow functions, never the `function` keyword (AGENTS.md section 5).
+      "func-style": ["error", "expression"],
+      "prefer-arrow-callback": "error",
+    },
+  },
+  {
+    // Testing conventions (AGENTS.md section 9).
+    files: ["**/*.test.{ts,tsx}"],
+    plugins: { vitest, "testing-library": testingLibrary },
+    rules: {
+      "vitest/no-focused-tests": "error",
+      "vitest/no-disabled-tests": "error",
+      "vitest/no-identical-title": "error",
+      "vitest/valid-title": [
+        "error",
+        { mustMatch: { it: ["^should "], test: ["^should "] } },
+      ],
+      "vitest/no-restricted-matchers": [
+        "error",
+        {
+          toMatchSnapshot: "No snapshot tests of markup.",
+          toMatchInlineSnapshot: "No snapshot tests of markup.",
+        },
+      ],
+      "testing-library/prefer-user-event": "error",
+      "testing-library/prefer-screen-queries": "error",
+      "testing-library/no-node-access": "error",
+      "testing-library/no-container": "error",
     },
   },
 ];

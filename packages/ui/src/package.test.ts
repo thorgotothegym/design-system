@@ -12,7 +12,7 @@ const pkg: PackageJson = JSON.parse(
 );
 
 describe("@aleixvidal/ui package manifest", () => {
-  it("does not depend on Next.js or a router", () => {
+  it("should not depend on Next.js or a router", () => {
     const names = Object.keys({
       ...pkg.dependencies,
       ...pkg.peerDependencies,
