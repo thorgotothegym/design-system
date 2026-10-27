@@ -58,6 +58,7 @@
   "dependencies": {
     "@radix-ui/react-checkbox": "1.4.1",
     "@radix-ui/react-label": "2.1.17",
+    "@radix-ui/react-switch": "1.4.1",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "tailwind-merge": "3.7.0"
@@ -94,6 +95,16 @@
       "limit": "13.5 kB"
     },
     {
+      "name": "Switch",
+      "path": "dist/index.js",
+      "import": "{ Switch }",
+      "ignore": [
+        "react",
+        "react-dom"
+      ],
+      "limit": "12.5 kB"
+    },
+    {
       "name": "Textarea",
       "path": "dist/index.js",
       "import": "{ Textarea }",
@@ -107,7 +118,7 @@
       "name": "CSS (dist/styles.css)",
       "path": "dist/styles.css",
       "rolldown": false,
-      "limit": "2.2 kB"
+      "limit": "2.5 kB"
     }
   ]
 }
