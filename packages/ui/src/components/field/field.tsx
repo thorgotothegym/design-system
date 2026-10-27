@@ -142,7 +142,8 @@ const FieldError = ({ className, ...props }: FieldErrorProps) => {
   );
 };
 
-export const Field = Object.assign(FieldRoot, {
+// Marked pure so a bundler can drop the whole compound when only `Input` is imported.
+export const Field = /* @__PURE__ */ Object.assign(FieldRoot, {
   Label: FieldLabel,
   Description: FieldDescription,
   Error: FieldError,

@@ -63,13 +63,24 @@
   },
   "size-limit": [
     {
-      "name": "JS entry (dist/index.js, react excluded)",
+      "name": "Field",
       "path": "dist/index.js",
+      "import": "{ Field }",
       "ignore": [
         "react",
         "react-dom"
       ],
-      "limit": "11 kB"
+      "limit": "10 kB"
+    },
+    {
+      "name": "Input",
+      "path": "dist/index.js",
+      "import": "{ Input }",
+      "ignore": [
+        "react",
+        "react-dom"
+      ],
+      "limit": "9.2 kB"
     },
     {
       "name": "CSS (dist/styles.css)",
