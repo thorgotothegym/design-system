@@ -1,0 +1,92 @@
+import * as SwitchPrimitive from "@radix-ui/react-switch";
+import type { ComponentPropsWithRef } from "react";
+import { cn } from "../../lib/cn";
+import { useFieldState } from "../field/use-field-state";
+
+/**
+ * The track is the Radix root (a `<button role="switch">`), so border, background and focus ring
+ * are on it. State comes from Radix's `data-state` and `data-disabled`, plus our `data-invalid`,
+ * and is styled with Tailwind data variants, as in `Input`. There are no variants: a switch has
+ * one size.
+ */
+const switchClasses = [
+  "m-0 box-border inline-flex h-6 w-11 shrink-0 appearance-none items-center rounded-lg border border-border-control bg-bg-input p-0.5",
+  "not-data-invalid:not-data-disabled:hover:border-brand-primary",
+  "not-data-invalid:not-data-disabled:active:border-brand-primary",
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring",
+  "not-data-disabled:data-[state=checked]:bg-brand-primary",
+  "not-data-disabled:not-data-invalid:data-[state=checked]:border-brand-primary",
+  "data-invalid:border-border-danger",
+  "data-disabled:cursor-not-allowed data-disabled:bg-bg-subtle",
+  "motion-safe:transition-[border-color]",
+];
+
+/**
+ * The thumb slides by `translate-x-5`, the free width of the track (44px, minus 2px border and
+ * 2px padding on each side, minus the 18px thumb). The slide only runs when the user has not
+ * asked for reduced motion.
+ */
+const thumbClasses = [
+  "pointer-events-none block size-4.5 rounded-md bg-text-muted",
+  "data-[state=checked]:translate-x-5",
+  "not-data-disabled:data-[state=checked]:bg-text-on-primary",
+  "motion-safe:transition-transform",
+];
+
+export type SwitchProps = Omit<
+  ComponentPropsWithRef<typeof SwitchPrimitive.Root>,
+  "checked" | "defaultChecked" | "onCheckedChange"
+> & {
+  /** Controlled state: `true` for on, `false` for off. */
+  checked?: boolean;
+  /** Initial state when the switch manages its own state. */
+  defaultChecked?: boolean;
+  /** Called with the new state when the user toggles the switch. */
+  onCheckedChange?: (checked: boolean) => void;
+  /** Marks the value as invalid. Inside a `Field`, the Field's `invalid` is used as well. */
+  invalid?: boolean;
+};
+
+/**
+ * A control that turns a setting on or off. Use it for a setting that takes effect as soon as it
+ * is toggled; use a Checkbox when the choice is only applied on submit or is one of several
+ * options, and a RadioGroup to pick exactly one option. Inside a `Field`, place it beside the
+ * `Field.Label` so that the label is clicked with it; on its own it needs an `aria-label` or an
+ * external label.
+ *
+ * It is announced as a switch, with its state. Space (and Enter) toggles it. All native
+ * `<button>` attributes are accepted and forwarded to the `<button>`, as are Radix's `name`,
+ * `value` and `required`; `ref` and `className` go to the `<button>` too.
+ */
+export const Switch = ({
+  invalid,
+  className,
+  disabled,
+  ...props
+}: SwitchProps) => {
+  const state = useFieldState({
+    id: props.id,
+    invalid,
+    disabled,
+    "aria-describedby": props["aria-describedby"],
+  });
+
+  return (
+    <SwitchPrimitive.Root
+      {...props}
+      id={state.id}
+      disabled={state.disabled}
+      aria-describedby={state["aria-describedby"]}
+      aria-invalid={state["aria-invalid"] ?? props["aria-invalid"]}
+      aria-required={state["aria-required"] ?? props["aria-required"]}
+      data-slot="switch"
+      data-invalid={state.invalid || undefined}
+      className={cn(switchClasses, className)}
+    >
+      <SwitchPrimitive.Thumb
+        data-slot="switch-thumb"
+        className={cn(thumbClasses)}
+      />
+    </SwitchPrimitive.Root>
+  );
+};
