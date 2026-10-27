@@ -1,0 +1,16 @@
+/*
+ * Entry of dist/styles.css. Compiled with the Tailwind CLI at build time (see the "build" script).
+ *
+ * No preflight: this file ships to consumers, so it must not reset their page. The components set
+ * what they need themselves.
+ */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+/* Token variables (--ds-*) and the theme switch, from the private tokens package. */
+@import "@aleixvidal/tokens/css";
+@import "@aleixvidal/tokens/tailwind.css";
+
+/* Only the components generate classes; stories and tests are not shipped. */
+@source "./components";
+@source not "./**/*.{stories,test}.tsx";

@@ -11,7 +11,8 @@
     "size": "turbo run size",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "changeset": "changeset"
+    "changeset": "changeset",
+    "test:consumer": "turbo run test:consumer"
   },
   "devDependencies": {
     "@changesets/cli": "3.0.3",

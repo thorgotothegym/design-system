@@ -25,6 +25,11 @@
       "cache": false,
       "persistent": true,
       "dependsOn": ["^build"]
+    },
+    "test:consumer": {
+      "dependsOn": ["build"],
+      "env": ["SMOKE_BROWSER_CHANNEL"],
+      "cache": false
     }
   }
 }

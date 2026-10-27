@@ -7,7 +7,7 @@ import { useFieldState } from "../field/use-field-state";
 const DEFAULT_SIZE = "md";
 
 /**
- * The visible box: border, background and focus outline live on the wrapper, so a prefix and a
+ * The drawn box: border, background and focus ring live on the wrapper, so a prefix and a
  * suffix sit inside the same box as the `<input>`. States are `data-*` attributes set from props
  * and styled with Tailwind data variants, not cva variants.
  */
@@ -94,7 +94,7 @@ const Spinner = () => (
 
 /**
  * A single-line text input. Use it for short free text; use a Textarea for long text and a Select
- * for a fixed set of choices. Inside a `Field` it is labelled, described and validated
+ * for a closed set of choices. Inside a `Field` it is labelled, described and validated
  * automatically; on its own it needs an `aria-label` or an external label.
  *
  * All native `<input>` attributes are accepted and forwarded to the `<input>` (`type`, `name`,
