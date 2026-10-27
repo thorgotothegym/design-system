@@ -17,7 +17,7 @@ export type FieldProps = Omit<ComponentPropsWithRef<"div">, "id"> & {
 
 /**
  * Groups a form control with its label, description and error, and wires them together.
- * Use it around every form control. Do not use it for a control that already has a visible label
+ * Use it around every form control. Do not use it for a control that already has a label
  * of its own, such as a button.
  *
  * The control inside keeps all its native attributes: `Input` accepts every native `<input>`
@@ -68,7 +68,7 @@ export type FieldLabelProps = Omit<
   "htmlFor"
 >;
 
-/** The visible name of the control. Rendered with `htmlFor` pointing at the control. */
+/** The name of the control. Rendered with `htmlFor` pointing at the control. */
 const FieldLabel = ({ className, children, ...props }: FieldLabelProps) => {
   const field = useRequiredFieldContext("Field.Label");
 
@@ -142,7 +142,8 @@ const FieldError = ({ className, ...props }: FieldErrorProps) => {
   );
 };
 
-export const Field = Object.assign(FieldRoot, {
+// Marked pure so a bundler can drop the whole compound when only `Input` is imported.
+export const Field = /* @__PURE__ */ Object.assign(FieldRoot, {
   Label: FieldLabel,
   Description: FieldDescription,
   Error: FieldError,

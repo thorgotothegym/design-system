@@ -2,22 +2,26 @@
   "name": "@aleixvidal/ui",
   "version": "0.0.0",
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "*.css"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./styles.css": "./dist/styles.css"
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsup && tsc -p tsconfig.build.json",
+    "build": "tsup && tsc -p tsconfig.build.json && tailwindcss -i src/styles.css -o dist/styles.css --minify",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --coverage",
-    "size": "echo 'size-limit budgets are added in T05'"
+    "size": "size-limit",
+    "test:consumer": "node scripts/consumer-smoke.ts"
   },
   "peerDependencies": {
     "react": "^19.0.0",
@@ -25,8 +29,11 @@
   },
   "devDependencies": {
     "@aleixvidal/eslint-config": "workspace:*",
+    "@aleixvidal/tokens": "workspace:*",
     "@aleixvidal/typescript-config": "workspace:*",
+    "@size-limit/preset-small-lib": "14.3.0",
     "@storybook/react-vite": "10.6.3",
+    "@tailwindcss/cli": "4.3.3",
     "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/react": "16.3.3",
@@ -41,16 +48,45 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-hook-form": "7.91.0",
+    "size-limit": "14.3.0",
     "storybook": "10.6.3",
+    "tailwindcss": "4.3.3",
     "tsup": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
   "dependencies": {
-    "@aleixvidal/tokens": "workspace:*",
     "@radix-ui/react-label": "2.1.17",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "tailwind-merge": "3.7.0"
-  }
+  },
+  "size-limit": [
+    {
+      "name": "Field",
+      "path": "dist/index.js",
+      "import": "{ Field }",
+      "ignore": [
+        "react",
+        "react-dom"
+      ],
+      "limit": "10 kB"
+    },
+    {
+      "name": "Input",
+      "path": "dist/index.js",
+      "import": "{ Input }",
+      "ignore": [
+        "react",
+        "react-dom"
+      ],
+      "limit": "9.2 kB"
+    },
+    {
+      "name": "CSS (dist/styles.css)",
+      "path": "dist/styles.css",
+      "rolldown": false,
+      "limit": "2.2 kB"
+    }
+  ]
 }

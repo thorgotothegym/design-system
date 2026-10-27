@@ -3,6 +3,8 @@ packages:
   - "packages/*"
 
 allowBuilds:
+  # Only the Tailwind CLI's --watch mode uses it, and it ships prebuilt binaries.
+  "@parcel/watcher": false
   esbuild: false
 
 # Versions shared by several workspace packages live here so they cannot drift.
