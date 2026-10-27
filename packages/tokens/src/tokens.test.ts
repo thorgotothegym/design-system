@@ -46,13 +46,13 @@ const expected = {
 >;
 
 /** The CSS block of one theme, from its selector to the closing brace. */
-function block(selector: string): string {
+const block = (selector: string): string => {
   const start = css.indexOf(`${selector} {`);
   return css.slice(start, css.indexOf("}", start));
-}
+};
 
 describe("semantic colors", () => {
-  it("defines exactly the 13 tokens of DESIGN.md in both themes", () => {
+  it("should define exactly the 13 tokens of DESIGN.md in both themes", () => {
     expect(Object.keys(expected.dark)).toHaveLength(13);
     expect(Object.keys(themeValues.dark).sort()).toEqual(
       Object.keys(expected.dark).sort(),
@@ -63,7 +63,7 @@ describe("semantic colors", () => {
   });
 
   it.each(themes)(
-    "has the exact DESIGN.md OKLCH value for every token (%s)",
+    "should have the exact DESIGN.md OKLCH value for every token (%s)",
     (theme) => {
       expect(themeValues[theme]).toEqual(expected[theme]);
     },
@@ -73,7 +73,7 @@ describe("semantic colors", () => {
     ["dark", '[data-theme="dark"]'],
     ["light", '[data-theme="light"]'],
   ] as const)(
-    "emits every %s value as a CSS custom property, unchanged",
+    "should emit every %s value as a CSS custom property, unchanged",
     (theme, selector) => {
       const themeBlock = block(selector);
       expect(themeBlock).toContain(`color-scheme: ${theme};`);
@@ -85,12 +85,12 @@ describe("semantic colors", () => {
     },
   );
 
-  it("makes dark the default and switches with one attribute", () => {
+  it("should make dark the default and switch with one attribute", () => {
     expect(css).toMatch(/:root,\n\[data-theme="dark"\] \{/);
     expect(css).not.toContain("prefers-color-scheme");
   });
 
-  it("exposes every semantic color to Tailwind", () => {
+  it("should expose every semantic color to Tailwind", () => {
     for (const name of Object.keys(expected.dark)) {
       const key = name.replace(".", "-");
       expect(tailwind).toContain(`--color-${key}: var(--ds-color-${key});`);
@@ -100,7 +100,7 @@ describe("semantic colors", () => {
 });
 
 describe("palette layer", () => {
-  it("is not exported: no output mentions it", () => {
+  it("should not be exported: no output mentions it", () => {
     expect(css).not.toContain("palette");
     expect(tailwind).not.toContain("palette");
     expect(JSON.stringify(tokens)).not.toContain("palette");
@@ -109,7 +109,7 @@ describe("palette layer", () => {
 });
 
 describe("scales", () => {
-  it("derives the radius scale from the 0.25rem base", () => {
+  it("should derive the radius scale from the 0.25rem base", () => {
     expect(css).toContain("--ds-radius-base: 0.25rem;");
     expect(css).toContain("--ds-radius-sm: 0;");
     expect(css).toContain("--ds-radius-md: 2px;");
@@ -117,7 +117,7 @@ describe("scales", () => {
     expect(css).toContain("--ds-radius-xl: 8px;");
   });
 
-  it("keeps spacing on the 4px grid", () => {
+  it("should keep spacing on the 4px grid", () => {
     const steps = [...css.matchAll(/--ds-space-(\d+): ([\d.]+)rem;/g)];
     expect(steps.length).toBeGreaterThan(0);
     for (const [, step, rem] of steps) {
@@ -125,24 +125,24 @@ describe("scales", () => {
     }
   });
 
-  it("resolves font.sans to the same stack as font.mono for now", () => {
+  it("should resolve font.sans to the same stack as font.mono for now", () => {
     const stack = '"IBM Plex Mono", "Geist Mono", monospace';
     expect(css).toContain(`--ds-font-mono: ${stack};`);
     expect(css).toContain(`--ds-font-sans: ${stack};`);
   });
 
-  it("has four shadow levels and no glow", () => {
+  it("should have four shadow levels and no glow", () => {
     expect(Object.keys(tokens.shadow)).toEqual(["none", "sm", "md", "lg"]);
   });
 });
 
 describe("typed token names", () => {
-  it("returns CSS variable references", () => {
+  it("should return CSS variable references", () => {
     expect(tokens.color.bg.base).toBe("var(--ds-color-bg-base)");
     expect(tokens.space[4]).toBe("var(--ds-space-4)");
   });
 
-  it("rejects a misspelled token at compile time", () => {
+  it("should reject a misspelled token at compile time", () => {
     // @ts-expect-error -- "baze" is not a token; if this line compiles the types are too loose
     expect(tokens.color.bg.baze).toBeUndefined();
     // @ts-expect-error -- "bg.baze" is not a ColorToken

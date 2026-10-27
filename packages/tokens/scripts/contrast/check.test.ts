@@ -17,13 +17,13 @@ const textOnBase: Pair = {
 };
 
 describe("checkContrast", () => {
-  it("passes when every token is paired and every ratio meets its minimum", () => {
+  it("should pass when every token is paired and every ratio meets its minimum", () => {
     const report = checkContrast(values, [textOnBase]);
     expect(report.ok).toBe(true);
     expect(report.results[0]?.ratio).toBeGreaterThan(4.5);
   });
 
-  it("fails a pair below its minimum", () => {
+  it("should fail a pair below its minimum", () => {
     const low = {
       light: { "bg.base": "oklch(1 0 0)", "text.default": "oklch(0.8 0 0)" },
     };
@@ -33,7 +33,7 @@ describe("checkContrast", () => {
     expect(formatReport(report)).toContain("FAIL");
   });
 
-  it("fails when a semantic color is added without a declared pair", () => {
+  it("should fail when a semantic color is added without a declared pair", () => {
     const withNew = {
       light: {
         "bg.base": "oklch(1 0 0)",
@@ -48,7 +48,7 @@ describe("checkContrast", () => {
     ]);
   });
 
-  it("fails on a color outside sRGB", () => {
+  it("should fail on a color outside sRGB", () => {
     const outside = {
       light: {
         "bg.base": "oklch(1 0 0)",
@@ -60,7 +60,7 @@ describe("checkContrast", () => {
     expect(report.problems.join("\n")).toContain("outside sRGB");
   });
 
-  it("fails when a pair names a token the theme does not define", () => {
+  it("should fail when a pair names a token the theme does not define", () => {
     const report = checkContrast({ light: { "bg.base": "oklch(1 0 0)" } }, [
       textOnBase,
     ]);
@@ -68,7 +68,7 @@ describe("checkContrast", () => {
     expect(report.problems.join("\n")).toContain("does not exist");
   });
 
-  it("applies a pair only to the themes it lists", () => {
+  it("should apply a pair only to the themes it lists", () => {
     const report = checkContrast(
       { dark: { "bg.base": "oklch(1 0 0)", "text.default": "oklch(0.2 0 0)" } },
       [textOnBase],
@@ -77,7 +77,7 @@ describe("checkContrast", () => {
     expect(report.ok).toBe(false);
   });
 
-  it("does not hold decorative pairs to a minimum", () => {
+  it("should not hold decorative pairs to a minimum", () => {
     const decorative: Pair = { ...textOnBase, min: null };
     const faint = {
       light: { "bg.base": "oklch(1 0 0)", "text.default": "oklch(0.95 0 0)" },
@@ -89,13 +89,13 @@ describe("checkContrast", () => {
 describe("the real tokens", () => {
   const report = checkContrast(themeValues, pairs);
 
-  it("pass every declared pair and cover every semantic color in both themes", () => {
+  it("should pass every declared pair and cover every semantic color in both themes", () => {
     expect(report.problems).toEqual([]);
     expect(report.results.filter((result) => !result.passed)).toEqual([]);
     expect(report.ok).toBe(true);
   });
 
-  it("check each theme", () => {
+  it("should check each theme", () => {
     expect(new Set(report.results.map((result) => result.theme))).toEqual(
       new Set(["dark", "light"]),
     );

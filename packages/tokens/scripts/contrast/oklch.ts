@@ -3,7 +3,7 @@ export type Rgb = { r: number; g: number; b: number };
 
 const OKLCH_PATTERN = /^oklch\(\s*(\S+)\s+(\S+)\s+(\S+)\s*\)$/;
 
-function parseNumber(raw: string, source: string): number {
+const parseNumber = (raw: string, source: string): number => {
   const value = Number(raw);
   if (raw === "" || Number.isNaN(value)) {
     throw new Error(
@@ -11,10 +11,10 @@ function parseNumber(raw: string, source: string): number {
     );
   }
   return value;
-}
+};
 
 /** Parses `oklch(L C H)` with plain numbers. Alpha, percentages and units are rejected. */
-export function parseOklch(source: string): Oklch {
+export const parseOklch = (source: string): Oklch => {
   const match = OKLCH_PATTERN.exec(source.trim());
   if (match === null)
     throw new Error(`Not an oklch() color without alpha: "${source}"`);
@@ -24,10 +24,10 @@ export function parseOklch(source: string): Oklch {
     c: parseNumber(c ?? "", source),
     h: parseNumber(h ?? "", source),
   };
-}
+};
 
 /** OKLCH to linear-light sRGB, unclamped (a channel outside 0..1 means out of gamut). */
-export function oklchToLinearSrgb({ l, c, h }: Oklch): Rgb {
+export const oklchToLinearSrgb = ({ l, c, h }: Oklch): Rgb => {
   const hue = (h * Math.PI) / 180;
   const a = c * Math.cos(hue);
   const b = c * Math.sin(hue);
@@ -41,27 +41,27 @@ export function oklchToLinearSrgb({ l, c, h }: Oklch): Rgb {
     g: -1.2684380046 * lCubed + 2.6097574011 * mCubed - 0.3413193965 * sCubed,
     b: -0.0041960863 * lCubed - 0.7034186147 * mCubed + 1.707614701 * sCubed,
   };
-}
+};
 
 /** Tolerance for floating point error in the matrices; real gamut excursions are far larger. */
 const GAMUT_EPSILON = 1e-4;
 
-export function isInSrgbGamut(linear: Rgb): boolean {
+export const isInSrgbGamut = (linear: Rgb): boolean => {
   return [linear.r, linear.g, linear.b].every(
     (channel) => channel >= -GAMUT_EPSILON && channel <= 1 + GAMUT_EPSILON,
   );
-}
+};
 
-function encode(linear: number): number {
+const encode = (linear: number): number => {
   const clamped = Math.min(1, Math.max(0, linear));
   const encoded =
     clamped <= 0.0031308
       ? 12.92 * clamped
       : 1.055 * clamped ** (1 / 2.4) - 0.055;
   return Math.round(encoded * 255);
-}
+};
 
 /** The 8-bit sRGB color a browser paints for this value (clipped to the gamut). */
-export function linearSrgbToRgb8(linear: Rgb): Rgb {
+export const linearSrgbToRgb8 = (linear: Rgb): Rgb => {
   return { r: encode(linear.r), g: encode(linear.g), b: encode(linear.b) };
-}
+};
