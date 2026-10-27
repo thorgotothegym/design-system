@@ -1,0 +1,29 @@
+/*
+ * IBM Plex Mono, latin subset, the three weights the tokens use (400, 500, 700).
+ * Files come from @fontsource/ibm-plex-mono via `staticDirs` in .storybook/main.ts.
+ * `swap` shows the monospace fallback immediately; both have a 0.6em advance, so text keeps its
+ * width when the font arrives.
+ */
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./files/ibm-plex-mono-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("./files/ibm-plex-mono-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("./files/ibm-plex-mono-latin-700-normal.woff2") format("woff2");
+}

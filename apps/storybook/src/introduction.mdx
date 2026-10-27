@@ -1,0 +1,38 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Introduction" />
+
+# design-system\_
+
+A React design system built as a portfolio piece. It shows how a component library can be structured, documented, tested and shipped: design tokens as the single source of truth, accessible components built on headless primitives, and this Storybook as the living documentation.
+
+The priority is quality and clarity over quantity: few components, each one complete (all its states, accessible, documented and tested), and a reason written down for every decision.
+
+## Design principles
+
+The visual direction extends the terminal and console look of [aleixvidal.dev](https://aleixvidal.dev), refined for real form usage.
+
+- **Technical, precise, calm, high-contrast.** The system should feel like a well-kept console, not a decoration.
+- **The personality lives in the details.** Monospace type, an accent glow on focus, prompt-style prefixes and square-ish corners. The base components stay plain, legible and fully accessible, and decoration never reduces readability.
+- **Tokens first.** Components use semantic tokens only, never raw values. Every color has a light and a dark value, and the theme switches with one attribute on the root.
+- **Accessible by default.** Everything is operable by keyboard with a visible focus indicator, text and control contrast meets WCAG 2.2 AA in both themes, and an automated gate checks the contrast of every declared pair.
+- **Small public APIs.** Composition over configuration, native element props instead of re-invented ones, and no prop added just in case.
+
+## Explore
+
+Use the theme control in the toolbar to switch between light and dark: it changes the canvas and these docs pages.
+
+- [Color](?path=/docs/foundations-color--docs): every semantic color in both themes, with the contrast ratio of each declared pair.
+- [Typography](?path=/docs/foundations-typography--docs): families, size scale, weights and line heights.
+- [Spacing](?path=/docs/foundations-spacing--docs), [Radius](?path=/docs/foundations-radius--docs) and [Elevation](?path=/docs/foundations-elevation--docs).
+
+The Foundations pages are generated from the token files, so they cannot drift from the code.
+
+## Status
+
+The tokens and the Foundations pages are ready. Form components (starting with the Field wrapper and Input) and a realistic form that composes them will follow.
+
+## Links
+
+- Source code: [github.com/thorgotothegym/design-system](https://github.com/thorgotothegym/design-system)
+- Author: [aleixvidal.dev](https://aleixvidal.dev)

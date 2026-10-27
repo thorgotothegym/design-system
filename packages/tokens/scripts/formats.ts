@@ -129,6 +129,26 @@ const toTree = (entries: Entry[]): Tree => {
   return root;
 };
 
+type ValueTree = { [key: string]: ValueTree | string };
+
+const toValueTree = (entries: Entry[]): ValueTree => {
+  const root: ValueTree = {};
+  for (const { path, value } of entries) {
+    let node = root;
+    path.forEach((key, index) => {
+      if (index === path.length - 1) {
+        node[key] = value;
+        return;
+      }
+      const next = node[key];
+      if (typeof next === "string")
+        throw new Error(`Token ${path.join(".")} collides with a leaf`);
+      node = node[key] = next ?? {};
+    });
+  }
+  return root;
+};
+
 /** Typed module: token names (a typo is a compile error) and the resolved per-theme values. */
 export const tsFormat: FormatFn = ({ dictionary }) => {
   const { themes, scales } = toModel(dictionary.allTokens);
@@ -150,6 +170,9 @@ export const tsFormat: FormatFn = ({ dictionary }) => {
     "",
     "/** Dotted name of a semantic color, for example `bg.base` or `text.on-primary`. */",
     `export type ColorToken = keyof (typeof themeValues)["dark"];`,
+    "",
+    "/** Resolved value of every scale token (space, radius, font, text, shadow...), for documentation. */",
+    `export const scaleValues = ${JSON.stringify(toValueTree(scales), null, 2)} as const;`,
     "",
     "/** `var(--ds-...)` references. Use these, never raw values. */",
     `export const tokens = ${JSON.stringify(toTree([...themes.dark, ...scales]), null, 2)} as const;`,

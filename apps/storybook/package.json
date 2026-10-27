@@ -4,17 +4,33 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "echo 'Storybook is added in T03'",
-    "storybook": "echo 'Storybook is added in T03'",
+    "storybook": "node scripts/copy-fonts.ts && storybook dev -p 6006",
+    "build": "node scripts/copy-fonts.ts && storybook build -o storybook-static",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
   },
   "devDependencies": {
     "@aleixvidal/eslint-config": "workspace:*",
+    "@aleixvidal/tokens": "workspace:*",
     "@aleixvidal/typescript-config": "workspace:*",
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "@storybook/addon-a11y": "10.6.3",
+    "@storybook/addon-docs": "10.6.3",
+    "@storybook/addon-themes": "10.6.3",
+    "@storybook/react-vite": "10.6.3",
+    "@tailwindcss/vite": "4.3.3",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
     "eslint": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "storybook": "10.6.3",
+    "storybook-addon-pseudo-states": "10.6.3",
+    "tailwindcss": "4.3.3",
     "typescript": "catalog:",
+    "vite": "8.3.5",
     "vitest": "catalog:"
   }
 }

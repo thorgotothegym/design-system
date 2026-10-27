@@ -5,7 +5,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**", "storybook-static/**"]
     },
     "lint": {},
     "typecheck": {
@@ -23,7 +23,8 @@
     },
     "storybook": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "dependsOn": ["^build"]
     }
   }
 }
