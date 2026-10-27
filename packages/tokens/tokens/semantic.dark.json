@@ -53,6 +53,10 @@
             "$type": "color",
             "$value": "{palette.green.l20-c50}"
           },
+          "danger": {
+            "$type": "color",
+            "$value": "{palette.red.l70-c190-h25}"
+          },
           "control": {
             "$type": "color",
             "$value": "{palette.green.l50-c100}"

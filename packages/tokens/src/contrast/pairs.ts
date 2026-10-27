@@ -82,6 +82,10 @@ export const pairs: readonly Pair[] = [
   text("text.placeholder", "bg.surface"),
   text("text.placeholder", "bg.subtle"),
 
+  // The invalid border of a control, on the page and on the field background.
+  control("border.danger", "bg.base"),
+  control("border.danger", "bg.input"),
+
   control("border.control", "bg.input", ["light"]),
   control("focus.ring", "bg.input", ["dark"]),
   decorative("bg.subtle", "bg.base", ["light"]),
