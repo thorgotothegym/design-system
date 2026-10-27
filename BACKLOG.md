@@ -92,6 +92,18 @@ How to use it:
   - [ ] Props are exported as `type`, documented with JSDoc, and autodocs renders them
   - [ ] The PR description lists every convention this component establishes, so they can be copied into the scaffold skill
 
+  ### T04b. Precompiled styles for @aleixvidal/ui
+- Mode: supervised
+- Depends on: T04
+- Goal: anyone who installs the package gets styled components with one CSS import.
+- Acceptance criteria:
+  - [ ] packages/ui builds dist/styles.css with Tailwind, including the token variables, with no preflight or reset
+  - [ ] tokens stays private and is bundled at build time
+  - [ ] package.json exports "./styles.css" and marks CSS files in sideEffects, so the JS stays tree-shakeable and the CSS import is never dropped
+  - [ ] A consumer smoke test imports the built package and styles.css in a clean app and checks that Input renders with the token values and that data-theme switches the theme
+  - [ ] Usage documented in the package README
+  - [ ] A changeset is added
+
 ### T05. CI, quality gates and deploy
 - Mode: supervised for secrets and DNS (human-only actions above), unattended for the workflow files
 - Depends on: T00, T02, T03
@@ -105,6 +117,8 @@ How to use it:
   - [ ] The release workflow versions and publishes with Changesets
   - [ ] The Storybook is reachable at the chosen subdomain
     - [ ] Storybook accessibility checks run in CI (addon-vitest with Playwright) and fail the build on any violation, in both themes
+      - [ ] size-limit budgets cover both the JS entry points and dist/styles.css
+  - [ ] Storybook accessibility checks run in CI (addon-vitest with Playwright) and fail the build on any violation, in both themes
 
 ### T06. Repo-local skill: scaffold-component
 - Mode: unattended
