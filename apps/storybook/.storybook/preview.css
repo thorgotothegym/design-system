@@ -7,6 +7,9 @@
 @import "@aleixvidal/tokens/css";
 @import "@aleixvidal/tokens/tailwind.css";
 
+/* The class names used by the components in packages/ui. */
+@source "../../../packages/ui/src";
+
 *,
 ::before,
 ::after {
