@@ -56,6 +56,7 @@
     "vitest": "catalog:"
   },
   "dependencies": {
+    "@radix-ui/react-checkbox": "1.4.1",
     "@radix-ui/react-label": "2.1.17",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
@@ -81,6 +82,16 @@
         "react-dom"
       ],
       "limit": "9.2 kB"
+    },
+    {
+      "name": "Checkbox",
+      "path": "dist/index.js",
+      "import": "{ Checkbox }",
+      "ignore": [
+        "react",
+        "react-dom"
+      ],
+      "limit": "13.5 kB"
     },
     {
       "name": "Textarea",
