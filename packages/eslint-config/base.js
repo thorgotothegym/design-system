@@ -12,7 +12,7 @@ import tseslint from "typescript-eslint";
  * @type {import("eslint").Linter.Config[]}
  */
 export const config = [
-  { ignores: ["dist/**", "coverage/**"] },
+  { ignores: ["dist/**", "coverage/**", "storybook-static/**"] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   eslintConfigPrettier,
