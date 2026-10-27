@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { themeValues } from "../../src/generated/tokens.ts";
+import { themeValues } from "../generated/tokens.ts";
 import { checkContrast, formatReport } from "./check.ts";
 import type { ThemeValues } from "./check.ts";
 import { pairs } from "./pairs.ts";

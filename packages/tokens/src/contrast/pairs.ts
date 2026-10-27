@@ -1,4 +1,4 @@
-import type { ColorToken, Theme } from "../../src/generated/tokens.ts";
+import type { ColorToken, Theme } from "../generated/tokens.ts";
 
 export type Pair = {
   /** Foreground token (text, border or ring). */

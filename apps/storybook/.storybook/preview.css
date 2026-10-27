@@ -1,0 +1,20 @@
+/*
+ * Tailwind is wired without its preflight reset: the reset would override the typography of
+ * Storybook's own docs pages. Revisit when components need it (T04).
+ */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "@aleixvidal/tokens/css";
+@import "@aleixvidal/tokens/tailwind.css";
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--ds-color-bg-base);
+  color: var(--ds-color-text-default);
+  font-family: var(--ds-font-mono);
+}

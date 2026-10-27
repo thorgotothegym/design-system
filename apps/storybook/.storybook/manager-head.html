@@ -1,0 +1,33 @@
+<link
+  rel="preload"
+  href="./fonts/files/ibm-plex-mono-latin-400-normal.woff2"
+  as="font"
+  type="font/woff2"
+  crossorigin
+/>
+<link
+  rel="preload"
+  href="./fonts/files/ibm-plex-mono-latin-700-normal.woff2"
+  as="font"
+  type="font/woff2"
+  crossorigin
+/>
+<link rel="stylesheet" href="./fonts/fonts.css" />
+<style>
+  /* The blinking cursor after the brand title, as on aleixvidal.dev. */
+  .ds-cursor {
+    animation: ds-blink 1.1s steps(1, end) infinite;
+  }
+
+  @keyframes ds-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ds-cursor {
+      animation: none;
+    }
+  }
+</style>

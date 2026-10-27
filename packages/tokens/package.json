@@ -11,6 +11,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./contrast": {
+      "types": "./dist/contrast/index.d.ts",
+      "import": "./dist/contrast/index.js"
+    },
     "./css": "./dist/tokens.css",
     "./tailwind.css": "./dist/tailwind.css"
   },

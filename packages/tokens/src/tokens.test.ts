@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { themes, themeValues, tokens } from "./index";
+import { scaleValues, themes, themeValues, tokens } from "./index";
 import type { ColorToken } from "./index";
 
 const read = (path: string) =>
@@ -133,6 +133,20 @@ describe("scales", () => {
 
   it("should have four shadow levels and no glow", () => {
     expect(Object.keys(tokens.shadow)).toEqual(["none", "sm", "md", "lg"]);
+  });
+});
+
+describe("scaleValues", () => {
+  it("should expose the same resolved values as the CSS custom properties", () => {
+    expect(scaleValues.space["4"]).toBe("1rem");
+    expect(css).toContain(`--ds-space-4: ${scaleValues.space["4"]};`);
+    expect(scaleValues.radius.lg).toBe("0.25rem");
+    expect(css).toContain(`--ds-radius-lg: ${scaleValues.radius.lg};`);
+    expect(css).toContain(`--ds-shadow-md: ${scaleValues.shadow.md};`);
+  });
+
+  it("should not expose the palette", () => {
+    expect(JSON.stringify(scaleValues)).not.toContain("palette");
   });
 });
 
