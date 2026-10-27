@@ -104,6 +104,7 @@ How to use it:
   - [ ] Lighthouse CI runs on the static Storybook with Performance and Accessibility thresholds set in config, documented in the README
   - [ ] The release workflow versions and publishes with Changesets
   - [ ] The Storybook is reachable at the chosen subdomain
+    - [ ] Storybook accessibility checks run in CI (addon-vitest with Playwright) and fail the build on any violation, in both themes
 
 ### T06. Repo-local skill: scaffold-component
 - Mode: unattended
