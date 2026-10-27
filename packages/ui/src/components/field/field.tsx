@@ -19,6 +19,10 @@ export type FieldProps = Omit<ComponentPropsWithRef<"div">, "id"> & {
  * Groups a form control with its label, description and error, and wires them together.
  * Use it around every form control. Do not use it for a control that already has a visible label
  * of its own, such as a button.
+ *
+ * The control inside keeps all its native attributes: `Input` accepts every native `<input>`
+ * attribute and forwards it to the `<input>`, and `Field` only adds the `id`, `aria-describedby`,
+ * `aria-invalid`, `aria-required` and `disabled` it needs. Native `<div>` props go to the root.
  */
 const FieldRoot = ({
   id,

@@ -22,6 +22,7 @@ const expected = {
     "text.danger": "oklch(0.70 0.19 25)",
     "brand.primary": "oklch(0.70 0.18 145)",
     "border.decorative": "oklch(0.20 0.05 145)",
+    "border.danger": "oklch(0.70 0.19 25)",
     "border.control": "oklch(0.50 0.10 145)",
     "focus.ring": "oklch(0.70 0.18 145)",
   },
@@ -37,6 +38,7 @@ const expected = {
     "text.danger": "oklch(0.50 0.20 27)",
     "brand.primary": "oklch(0.45 0.14 145)",
     "border.decorative": "oklch(0.90 0.03 145)",
+    "border.danger": "oklch(0.50 0.20 27)",
     "border.control": "oklch(0.60 0.07 145)",
     "focus.ring": "oklch(0.45 0.14 145)",
   },
@@ -52,8 +54,8 @@ const block = (selector: string): string => {
 };
 
 describe("semantic colors", () => {
-  it("should define exactly the 13 tokens of DESIGN.md in both themes", () => {
-    expect(Object.keys(expected.dark)).toHaveLength(13);
+  it("should define exactly the 14 tokens of DESIGN.md in both themes", () => {
+    expect(Object.keys(expected.dark)).toHaveLength(14);
     expect(Object.keys(themeValues.dark).sort()).toEqual(
       Object.keys(expected.dark).sort(),
     );

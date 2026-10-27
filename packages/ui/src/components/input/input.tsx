@@ -17,7 +17,7 @@ const inputVariants = cva(
     "not-data-invalid:not-data-disabled:not-data-readonly:hover:border-brand-primary",
     "not-data-invalid:not-data-disabled:not-data-readonly:active:border-brand-primary",
     "has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-focus-ring",
-    "data-invalid:border-text-danger",
+    "data-invalid:border-border-danger",
     "data-readonly:bg-bg-subtle",
     "data-disabled:cursor-not-allowed data-disabled:bg-bg-subtle data-disabled:text-text-muted",
     "motion-safe:transition-[border-color]",
@@ -97,7 +97,10 @@ const Spinner = () => (
  * for a fixed set of choices. Inside a `Field` it is labelled, described and validated
  * automatically; on its own it needs an `aria-label` or an external label.
  *
- * `ref` and every native prop go to the `<input>`; `className` goes to the box around it.
+ * All native `<input>` attributes are accepted and forwarded to the `<input>` (`type`, `name`,
+ * `value`, `placeholder`, `autoComplete`, `inputMode`, `aria-*` and so on), except `size` and
+ * `prefix`, which are replaced by the props below. `ref` goes to the `<input>` too; `className`
+ * goes to the box around it.
  */
 export const Input = ({
   size,

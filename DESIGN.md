@@ -33,6 +33,7 @@ Contrast ratios below are WCAG 2.x, computed with a script from these exact OKLC
 | `text.on-primary` | `oklch(0.08 0 0)` | 8.29:1 on `brand.primary` |
 | `text.danger` | `oklch(0.70 0.19 25)` | 7.15:1 on `bg.base` |
 | `border.decorative` | `oklch(0.20 0.05 145)` | 1.16:1. Decoration only (cards, dividers). Never as the only boundary of a control |
+| `border.danger` | `oklch(0.70 0.19 25)` | 7.15:1 on `bg.base`, 6.79:1 on `bg.input` (min 3:1). Same value as `text.danger`. Border of a control in the invalid state |
 | `border.control` | `oklch(0.50 0.10 145)` | 3.62:1 on `bg.base`, 3.43:1 on `bg.input` (min 3:1) |
 | `focus.ring` | `oklch(0.70 0.18 145)` | 8.29:1 on `bg.base` |
 
@@ -56,6 +57,7 @@ Differences from the personal site, on purpose (the site values failed AA):
 | `text.on-primary` | `oklch(0.98 0.01 145)` | 6.61:1 on `brand.primary` |
 | `text.danger` | `oklch(0.50 0.20 27)` | 6.27:1 on `bg.base` |
 | `border.decorative` | `oklch(0.90 0.03 145)` | 1.26:1 on `bg.base`. Decoration only, same rule as in dark: never the only boundary of a control |
+| `border.danger` | `oklch(0.50 0.20 27)` | 6.27:1 on `bg.base`, 6.64:1 on `bg.input` (min 3:1). Same value as `text.danger`. Border of a control in the invalid state |
 | `border.control` | `oklch(0.60 0.07 145)` | 3.60:1 on `bg.base` |
 | `focus.ring` | `oklch(0.45 0.14 145)` | same value as `brand.primary`: 6.61:1 on `bg.base`, 7.00:1 on `bg.input` |
 
