@@ -64,12 +64,16 @@ const FieldRoot = ({
 }: FieldProps) => {
   const generatedId = useId();
   const baseId = id ?? generatedId;
+  const [hasLabel, setHasLabel] = useState(false);
   const [hasDescription, setHasDescription] = useState(false);
 
   return (
     <FieldContext
       value={{
         id: baseId,
+        labelId: `${baseId}-label`,
+        hasLabel,
+        setHasLabel,
         descriptionId: `${baseId}-description`,
         hasDescription,
         setHasDescription,
@@ -95,21 +99,32 @@ const FieldRoot = ({
 
 export type FieldLabelProps = Omit<
   ComponentPropsWithRef<typeof LabelPrimitive.Root>,
-  "htmlFor"
+  "htmlFor" | "id"
 >;
 
-/** The name of the control. Rendered with `htmlFor` pointing at the control. */
+/**
+ * The name of the control. Rendered with `htmlFor` pointing at the control, and with an id that a
+ * group control (such as a RadioGroup, which `htmlFor` cannot label) references with
+ * `aria-labelledby`. It is dimmed inside anything disabled, including a disabled group.
+ */
 const FieldLabel = ({ className, children, ...props }: FieldLabelProps) => {
   const field = useRequiredFieldContext("Field.Label");
+  const { setHasLabel } = field;
+
+  // Tell the Field this element exists, before paint, so aria-labelledby never points at nothing.
+  useLayoutEffect(() => {
+    setHasLabel(true);
+    return () => setHasLabel(false);
+  }, [setHasLabel]);
 
   return (
     <LabelPrimitive.Root
       {...props}
       data-slot="field-label"
+      id={field.labelId}
       htmlFor={field.id}
       className={cn(
-        "box-border font-mono text-sm font-medium text-text-default in-data-[orientation=horizontal]:self-center",
-        field.disabled && "text-text-muted",
+        "box-border font-mono text-sm font-medium text-text-default in-data-disabled:text-text-muted in-data-[orientation=horizontal]:self-center",
         className,
       )}
     >
