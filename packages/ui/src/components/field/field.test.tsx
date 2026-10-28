@@ -4,6 +4,7 @@ import { createRef } from "react";
 import { useForm } from "react-hook-form";
 import { describe, expect, it, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/axe";
+import { Checkbox } from "../checkbox";
 import { Input } from "../input";
 import { Field } from "./field";
 
@@ -343,4 +344,77 @@ describe("Field", () => {
       await expectNoA11yViolations();
     },
   );
+
+  it("should be vertical by default", () => {
+    render(
+      <Field>
+        <Field.Label>Name</Field.Label>
+        <Input />
+      </Field>,
+    );
+
+    expect(screen.getByTestId("field")).toHaveAttribute(
+      "data-orientation",
+      "vertical",
+    );
+  });
+
+  it.each(["vertical", "horizontal"] as const)(
+    "should wire the label, description and error the same way when %s",
+    async (orientation) => {
+      const user = userEvent.setup();
+      render(
+        <Field orientation={orientation} invalid required>
+          <Checkbox />
+          <Field.Label>Accept the terms</Field.Label>
+          <Field.Description>You can read them first.</Field.Description>
+          <Field.Error>Accept the terms to continue</Field.Error>
+        </Field>,
+      );
+
+      await user.click(screen.getByText("Accept the terms"));
+
+      expect(screen.getByTestId("field")).toHaveAttribute(
+        "data-orientation",
+        orientation,
+      );
+      expect(
+        screen.getByRole("checkbox", { name: /Accept the terms/ }),
+      ).toBeChecked();
+      expect(screen.getByRole("checkbox")).toBeInvalid();
+      expect(screen.getByRole("checkbox")).toBeRequired();
+      expect(screen.getByRole("checkbox")).toHaveAccessibleDescription(
+        "You can read them first. Accept the terms to continue",
+      );
+    },
+  );
+
+  it("should keep the error as a live region in the horizontal orientation", () => {
+    render(
+      <Field orientation="horizontal">
+        <Checkbox />
+        <Field.Label>Accept the terms</Field.Label>
+        <Field.Error />
+      </Field>,
+    );
+
+    expect(screen.getByTestId("field-error")).toHaveAttribute(
+      "aria-live",
+      "polite",
+    );
+    expect(screen.getByTestId("field-error")).toBeEmptyDOMElement();
+  });
+
+  it("should have no accessibility violations when horizontal", async () => {
+    render(
+      <Field orientation="horizontal" required>
+        <Checkbox />
+        <Field.Label>Accept the terms</Field.Label>
+        <Field.Description>You can read them first.</Field.Description>
+        <Field.Error />
+      </Field>,
+    );
+
+    await expectNoA11yViolations();
+  });
 });

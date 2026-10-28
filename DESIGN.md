@@ -98,6 +98,7 @@ Defined values (T01). `font.sans` currently resolves to the same stack as `font.
 
 - Base radius `0.25rem`. Derived scale: `sm` = base - 4px (0), `md` = base - 2px (2px), `lg` = base (4px), `xl` = base + 4px (8px). Corners stay tight; this is part of the look.
 - Spacing is a token scale on a 4px grid. No arbitrary pixel values in components.
+- Tailwind only generates the declared steps (see below): a class such as `pl-7` or `w-11` produces no style, and a test in `packages/ui` fails on it.
 
 Defined spacing steps (T01). Each step is `n * 0.25rem` (4px at the default root size; rem so it follows the user's font size): `0`, `1`, `2`, `3`, `4`, `5`, `6`, `8`, `10`, `12`, `16`, `20`, `24`.
 

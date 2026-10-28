@@ -47,7 +47,7 @@ export type TextareaProps = Omit<ComponentPropsWithRef<"textarea">, "size"> & {
   size?: TextareaVariantProps["size"];
   /**
    * Grow with the text instead of scrolling. Set a maximum height with `className` (for example
-   * `max-h-64`); past it the textarea scrolls. Browsers without `field-sizing` keep `rows` and
+   * `max-h-[10lh]`); past it the textarea scrolls. Browsers without `field-sizing` keep `rows` and
    * the resize handle.
    */
   autoGrow?: TextareaVariantProps["autoGrow"];

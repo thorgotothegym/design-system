@@ -72,7 +72,7 @@
         "react",
         "react-dom"
       ],
-      "limit": "10 kB"
+      "limit": "10.2 kB"
     },
     {
       "name": "Input",
@@ -118,7 +118,7 @@
       "name": "CSS (dist/styles.css)",
       "path": "dist/styles.css",
       "rolldown": false,
-      "limit": "2.5 kB"
+      "limit": "2.6 kB"
     }
   ]
 }

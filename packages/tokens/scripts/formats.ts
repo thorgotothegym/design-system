@@ -80,7 +80,9 @@ export const cssFormat: FormatFn = ({ dictionary }) => {
 /** Tailwind v4 theme: maps Tailwind namespaces onto the CSS variables above. */
 export const tailwindFormat: FormatFn = ({ dictionary }) => {
   const { themes, scales } = toModel(dictionary.allTokens);
-  const lines: string[] = ["  --color-*: initial;"];
+  // Only the declared steps exist: `p-7` or `w-11` generate no style at all, instead of being
+  // multiplied from a base. The reset also clears Tailwind's bare `--spacing`.
+  const lines: string[] = ["  --color-*: initial;", "  --spacing-*: initial;"];
   const map = (name: string, path: string[]) =>
     lines.push(`  ${name}: var(${varName(path)});`);
 
@@ -90,9 +92,8 @@ export const tailwindFormat: FormatFn = ({ dictionary }) => {
   for (const { path } of scales) {
     const [group, name] = path;
     if (group === undefined || name === undefined) continue;
-    if (group === "space") {
-      if (name === "1") map("--spacing", path);
-    } else if (group === "radius") {
+    if (group === "space") map(`--spacing-${name}`, path);
+    else if (group === "radius") {
       if (name !== "base") map(`--radius-${name}`, path);
     } else if (group === "font") map(`--font-${name}`, path);
     else if (group === "text") {

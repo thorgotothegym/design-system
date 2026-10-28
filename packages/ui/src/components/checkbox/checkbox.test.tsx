@@ -28,11 +28,9 @@ const ControlledCheckbox = ({
 };
 
 const LabelledCheckbox = (props: CheckboxProps) => (
-  <Field>
-    <div>
-      <Checkbox {...props} />
-      <Field.Label>Accept the terms</Field.Label>
-    </div>
+  <Field orientation="horizontal">
+    <Checkbox {...props} />
+    <Field.Label>Accept the terms</Field.Label>
     <Field.Description>You can change this later.</Field.Description>
     <Field.Error />
   </Field>
@@ -260,11 +258,9 @@ describe("Checkbox", () => {
 
   it("should be required and invalid with the error linked when the Field says so", () => {
     render(
-      <Field invalid required>
-        <div>
-          <Checkbox />
-          <Field.Label>Accept the terms</Field.Label>
-        </div>
+      <Field orientation="horizontal" invalid required>
+        <Checkbox />
+        <Field.Label>Accept the terms</Field.Label>
         <Field.Error>Accept the terms to continue</Field.Error>
       </Field>,
     );
@@ -278,11 +274,9 @@ describe("Checkbox", () => {
 
   it("should be disabled when the Field is disabled", () => {
     render(
-      <Field disabled>
-        <div>
-          <Checkbox />
-          <Field.Label>Accept the terms</Field.Label>
-        </div>
+      <Field orientation="horizontal" disabled>
+        <Checkbox />
+        <Field.Label>Accept the terms</Field.Label>
       </Field>,
     );
 

@@ -55,20 +55,18 @@ const ControlledExample = () => {
 export const Controlled: Story = { render: () => <ControlledExample /> };
 
 /**
- * Beside a `Field.Label`: the label toggles the switch and its text is the accessible name. The
- * description sits under the label (`pl-13` is the switch width plus the gap).
+ * A horizontal `Field`: the switch comes first, then the label that toggles it and names it. The
+ * description and error sit under the label.
  */
 export const WithLabelAndDescription: Story = {
   render: () => (
-    <Field>
-      <div className="flex items-center gap-2">
-        <Switch />
-        <Field.Label>Email notifications</Field.Label>
-      </div>
-      <Field.Description className="pl-13">
+    <Field orientation="horizontal">
+      <Switch />
+      <Field.Label>Email notifications</Field.Label>
+      <Field.Description>
         One email a week with what changed. Takes effect at once.
       </Field.Description>
-      <Field.Error className="pl-13" />
+      <Field.Error />
     </Field>
   ),
   play: async ({ canvasElement }) => {
