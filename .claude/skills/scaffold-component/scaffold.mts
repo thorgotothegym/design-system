@@ -213,7 +213,7 @@ const create = (values: Record<string, string | undefined>, name: string) => {
     `Created ${Name} (${variant}). Files:\n  ${written.join("\n  ")}`,
   );
   console.log(
-    `\nNext: node .claude/skills/scaffold-component/scaffold.mts size ${name}\nThen resolve every SCAFFOLD-PLACEHOLDER: grep -rn SCAFFOLD-PLACEHOLDER packages/ui/src .changeset`,
+    `\nNext: node .claude/skills/scaffold-component/scaffold.mts size ${name}\nThen resolve every SCAFFOLD-PLACEHOLDER: pnpm check:placeholders`,
   );
 };
 

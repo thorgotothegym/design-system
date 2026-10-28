@@ -26,7 +26,7 @@ If the primitive is not a dependency yet, check its current docs (Context7 or th
 
 ## 2. Create
 
-From the repo root, on a branch `feat/<name>`:
+From the repo root, on a branch `feat/<name>`. The script needs Node 22.18 or newer (it runs TypeScript directly through Node's type stripping); the repository itself requires Node 24 (`engines`, `.nvmrc`), which covers it.
 
 ```
 node .claude/skills/scaffold-component/scaffold.mts create <name> --variant native [--element input|textarea]
@@ -48,10 +48,10 @@ node .claude/skills/scaffold-component/scaffold.mts size <name>
 Every place that needs a human decision carries the marker `SCAFFOLD-PLACEHOLDER`. Resolve all of them:
 
 ```
-grep -rn SCAFFOLD-PLACEHOLDER packages/ui/src .changeset
+pnpm check:placeholders
 ```
 
-It must return nothing before you report the task done. Markers: the component's JSDoc (when to use it and when to use another component), the docs description in the stories `meta`, the changeset text, and the **`InteractionPlaceholder` story**, which only checks that the component renders. Replace it with the real `play` flow (keyboard navigation, open and close, validation, ...), rename the story and delete the comment. The placeholder passes the build and the a11y check on purpose, so only this grep and review catch it.
+It lists the files and lines that still have a marker and fails until there are none. It is deliberately not part of `pnpm test`, so a freshly scaffolded component compiles while you work on it; it is part of the definition of done (AGENTS.md section 10), so it must pass before you report the task done. Markers: the component's JSDoc (when to use it and when to use another component), the docs description in the stories `meta`, the changeset text, and the **`InteractionPlaceholder` story**, which only checks that the component renders. Replace it with the real `play` flow (keyboard navigation, open and close, validation, ...), rename the story and delete the comment. The placeholder passes the build and the a11y check on purpose, so only `pnpm check:placeholders` and review catch it.
 
 Then add what the template cannot know: the props, variants and sizes of this component (keep the surface small, derive types from `cva` with `VariantProps` and re-declare each variant prop with a JSDoc comment), every state in AGENTS.md section 5 that applies, a story and a test for each, and the realistic-form story where it fits.
 
@@ -104,7 +104,7 @@ Keep them when you edit. They come from the merged PRs.
 From the repo root, in this order, and report the real result of each:
 
 ```
-pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm size
+pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm size && pnpm check:placeholders
 ```
 
 `pnpm build` includes `storybook build`. Open the built Storybook, check the Accessibility panel of every story of the component in the light and dark themes, and run each `play` function. Take screenshots of the component in both themes for the PR. Then follow AGENTS.md section 11 for the branch, commits and PR (one component per PR, no attribution lines, no force-push), and list in the PR anything you are unsure about.

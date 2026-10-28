@@ -22,9 +22,9 @@ Summary of what to do:
    - native element: `node .claude/skills/scaffold-component/scaffold.mts create <name> --variant native [--element input|textarea]`
    - Radix primitive: `node .claude/skills/scaffold-component/scaffold.mts create <name> --variant radix --primitive <package> --role <aria-role>`
    - If the Radix package is not a dependency yet, check its current documentation and add it with `pnpm --filter @aleixvidal/ui add <package>@<exact version>`.
-3. Finish the component. Resolve every `SCAFFOLD-PLACEHOLDER` (`grep -rn SCAFFOLD-PLACEHOLDER packages/ui/src .changeset` must return nothing), including the placeholder interaction story, which needs a real `play` flow.
+3. Finish the component. Resolve every `SCAFFOLD-PLACEHOLDER` (`pnpm check:placeholders` must pass), including the placeholder interaction story, which needs a real `play` flow.
 4. Set the size budget with `node .claude/skills/scaffold-component/scaffold.mts size <name>` after the component is finished.
-5. Run `pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm size`, check the Storybook accessibility panel in both themes, and report the real result of each command.
+5. Run `pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm size && pnpm check:placeholders`, check the Storybook accessibility panel in both themes, and report the real result of each command.
 6. Open one PR for this component following AGENTS.md section 11, with a list of anything you are unsure about. Do not add attribution lines to commits or the PR, and never force-push.
 
 Rules that are easy to miss: spacing uses only the 13 token steps; invalid borders use

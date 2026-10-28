@@ -12,6 +12,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "changeset": "changeset",
+    "check:placeholders": "node scripts/check-placeholders.mts",
     "test:consumer": "turbo run test:consumer"
   },
   "devDependencies": {

@@ -195,6 +195,7 @@ A component is done only when ALL of this is true:
 - [ ] Exported from the package entry point
 - [ ] Changeset added
 - [ ] `lint`, `typecheck`, `test`, `build` and `storybook build` pass
+- [ ] No SCAFFOLD-PLACEHOLDER left (`pnpm check:placeholders` passes)
 - [ ] PR description explains the key design decisions and trade-offs
 
 ## 11. Git and PR workflow
