@@ -35,7 +35,11 @@ const thumbClasses = [
 
 export type SwitchProps = Omit<
   ComponentPropsWithRef<typeof SwitchPrimitive.Root>,
-  "checked" | "defaultChecked" | "onCheckedChange"
+  | "checked"
+  | "defaultChecked"
+  | "onCheckedChange"
+  | "required"
+  | "aria-required"
 > & {
   /** Controlled state: `true` for on, `false` for off. */
   checked?: boolean;
@@ -55,8 +59,12 @@ export type SwitchProps = Omit<
  * external label.
  *
  * It is announced as a switch, with its state. Space (and Enter) toggles it. All native
- * `<button>` attributes are accepted and forwarded to the `<button>`, as are Radix's `name`,
- * `value` and `required`; `ref` and `className` go to the `<button>` too.
+ * `<button>` attributes are accepted and forwarded to the `<button>`, as are Radix's `name` and
+ * `value`; `ref` and `className` go to the `<button>` too.
+ *
+ * It is never required: `required` and `aria-required` are not accepted, and a `required` `Field`
+ * does not set them, because a switch acts as soon as it is toggled and `role="switch"` does not
+ * support `aria-required`. For a consent the user must give, use a Checkbox.
  */
 export const Switch = ({
   invalid,
@@ -78,7 +86,9 @@ export const Switch = ({
       disabled={state.disabled}
       aria-describedby={state["aria-describedby"]}
       aria-invalid={state["aria-invalid"] ?? props["aria-invalid"]}
-      aria-required={state["aria-required"] ?? props["aria-required"]}
+      // Never required (see above), even if an untyped caller passes them through.
+      required={undefined}
+      aria-required={undefined}
       data-slot="switch"
       data-invalid={state.invalid || undefined}
       className={cn(switchClasses, className)}
