@@ -235,7 +235,13 @@ const size = (name: string) => {
     "size-limit",
     "--json",
   ]);
-  const json = measured.stdout.slice(measured.stdout.indexOf("["));
+  // When a budget is exceeded, size-limit and pnpm print more after the JSON array, so keep only
+  // the array: from the first "[" to the "]" that closes it at the start of a line.
+  const start = measured.stdout.indexOf("[");
+  const json = measured.stdout.slice(
+    start,
+    measured.stdout.indexOf("\n]", start) + 2,
+  );
   const results: { name: string; size: number }[] = JSON.parse(json);
   const result = results.find((item) => item.name === Name);
   if (result === undefined)
