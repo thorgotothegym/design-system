@@ -10,7 +10,7 @@ import { useFieldState } from "../field/use-field-state";
  * one size.
  */
 const switchClasses = [
-  "m-0 box-border inline-flex h-6 w-11 shrink-0 appearance-none items-center rounded-lg border border-border-control bg-bg-input p-0.5",
+  "m-0 box-border inline-flex h-6 w-12 shrink-0 appearance-none items-center rounded-lg border border-border-control bg-bg-input p-px",
   "not-data-invalid:not-data-disabled:hover:border-brand-primary",
   "not-data-invalid:not-data-disabled:active:border-brand-primary",
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring",
@@ -22,13 +22,13 @@ const switchClasses = [
 ];
 
 /**
- * The thumb slides by `translate-x-5`, the free width of the track (44px, minus 2px border and
- * 2px padding on each side, minus the 18px thumb). The slide only runs when the user has not
- * asked for reduced motion.
+ * The track is 48x24 with a 1px border and 1px padding, so the thumb (20px) has 22px of height
+ * and 46px of width to move in, and slides by `translate-x-6`, the free width of the track. The
+ * slide only runs when the user has not asked for reduced motion.
  */
 const thumbClasses = [
-  "pointer-events-none block size-4.5 rounded-md bg-text-muted",
-  "data-[state=checked]:translate-x-5",
+  "pointer-events-none block size-5 rounded-md bg-text-muted",
+  "data-[state=checked]:translate-x-6",
   "not-data-disabled:data-[state=checked]:bg-text-on-primary",
   "motion-safe:transition-transform",
 ];

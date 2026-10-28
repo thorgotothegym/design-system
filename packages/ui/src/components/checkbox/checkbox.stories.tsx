@@ -58,20 +58,18 @@ const ControlledExample = () => {
 export const Controlled: Story = { render: () => <ControlledExample /> };
 
 /**
- * Beside a `Field.Label`: the label toggles the box and its text is the accessible name. The
- * description sits under the label (`pl-7` is the box width plus the gap).
+ * A horizontal `Field`: the box comes first, then the label that toggles it and names it. The
+ * description and error sit under the label.
  */
 export const WithLabelAndDescription: Story = {
   render: () => (
-    <Field>
-      <div className="flex items-center gap-2">
-        <Checkbox />
-        <Field.Label>Subscribe to the newsletter</Field.Label>
-      </div>
-      <Field.Description className="pl-7">
+    <Field orientation="horizontal">
+      <Checkbox />
+      <Field.Label>Subscribe to the newsletter</Field.Label>
+      <Field.Description>
         One email a week. You can unsubscribe at any time.
       </Field.Description>
-      <Field.Error className="pl-7" />
+      <Field.Error />
     </Field>
   ),
   play: async ({ canvasElement }) => {
@@ -109,32 +107,28 @@ const GroupExample = () => {
       <legend className="mb-2 p-0 font-mono text-sm text-text-default">
         Notifications
       </legend>
-      <Field>
-        <div className="flex items-center gap-2">
-          <Checkbox
-            checked={all}
-            onCheckedChange={(next) =>
-              setSelected(next === true ? [...OPTIONS] : [])
-            }
-          />
-          <Field.Label>All notifications</Field.Label>
-        </div>
+      <Field orientation="horizontal">
+        <Checkbox
+          checked={all}
+          onCheckedChange={(next) =>
+            setSelected(next === true ? [...OPTIONS] : [])
+          }
+        />
+        <Field.Label>All notifications</Field.Label>
       </Field>
       {OPTIONS.map((option) => (
-        <Field key={option} className="pl-7">
-          <div className="flex items-center gap-2">
-            <Checkbox
-              checked={selected.includes(option)}
-              onCheckedChange={(next) =>
-                setSelected((current) =>
-                  next === true
-                    ? [...current, option]
-                    : current.filter((item) => item !== option),
-                )
-              }
-            />
-            <Field.Label>{option}</Field.Label>
-          </div>
+        <Field key={option} orientation="horizontal" className="pl-8">
+          <Checkbox
+            checked={selected.includes(option)}
+            onCheckedChange={(next) =>
+              setSelected((current) =>
+                next === true
+                  ? [...current, option]
+                  : current.filter((item) => item !== option),
+              )
+            }
+          />
+          <Field.Label>{option}</Field.Label>
         </Field>
       ))}
     </fieldset>
@@ -198,18 +192,16 @@ const ValidationExample = () => {
   const invalid = touched && !checked;
 
   return (
-    <Field invalid={invalid} required>
-      <div className="flex items-center gap-2">
-        <Checkbox
-          checked={checked}
-          onCheckedChange={(next) => {
-            setChecked(next === true);
-            setTouched(true);
-          }}
-        />
-        <Field.Label>I accept the terms</Field.Label>
-      </div>
-      <Field.Error className="pl-7">
+    <Field orientation="horizontal" invalid={invalid} required>
+      <Checkbox
+        checked={checked}
+        onCheckedChange={(next) => {
+          setChecked(next === true);
+          setTouched(true);
+        }}
+      />
+      <Field.Label>I accept the terms</Field.Label>
+      <Field.Error>
         {invalid ? "Accept the terms to continue" : null}
       </Field.Error>
     </Field>

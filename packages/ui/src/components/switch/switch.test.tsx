@@ -28,11 +28,9 @@ const ControlledSwitch = ({
 };
 
 const LabelledSwitch = (props: SwitchProps) => (
-  <Field>
-    <div>
-      <Switch {...props} />
-      <Field.Label>Email notifications</Field.Label>
-    </div>
+  <Field orientation="horizontal">
+    <Switch {...props} />
+    <Field.Label>Email notifications</Field.Label>
     <Field.Description>We send one email a week.</Field.Description>
     <Field.Error />
   </Field>
@@ -201,11 +199,9 @@ describe("Switch", () => {
 
   it("should be required and invalid with the error linked when the Field says so", () => {
     render(
-      <Field invalid required>
-        <div>
-          <Switch />
-          <Field.Label>Email notifications</Field.Label>
-        </div>
+      <Field orientation="horizontal" invalid required>
+        <Switch />
+        <Field.Label>Email notifications</Field.Label>
         <Field.Error>Turn this on to continue</Field.Error>
       </Field>,
     );
@@ -219,11 +215,9 @@ describe("Switch", () => {
 
   it("should be disabled when the Field is disabled", () => {
     render(
-      <Field disabled>
-        <div>
-          <Switch />
-          <Field.Label>Email notifications</Field.Label>
-        </div>
+      <Field orientation="horizontal" disabled>
+        <Switch />
+        <Field.Label>Email notifications</Field.Label>
       </Field>,
     );
 
@@ -267,11 +261,9 @@ describe("Switch", () => {
 
   it("should have no accessibility violations when the Field is required and invalid", async () => {
     render(
-      <Field invalid required>
-        <div>
-          <Switch />
-          <Field.Label>Email notifications</Field.Label>
-        </div>
+      <Field orientation="horizontal" invalid required>
+        <Switch />
+        <Field.Label>Email notifications</Field.Label>
         <Field.Error>Turn this on to continue</Field.Error>
       </Field>,
     );

@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { expect, userEvent, within } from "storybook/test";
+import { Checkbox } from "../checkbox";
 import { Input } from "../input";
+import { Switch } from "../switch";
 import { Field } from "./field";
 
 const meta = {
@@ -12,11 +14,18 @@ const meta = {
     "Field.Description": Field.Description,
     "Field.Error": Field.Error,
   },
+  // The docs table cannot resolve the cva-derived `orientation` type, so its control is set by hand.
+  argTypes: {
+    orientation: {
+      control: "inline-radio",
+      options: ["vertical", "horizontal"],
+    },
+  },
   parameters: {
     docs: {
       description: {
         component:
-          "Groups a form control with its label, description and error and wires them together: `id`, `htmlFor`, `aria-describedby`, `aria-invalid` and `aria-required` are set for you. Use it around every form control. Always render `Field.Error` and pass the message (or nothing while the control is valid): it is a live region and one line of space is reserved for it, so the message appearing does not shift the layout. Keep messages short, a message that wraps does shift it.",
+          "Groups a form control with its label, description and error and wires them together: `id`, `htmlFor`, `aria-describedby`, `aria-invalid` and `aria-required` are set for you. Use it around every form control. Always render `Field.Error` and pass the message (or nothing while the control is valid): it is a live region and one line of space is reserved for it, so the message appearing does not shift the layout. Keep messages short, a message that wraps does shift it. `orientation` is `vertical` by default (label above the control). Use `horizontal` for a Checkbox, a Switch or a radio option: write the control first and the label second, so the visual order and the DOM order are the same; the description and error go under the label.",
       },
     },
   },
@@ -137,5 +146,110 @@ export const ValidationFlow: Story = {
 
     await expect(input).toBeValid();
     await expect(input).toHaveAccessibleDescription("");
+  },
+};
+
+/** Horizontal, for a Checkbox, a Switch or a radio option: control first, then the label. */
+export const Horizontal: Story = {
+  args: { orientation: "horizontal" },
+  render: (args) => (
+    <Field {...args}>
+      <Checkbox />
+      <Field.Label>Subscribe to the newsletter</Field.Label>
+      <Field.Error />
+    </Field>
+  ),
+};
+
+export const HorizontalWithDescription: Story = {
+  args: { orientation: "horizontal" },
+  render: (args) => (
+    <Field {...args}>
+      <Switch />
+      <Field.Label>Email notifications</Field.Label>
+      <Field.Description>
+        One email a week. Takes effect at once.
+      </Field.Description>
+      <Field.Error />
+    </Field>
+  ),
+};
+
+export const HorizontalRequired: Story = {
+  args: { orientation: "horizontal", required: true },
+  render: (args) => (
+    <Field {...args}>
+      <Checkbox />
+      <Field.Label>I accept the terms</Field.Label>
+      <Field.Error />
+    </Field>
+  ),
+};
+
+export const HorizontalDisabled: Story = {
+  args: { orientation: "horizontal", disabled: true },
+  render: (args) => (
+    <Field {...args}>
+      <Checkbox />
+      <Field.Label>Subscribe to the newsletter</Field.Label>
+      <Field.Description>This option is not available.</Field.Description>
+      <Field.Error />
+    </Field>
+  ),
+};
+
+export const HorizontalWithError: Story = {
+  args: { orientation: "horizontal", invalid: true },
+  render: (args) => (
+    <Field {...args}>
+      <Checkbox />
+      <Field.Label>I accept the terms</Field.Label>
+      <Field.Description>You can read them first.</Field.Description>
+      <Field.Error>Accept the terms to continue</Field.Error>
+    </Field>
+  ),
+};
+
+const HorizontalValidationExample = () => {
+  const [checked, setChecked] = useState(false);
+  const [touched, setTouched] = useState(false);
+  const invalid = touched && !checked;
+
+  return (
+    <Field orientation="horizontal" invalid={invalid} required>
+      <Checkbox
+        checked={checked}
+        onCheckedChange={(next) => {
+          setChecked(next === true);
+          setTouched(true);
+        }}
+      />
+      <Field.Label>I accept the terms</Field.Label>
+      <Field.Description>You can read them first.</Field.Description>
+      <Field.Error>
+        {invalid ? "Accept the terms to continue" : null}
+      </Field.Error>
+    </Field>
+  );
+};
+
+/** The same wiring as the vertical flow: the error is linked to the control and announced. */
+export const HorizontalValidationFlow: Story = {
+  render: () => <HorizontalValidationExample />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const checkbox = canvas.getByRole("checkbox", {
+      name: /I accept the terms/,
+    });
+
+    await userEvent.click(canvas.getByText(/I accept the terms/));
+    await expect(checkbox).toBeChecked();
+    await expect(checkbox).toBeValid();
+
+    await userEvent.click(checkbox);
+    await expect(checkbox).toBeInvalid();
+    await expect(checkbox).toHaveAccessibleDescription(
+      "You can read them first. Accept the terms to continue",
+    );
   },
 };

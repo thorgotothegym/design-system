@@ -49,7 +49,7 @@ export const Invalid: Story = {
 
 /** Grows with the text, up to the maximum height set with `className`, then scrolls. */
 export const AutoGrow: Story = {
-  args: { autoGrow: true, className: "max-h-64", defaultValue: SAMPLE },
+  args: { autoGrow: true, className: "max-h-[10lh]", defaultValue: SAMPLE },
 };
 
 const ControlledExample = () => {

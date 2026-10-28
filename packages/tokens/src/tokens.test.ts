@@ -133,6 +133,17 @@ describe("scales", () => {
     expect(css).toContain(`--ds-font-sans: ${stack};`);
   });
 
+  it("should expose only the declared spacing steps to Tailwind, with no base multiplier", () => {
+    const steps = Object.keys(tokens.space);
+
+    expect(tailwind).toContain("--spacing-*: initial;");
+    expect(tailwind).not.toMatch(/--spacing: /);
+    for (const step of steps) {
+      expect(tailwind).toContain(`--spacing-${step}: var(--ds-space-${step});`);
+    }
+    expect(steps).toHaveLength(13);
+  });
+
   it("should have four shadow levels and no glow", () => {
     expect(Object.keys(tokens.shadow)).toEqual(["none", "sm", "md", "lg"]);
   });
