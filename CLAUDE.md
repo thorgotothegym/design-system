@@ -18,7 +18,9 @@ This file only adds things specific to Claude Code.
 
 ## Skills
 
-If a repo-local skill exists (for example `scaffold-component`), prefer it for creating new components so the folder structure stays consistent.
+Repo-local skills live in `.claude/skills/`. Prefer them over doing the same work by hand so the structure stays consistent.
+
+- **`scaffold-component`** (`.claude/skills/scaffold-component/`): creates a new component in `packages/ui` (folder with component, stories, tests and `index.ts`, export from the package entry, changeset stub and a `size-limit` entry) in two variants: a native element (like `Input`, `Textarea`) or a Radix primitive (like `Checkbox`, `Switch`). Use it for every new component, then finish the generated code: it leaves `SCAFFOLD-PLACEHOLDER` markers (including a placeholder `play` story) that must all be resolved before the task is done. See its `SKILL.md` for the workflow and the conventions it encodes. GitHub Copilot has the same workflow as the prompt `.github/prompts/scaffold-component.prompt.md`, which points to the same skill files, so there is a single source of truth.
 
 ## Tool usage
 

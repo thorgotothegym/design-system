@@ -20,3 +20,5 @@ Rules that must never be missed (the full list is in `AGENTS.md`):
 - Never disable a check to make it pass. If you cannot fix it, stop and report.
 - No employer-related content of any kind in this repository.
 - If a decision is ambiguous and hard to reverse, stop and write down the options instead of guessing.
+
+To create a new component, use the prompt `scaffold-component` (`.github/prompts/scaffold-component.prompt.md`, run it with `/scaffold-component` in Copilot Chat). It follows the same workflow as the Claude Code skill in `.claude/skills/scaffold-component/`, which is the single source of truth for the templates and conventions.
