@@ -197,20 +197,31 @@ describe("Switch", () => {
     );
   });
 
-  it("should be required and invalid with the error linked when the Field says so", () => {
+  it("should be invalid with the error linked when the Field says so", () => {
     render(
-      <Field orientation="horizontal" invalid required>
+      <Field orientation="horizontal" invalid>
         <Switch />
         <Field.Label>Email notifications</Field.Label>
         <Field.Error>Turn this on to continue</Field.Error>
       </Field>,
     );
 
-    expect(screen.getByRole("switch")).toHaveAttribute("aria-required", "true");
     expect(screen.getByRole("switch")).toBeInvalid();
     expect(screen.getByRole("switch")).toHaveAccessibleDescription(
       "Turn this on to continue",
     );
+  });
+
+  it("should not be aria-required even when the Field is required", () => {
+    render(
+      <Field orientation="horizontal" required>
+        <Switch />
+        <Field.Label>Email notifications</Field.Label>
+      </Field>,
+    );
+
+    expect(screen.getByRole("switch")).not.toHaveAttribute("aria-required");
+    expect(screen.getByRole("switch")).not.toHaveAttribute("required");
   });
 
   it("should be disabled when the Field is disabled", () => {
@@ -259,9 +270,9 @@ describe("Switch", () => {
     },
   );
 
-  it("should have no accessibility violations when the Field is required and invalid", async () => {
+  it("should have no accessibility violations when the Field is invalid", async () => {
     render(
-      <Field orientation="horizontal" invalid required>
+      <Field orientation="horizontal" invalid>
         <Switch />
         <Field.Label>Email notifications</Field.Label>
         <Field.Error>Turn this on to continue</Field.Error>
