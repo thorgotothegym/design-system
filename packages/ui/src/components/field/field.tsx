@@ -17,7 +17,7 @@ const fieldVariants = cva("", {
   variants: {
     orientation: {
       vertical: "flex flex-col gap-1",
-      horizontal: "grid grid-cols-[auto_1fr] items-start gap-x-2 gap-y-1",
+      horizontal: "grid grid-cols-[auto_1fr] items-start gap-x-3 gap-y-1",
     },
   },
   defaultVariants: { orientation: DEFAULT_ORIENTATION },
