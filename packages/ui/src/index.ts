@@ -26,3 +26,5 @@ export type {
   SelectProps,
   SelectSeparatorProps,
 } from "./components/select";
+export { Slider } from "./components/slider";
+export type { SliderProps } from "./components/slider";
