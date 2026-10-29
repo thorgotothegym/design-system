@@ -18,3 +18,11 @@ export type {
   RadioGroupItemProps,
   RadioGroupProps,
 } from "./components/radio-group";
+export { Select } from "./components/select";
+export type {
+  SelectGroupProps,
+  SelectItemProps,
+  SelectLabelProps,
+  SelectProps,
+  SelectSeparatorProps,
+} from "./components/select";

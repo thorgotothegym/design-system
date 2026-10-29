@@ -35,7 +35,7 @@ Contrast ratios below are WCAG 2.x, computed with a script from these exact OKLC
 | `border.decorative` | `oklch(0.20 0.05 145)` | 1.16:1. Decoration only (cards, dividers). Never as the only boundary of a control |
 | `border.danger` | `oklch(0.70 0.19 25)` | 7.15:1 on `bg.base`, 6.79:1 on `bg.input` (min 3:1). Same value as `text.danger`. Border of a control in the invalid state |
 | `border.control` | `oklch(0.50 0.10 145)` | 3.62:1 on `bg.base`, 3.43:1 on `bg.input` (min 3:1) |
-| `focus.ring` | `oklch(0.70 0.18 145)` | 8.29:1 on `bg.base` |
+| `focus.ring` | `oklch(0.70 0.18 145)` | 8.29:1 on `bg.base`, 8.24:1 on `bg.surface`, 8.10:1 on `bg.subtle` (the highlighted option of a popup) |
 
 Differences from the personal site, on purpose (the site values failed AA):
 - Muted text was `oklch(0.50 0.08 145)` at 3.59:1. Raised.
@@ -59,11 +59,12 @@ Differences from the personal site, on purpose (the site values failed AA):
 | `border.decorative` | `oklch(0.90 0.03 145)` | 1.26:1 on `bg.base`. Decoration only, same rule as in dark: never the only boundary of a control |
 | `border.danger` | `oklch(0.50 0.20 27)` | 6.27:1 on `bg.base`, 6.64:1 on `bg.input` (min 3:1). Same value as `text.danger`. Border of a control in the invalid state |
 | `border.control` | `oklch(0.60 0.07 145)` | 3.60:1 on `bg.base` |
-| `focus.ring` | `oklch(0.45 0.14 145)` | same value as `brand.primary`: 6.61:1 on `bg.base`, 7.00:1 on `bg.input` |
+| `focus.ring` | `oklch(0.45 0.14 145)` | same value as `brand.primary`: 6.61:1 on `bg.base`, 7.00:1 on `bg.input` and `bg.surface`, 6.07:1 on `bg.subtle` (the highlighted option of a popup) |
 
 ### 2.3 Rules
 
 - Text needs 4.5:1, large text and control boundaries need 3:1, in BOTH themes.
+- A state indicator (focus, highlighted, selected, invalid) needs 3:1 against its adjacent colors. A fill that differs from its surroundings by about 1.1:1 (`bg.subtle` on `bg.surface`) is not an indicator on its own: add an inset `focus.ring` outline, a border or an icon.
 - Every new semantic color needs a light and a dark value and a measured ratio in this table.
 - A contrast script must run in CI over the token files and fail the build on any pair below its minimum. Do not lower a minimum to pass.
   - Implemented in `packages/tokens/scripts/contrast` (`pnpm --filter @aleixvidal/tokens contrast`, also part of `pnpm test`). The pairs are declared in `pairs.ts`; a semantic color that no pair mentions fails the script.
@@ -111,7 +112,13 @@ Defined elevation (T01), four levels, no glow. These are shadows, not semantic c
 | `shadow.md` | `0 4px 8px -2px oklch(0 0 0 / 0.5)` |
 | `shadow.lg` | `0 12px 24px -4px oklch(0 0 0 / 0.6)` |
 
-There is no z-index scale yet. It is added with the first component that needs stacking (popover, select).
+Defined stacking (T14), one level, added with the first component that needed it. Add a level only when a component needs it.
+
+| Token | Value | Used for |
+| --- | --- | --- |
+| `z.dropdown` | `1000` | popups that open over the page from a trigger (Select) |
+
+Tailwind v4 has no theme namespace for z-index, so components read the variable: `z-(--ds-z-dropdown)`.
 
 ## 5. Effects (terminal flair)
 

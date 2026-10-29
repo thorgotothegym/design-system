@@ -147,6 +147,12 @@ describe("scales", () => {
   it("should have four shadow levels and no glow", () => {
     expect(Object.keys(tokens.shadow)).toEqual(["none", "sm", "md", "lg"]);
   });
+
+  it("should have a single z-index level for dropdowns, read as a CSS variable", () => {
+    expect(Object.keys(tokens.z)).toEqual(["dropdown"]);
+    expect(css).toContain("--ds-z-dropdown: 1000;");
+    expect(tailwind).not.toContain("z-dropdown");
+  });
 });
 
 describe("scaleValues", () => {

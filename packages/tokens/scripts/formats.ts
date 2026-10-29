@@ -105,6 +105,7 @@ export const tailwindFormat: FormatFn = ({ dictionary }) => {
     } else if (group === "font-weight") map(`--font-weight-${name}`, path);
     else if (group === "leading") map(`--leading-${name}`, path);
     else if (group === "shadow") map(`--shadow-${name}`, path);
+    // z-index has no Tailwind theme namespace: components read the variable, `z-(--ds-z-dropdown)`.
   }
 
   return `/* ${HEADER} */\n\n@theme inline {\n${lines.join("\n")}\n}\n`;

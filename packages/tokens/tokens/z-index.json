@@ -1,0 +1,8 @@
+{
+  "z": {
+    "dropdown": {
+      "$type": "number",
+      "$value": 1000
+    }
+  }
+}

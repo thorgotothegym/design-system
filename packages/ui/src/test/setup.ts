@@ -14,6 +14,15 @@ globalThis.ResizeObserver ??= class ResizeObserver {
   disconnect() {}
 };
 
+// jsdom does no layout, so it has neither pointer capture nor scrolling into view. Radix Select calls
+// all three when it opens and when an option is highlighted; as no-ops they change no behavior.
+// Files that run in the node environment (no DOM) skip them.
+if (typeof Element !== "undefined") {
+  Element.prototype.hasPointerCapture ??= () => false;
+  Element.prototype.releasePointerCapture ??= () => {};
+  Element.prototype.scrollIntoView ??= () => {};
+}
+
 afterEach(() => {
   cleanup();
 });

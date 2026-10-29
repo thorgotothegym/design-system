@@ -25,6 +25,8 @@ describe("findOffScaleSpacing", () => {
     "w-[44px]",
     "gap-[0.5rem]",
     "min-h-[calc(100%-4px)]",
+    "w-(44px)",
+    "max-h-(calc(100%-4px))",
   ])("should report %s as off the scale", (name) => {
     expect(findOffScaleSpacing(`<div className="${name}" />`, steps)).toEqual([
       name,
@@ -48,6 +50,11 @@ describe("findOffScaleSpacing", () => {
     "w-1/2",
     "mx-auto",
     "min-h-(--ds-text-sm-line-height)",
+    "max-h-(--radix-select-content-available-height)",
+    "min-w-(--radix-select-trigger-width)",
+    "data-[side=top]:max-w-(--radix-select-content-available-width)",
+    "w-(length:--panel-width)",
+    "z-(--ds-z-dropdown)",
     "grid-cols-[auto_1fr]",
     "max-h-[10lh]",
     "w-[calc(100%-var(--ds-space-4))]",

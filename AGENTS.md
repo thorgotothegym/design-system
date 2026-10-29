@@ -118,12 +118,13 @@ Form controls (Input, Textarea, Select, Checkbox, RadioGroup, Switch, DatePicker
 - Palette tokens are the lowest layer; semantic tokens reference them; components reference only semantic tokens.
 - Dark mode is part of the token system (theme switch via CSS variables), not a per-component afterthought. Every semantic color needs a light and a dark value.
 - Changing a token's name or meaning is a breaking change and needs a changeset.
-- Only the 13 spacing steps exist (`0`, `1`, `2`, `3`, `4`, `5`, `6`, `8`, `10`, `12`, `16`, `20`, `24`; `px` is the 1px keyword). Tailwind does not fail on a class outside them such as `pl-7` or `w-11`: it silently generates no style. `packages/ui/src/test/spacing-scale.test.ts` fails the build on such classes (and on fixed `px`, `rem` or `em` values in arbitrary spacing like `p-[7px]`) in `packages/ui` and `apps/storybook`. Arbitrary values that are not fixed spacing, such as `grid-cols-[auto_1fr]` or `max-h-[10lh]`, are allowed.
+- Only the 13 spacing steps exist (`0`, `1`, `2`, `3`, `4`, `5`, `6`, `8`, `10`, `12`, `16`, `20`, `24`; `px` is the 1px keyword). Tailwind does not fail on a class outside them such as `pl-7` or `w-11`: it silently generates no style. `packages/ui/src/test/spacing-scale.test.ts` fails the build on such classes (and on fixed `px`, `rem` or `em` values in arbitrary spacing like `p-[7px]`) in `packages/ui` and `apps/storybook`. Arbitrary values that are not fixed spacing, such as `grid-cols-[auto_1fr]` or `max-h-[10lh]`, and CSS variables in the parenthesis syntax, such as `max-h-(--radix-select-content-available-height)`, are allowed.
 - Spacing, typography, radius, color and elevation each get their own documented story in Storybook (use doc blocks, generated from the token files, not hand-written tables).
 
 ## 7. Accessibility (non-negotiable)
 
 - Every interactive component is fully operable by keyboard, with a visible focus indicator (`:focus-visible`).
+- Every state indicator (focus, highlighted, selected, invalid) needs 3:1 non-text contrast (WCAG 1.4.11) against its adjacent colors, in both themes. A background change on its own does not count: two surfaces that are about 1.1:1 apart are not an indicator. Add a border, an inset outline with `focus.ring`, or an icon, and put the indicator/background pair in the contrast gate (`packages/tokens/src/contrast/pairs.ts`). Disabled components are exempt.
 - Correct roles, names and states. Use native elements first, ARIA only when needed.
 - Text contrast meets WCAG 2.2 AA in both light and dark themes.
 - Respect `prefers-reduced-motion`.
@@ -188,6 +189,7 @@ A component is done only when ALL of this is true:
 - [ ] Uses semantic tokens only; works in light and dark
 - [ ] All states implemented and covered by stories
 - [ ] Keyboard and screen reader behavior verified; a11y addon is clean
+- [ ] Keyboard-only pass done over every state of the component (Tab, arrows, Space, Enter, Escape): the focus, highlighted, selected and invalid indicators are visible and meet 3:1 in both themes
 - [ ] Tests written and passing
 - [ ] Uses `type` (no `interface`), no `any`; props type exported
 - [ ] No layout shift in any state; size-limit budget respected

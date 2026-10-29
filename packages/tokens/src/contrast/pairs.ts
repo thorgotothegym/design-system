@@ -88,5 +88,11 @@ export const pairs: readonly Pair[] = [
 
   control("border.control", "bg.input", ["light"]),
   control("focus.ring", "bg.input", ["dark"]),
+
+  // The highlighted option of a popup (Select) is drawn as an inset focus ring over a bg.subtle
+  // fill, inside a bg.surface popover. The ring is the indicator, so it needs 3:1 against both
+  // (WCAG 1.4.11); the fill alone (about 1.1:1 on the surface) does not count.
+  control("focus.ring", "bg.surface"),
+  control("focus.ring", "bg.subtle"),
   decorative("bg.subtle", "bg.base", ["light"]),
 ];
