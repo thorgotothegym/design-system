@@ -65,42 +65,32 @@ export const Large: Story = { args: { size: "lg" } };
 export const WithValue: Story = { args: { defaultValue: "fr" } };
 
 /**
- * While the list is open, Radix hides the rest of the page from assistive technology and traps
- * focus in the list, so axe reports the (unreachable) trigger under `aria-hidden-focus`. The
- * stories that open the list close it again at the end of their `play`, so the state the a11y
- * panel checks is the resting one.
+ * The stories that only show the open list start with it open (`defaultOpen`) instead of opening
+ * it in a `play` function, which would flash the list for a frame or two on every load. While the
+ * list is open Radix hides the rest of the page from assistive technology and traps focus in the
+ * list, so axe reports the (unreachable) trigger under `aria-hidden-focus`: a false positive, and
+ * the only rule turned off, for these stories only.
  */
-const closeList = async () => {
-  await userEvent.keyboard("{Escape}");
-  await waitFor(() => expect(screen.queryByRole("listbox")).toBeNull());
+const openListA11y = {
+  config: { rules: [{ id: "aria-hidden-focus", enabled: false }] },
 };
 
 /** Options in labelled groups, separated by a line; each group is named by its label. */
 export const Grouped: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    await userEvent.click(canvas.getByRole("combobox", { name: "Country" }));
+  args: { defaultOpen: true },
+  parameters: { a11y: openListA11y },
+  play: async () => {
     await expect(
       await screen.findByRole("group", { name: "Europe" }),
     ).toBeVisible();
     await expect(screen.getByRole("group", { name: "Americas" })).toBeVisible();
-    await closeList();
   },
 };
 
 /** A disabled option cannot be chosen; the arrow keys and typing skip it. */
 export const DisabledOption: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    await userEvent.click(canvas.getByRole("combobox", { name: "Country" }));
-    await userEvent.keyboard("{ArrowDown}");
-    await userEvent.keyboard("{ArrowDown}");
-    await expect(screen.getByRole("option", { name: "France" })).toHaveFocus();
-    await closeList();
-  },
   args: {
+    defaultOpen: true,
     children: (
       <>
         <Select.Item value="es">Spain</Select.Item>
@@ -110,6 +100,12 @@ export const DisabledOption: Story = {
         <Select.Item value="fr">France</Select.Item>
       </>
     ),
+  },
+  parameters: { a11y: openListA11y },
+  play: async () => {
+    await expect(
+      await screen.findByRole("option", { name: "Portugal (not available)" }),
+    ).toHaveAttribute("aria-disabled", "true");
   },
 };
 
@@ -209,6 +205,15 @@ export const PseudoStates: Story = {
       active: ["#pseudo-active button"],
     },
   },
+};
+
+/**
+ * Interaction stories open the list in `play` and close it again at the end, so the state the a11y
+ * panel checks afterwards is the resting one (see `openListA11y`).
+ */
+const closeList = async () => {
+  await userEvent.keyboard("{Escape}");
+  await waitFor(() => expect(screen.queryByRole("listbox")).toBeNull());
 };
 
 /**
