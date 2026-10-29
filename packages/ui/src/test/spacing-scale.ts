@@ -60,6 +60,9 @@ const NUMBER = /^\d+(\.\d+)?$/;
 /** A fixed length in an arbitrary value: `[7px]`, `[0.5rem]`, `[calc(100%-4px)]`. */
 const FIXED_LENGTH = /-?\d*\.?\d+(px|rem|em)\b/;
 
+/** A CSS variable in the parenthesis syntax: `(--name)` or, typed, `(length:--name)`. */
+const CSS_VARIABLE = /^\((?:[a-z-]+:)?--[\w-]+\)$/;
+
 /** Removes the variants (`md:`, `data-[state=checked]:`) and the important and negative marks. */
 const withoutVariants = (token: string): string => {
   let depth = 0;
@@ -81,8 +84,22 @@ const isOffScale = (token: string, steps: readonly string[]): boolean => {
   if (value.startsWith("[") && value.endsWith("]")) {
     return FIXED_LENGTH.test(value);
   }
-  // `px`, `full`, `auto`, `1/2`, `(--var)` and the like are not spacing steps.
+  // The parenthesis syntax only takes a CSS variable (`max-h-(--radix-select-content-available-height)`,
+  // optionally typed: `w-(length:--x)`); anything else in it, such as `w-(44px)`, generates nothing.
+  if (value.startsWith("(")) return !CSS_VARIABLE.test(value);
+  // `px`, `full`, `auto`, `1/2` and the like are not spacing steps.
   return false;
+};
+
+/** Drops the `.`, `;` and unbalanced `)` that end a class in code, such as `cn("p-4")`. */
+const withoutTrailingPunctuation = (token: string): string => {
+  let result = token.replace(/[.;]+$/, "");
+  const open = (text: string) => text.split("(").length - 1;
+  const close = (text: string) => text.split(")").length - 1;
+  while (result.endsWith(")") && close(result) > open(result)) {
+    result = result.slice(0, -1).replace(/[.;]+$/, "");
+  }
+  return result;
 };
 
 /** The classes in `source` that use a spacing value outside `steps`. */
@@ -92,7 +109,7 @@ export const findOffScaleSpacing = (
 ): string[] => {
   const tokens = source
     .split(/[\s"'`,{}]+/)
-    .map((token) => token.replace(/[.;)]+$/, ""))
+    .map(withoutTrailingPunctuation)
     .filter((token) => token !== "");
 
   return [...new Set(tokens.filter((token) => isOffScale(token, steps)))];
