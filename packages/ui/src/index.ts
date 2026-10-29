@@ -26,3 +26,5 @@ export type {
   SelectProps,
   SelectSeparatorProps,
 } from "./components/select";
+export { TagInput } from "./components/tag-input";
+export type { TagInputMessages, TagInputProps } from "./components/tag-input";
