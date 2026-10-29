@@ -111,7 +111,13 @@ Defined elevation (T01), four levels, no glow. These are shadows, not semantic c
 | `shadow.md` | `0 4px 8px -2px oklch(0 0 0 / 0.5)` |
 | `shadow.lg` | `0 12px 24px -4px oklch(0 0 0 / 0.6)` |
 
-There is no z-index scale yet. It is added with the first component that needs stacking (popover, select).
+Defined stacking (T14), one level, added with the first component that needed it. Add a level only when a component needs it.
+
+| Token | Value | Used for |
+| --- | --- | --- |
+| `z.dropdown` | `1000` | popups that open over the page from a trigger (Select) |
+
+Tailwind v4 has no theme namespace for z-index, so components read the variable: `z-(--ds-z-dropdown)`.
 
 ## 5. Effects (terminal flair)
 
