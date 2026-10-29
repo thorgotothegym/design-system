@@ -3,6 +3,11 @@ import { createContext, useContext } from "react";
 export type FieldContextValue = {
   /** Id of the control, also the `htmlFor` of the label. The other ids derive from it. */
   id: string;
+  /** Id of the `Field.Label`. Group controls (a `div` that `htmlFor` cannot label) use it in `aria-labelledby`. */
+  labelId: string;
+  /** True while a `Field.Label` is rendered, so a group control only references an element that exists. */
+  hasLabel: boolean;
+  setHasLabel: (present: boolean) => void;
   descriptionId: string;
   /** True while a `Field.Description` is rendered, so the control only references an element that exists. */
   hasDescription: boolean;

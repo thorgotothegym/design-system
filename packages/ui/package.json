@@ -58,6 +58,7 @@
   "dependencies": {
     "@radix-ui/react-checkbox": "1.4.1",
     "@radix-ui/react-label": "2.1.17",
+    "@radix-ui/react-radio-group": "1.5.1",
     "@radix-ui/react-select": "2.4.1",
     "@radix-ui/react-switch": "1.4.1",
     "class-variance-authority": "0.7.1",
@@ -116,6 +117,16 @@
       "limit": "8.8 kB"
     },
     {
+      "name": "RadioGroup",
+      "path": "dist/index.js",
+      "import": "{ RadioGroup }",
+      "ignore": [
+        "react",
+        "react-dom"
+      ],
+      "limit": "17.6 kB"
+    },
+    {
       "name": "Select",
       "path": "dist/index.js",
       "import": "{ Select }",
@@ -129,7 +140,7 @@
       "name": "CSS (dist/styles.css)",
       "path": "dist/styles.css",
       "rolldown": false,
-      "limit": "2.9 kB"
+      "limit": "3.1 kB"
     }
   ]
 }
