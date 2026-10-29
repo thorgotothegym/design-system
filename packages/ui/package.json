@@ -10,7 +10,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./styles.css": "./dist/styles.css"
+    "./styles.css": "./dist/styles.css",
+    "./otp-input": {
+      "types": "./dist/otp-input.d.ts",
+      "import": "./dist/otp-input.js"
+    }
   },
   "files": [
     "dist"
@@ -63,6 +67,7 @@
     "@radix-ui/react-switch": "1.4.1",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
+    "input-otp": "1.5.0",
     "tailwind-merge": "3.7.0"
   },
   "size-limit": [
@@ -135,6 +140,16 @@
         "react-dom"
       ],
       "limit": "35.6 kB"
+    },
+    {
+      "name": "OtpInput",
+      "path": "dist/otp-input.js",
+      "import": "{ OtpInput }",
+      "ignore": [
+        "react",
+        "react-dom"
+      ],
+      "limit": "12 kB"
     },
     {
       "name": "CSS (dist/styles.css)",
