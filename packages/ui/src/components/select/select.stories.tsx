@@ -64,13 +64,43 @@ export const Large: Story = { args: { size: "lg" } };
 
 export const WithValue: Story = { args: { defaultValue: "fr" } };
 
-/** Options in labelled groups, separated by a line; open by default to show them. */
-export const Grouped: Story = { args: { defaultOpen: true } };
+/**
+ * While the list is open, Radix hides the rest of the page from assistive technology and traps
+ * focus in the list, so axe reports the (unreachable) trigger under `aria-hidden-focus`. The
+ * stories that open the list close it again at the end of their `play`, so the state the a11y
+ * panel checks is the resting one.
+ */
+const closeList = async () => {
+  await userEvent.keyboard("{Escape}");
+  await waitFor(() => expect(screen.queryByRole("listbox")).toBeNull());
+};
+
+/** Options in labelled groups, separated by a line; each group is named by its label. */
+export const Grouped: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(canvas.getByRole("combobox", { name: "Country" }));
+    await expect(
+      await screen.findByRole("group", { name: "Europe" }),
+    ).toBeVisible();
+    await expect(screen.getByRole("group", { name: "Americas" })).toBeVisible();
+    await closeList();
+  },
+};
 
 /** A disabled option cannot be chosen; the arrow keys and typing skip it. */
 export const DisabledOption: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(canvas.getByRole("combobox", { name: "Country" }));
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
+    await expect(screen.getByRole("option", { name: "France" })).toHaveFocus();
+    await closeList();
+  },
   args: {
-    defaultOpen: true,
     children: (
       <>
         <Select.Item value="es">Spain</Select.Item>
@@ -312,6 +342,7 @@ export const SmallViewport: Story = {
 
     await waitFor(() => expect(content).toHaveAttribute("data-side", "top"));
     await expectInsideViewport(content);
+    await closeList();
   },
 };
 
@@ -334,5 +365,6 @@ export const PageWithScrollbar: Story = {
     await screen.findByRole("listbox");
 
     await expect(trigger.getBoundingClientRect().left).toBe(before);
+    await closeList();
   },
 };
