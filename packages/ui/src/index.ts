@@ -13,3 +13,8 @@ export { Switch } from "./components/switch";
 export type { SwitchProps } from "./components/switch";
 export { Textarea } from "./components/textarea";
 export type { TextareaProps } from "./components/textarea";
+export { RadioGroup } from "./components/radio-group";
+export type {
+  RadioGroupItemProps,
+  RadioGroupProps,
+} from "./components/radio-group";

@@ -30,6 +30,8 @@ export const useFieldState = (options: FieldStateOptions) => {
     invalid,
     disabled: Boolean(options.disabled) || Boolean(field?.disabled),
     "aria-describedby": describedBy === "" ? undefined : describedBy,
+    /** Only for group controls, which `htmlFor` cannot label; other controls ignore it. */
+    labelledBy: field?.hasLabel ? field.labelId : undefined,
     "aria-invalid": invalid ? (true as const) : undefined,
     "aria-required": field?.required ? (true as const) : undefined,
   };
