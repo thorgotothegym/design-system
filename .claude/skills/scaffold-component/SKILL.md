@@ -22,6 +22,8 @@ What the templates do **not** cover, and you adapt by hand after scaffolding, co
 - a native control with a prefix, suffix or spinner: it needs a box around the element, so copy `input` (`className` goes to the box, `ref` and native props to the element);
 - a Radix primitive with another shape (RadioGroup, Select, Slider, anything with a group root and items) or with more than two states (a checkbox is also `"indeterminate"`: widen the `checked` type as `checkbox.tsx` does).
 
+If the dependency does not declare `"sideEffects": false` (check its `package.json`; Radix packages do), exporting the component from the root `index.ts` makes every other component larger for consumers. Measure with `pnpm size` after exporting it: if the other entries grow, give the component its own entry point instead (`src/<name>.ts`, an entry in `tsup.config.ts`, an `exports` entry and the `size-limit` `path`), as `OtpInput` does; see AGENTS.md section 5.
+
 If the primitive is not a dependency yet, check its current docs (Context7 or the official site; do not trust memory), then run `pnpm --filter @aleixvidal/ui add <package>@<exact version>`. Justify the dependency in the PR.
 
 ## 2. Create

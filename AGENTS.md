@@ -86,6 +86,7 @@ packages/ui/src/components/<name>/
 
 - File and folder names: `kebab-case`. Component names: `PascalCase`.
 - Named exports only. No default exports. Re-export every public component from `packages/ui/src/index.ts`.
+  - Exception: a component whose dependency cannot be tree-shaken (the package has no `"sideEffects": false`, so a bundler keeps it for anyone who imports the root entry) ships as its own entry point, `@aleixvidal/ui/<name>`, with a `src/<name>.ts` entry in `tsup.config.ts`, an `exports` entry and its own `size-limit` path. It is not exported from `index.ts`. `OtpInput` (`input-otp`) is the first: exporting it from the root made every other component about 2.7 kB larger.
 - Forward refs on components that wrap a DOM element. Spread remaining props onto the root element and merge `className` with `cn()`.
 - Props: extend the native element's props (`React.ComponentPropsWithoutRef<'input'>`) instead of redefining them. Document each prop with a JSDoc comment so autodocs picks it up.
 - Variants and sizes: use `cva`. Keep the variant surface small and justified. Do not add a prop "just in case".
