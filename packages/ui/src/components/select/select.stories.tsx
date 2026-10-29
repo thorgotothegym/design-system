@@ -150,6 +150,9 @@ export const LongList: Story = {
 
 const ControlledExample = () => {
   const [value, setValue] = useState("es");
+  const handleValueChange = (newValue: string) => {
+    setValue(newValue);
+  };
 
   return (
     <div className="flex flex-col gap-2">
@@ -157,7 +160,7 @@ const ControlledExample = () => {
         aria-label="Country"
         placeholder="Choose a country"
         value={value}
-        onValueChange={setValue}
+        onValueChange={handleValueChange}
       >
         <CountryOptions />
       </Select>
@@ -217,6 +220,20 @@ const closeList = async () => {
 };
 
 /**
+ * The interaction stories that demonstrate a flow (not the layout checks) run at a readable pace:
+ * a short pause before the first step and a delay after each one, so that opening, moving and
+ * choosing can be followed in the canvas instead of flashing by on load. Only the pace changes;
+ * the assertions are the same as at full speed.
+ */
+const DEMO_FIRST_STEP_PAUSE = 600;
+const DEMO_STEP_DELAY = 250;
+
+const startDemo = async () => {
+  await new Promise((resolve) => setTimeout(resolve, DEMO_FIRST_STEP_PAUSE));
+  return userEvent.setup({ delay: DEMO_STEP_DELAY });
+};
+
+/**
  * Keyboard: open with Enter, move with the arrows, pick with Enter; typing selects a matching
  * option while closed; Escape closes without changing the value. The value is announced as the
  * combo box's value.
@@ -224,30 +241,31 @@ const closeList = async () => {
 export const KeyboardNavigation: Story = {
   args: { defaultValue: "es" },
   play: async ({ canvasElement }) => {
+    const user = await startDemo();
     const canvas = within(canvasElement);
     const trigger = canvas.getByRole("combobox", { name: "Country" });
 
-    await userEvent.tab();
+    await user.tab();
     await expect(trigger).toHaveFocus();
 
-    await userEvent.keyboard("{Enter}");
+    await user.keyboard("{Enter}");
     const listbox = await screen.findByRole("listbox");
     await expect(
       within(listbox).getByRole("option", { name: "Spain" }),
     ).toHaveFocus();
 
-    await userEvent.keyboard("{ArrowDown}");
-    await userEvent.keyboard("{Enter}");
+    await user.keyboard("{ArrowDown}");
+    await user.keyboard("{Enter}");
     await waitFor(() => expect(screen.queryByRole("listbox")).toBeNull());
     await expect(trigger).toHaveTextContent("Portugal");
     await expect(trigger).toHaveFocus();
 
-    await userEvent.keyboard("c");
+    await user.keyboard("c");
     await expect(trigger).toHaveTextContent("Canada");
 
-    await userEvent.keyboard("{Enter}");
+    await user.keyboard("{Enter}");
     await screen.findByRole("listbox");
-    await userEvent.keyboard("{Escape}");
+    await user.keyboard("{Escape}");
     await waitFor(() => expect(screen.queryByRole("listbox")).toBeNull());
     await expect(trigger).toHaveTextContent("Canada");
   },
@@ -289,18 +307,19 @@ const ValidationExample = () => {
 export const ValidationFlow: Story = {
   render: () => <ValidationExample />,
   play: async ({ canvasElement }) => {
+    const user = await startDemo();
     const canvas = within(canvasElement);
     const trigger = canvas.getByRole("combobox", { name: /Country/ });
 
-    await userEvent.click(canvas.getByRole("button", { name: "Continue" }));
+    await user.click(canvas.getByRole("button", { name: "Continue" }));
     await expect(trigger).toBeInvalid();
     await expect(trigger).toBeRequired();
     await expect(trigger).toHaveAccessibleDescription(
       "Where you pay taxes. Choose a country",
     );
 
-    await userEvent.click(trigger);
-    await userEvent.click(await screen.findByRole("option", { name: "Peru" }));
+    await user.click(trigger);
+    await user.click(await screen.findByRole("option", { name: "Peru" }));
     await expect(trigger).toHaveTextContent("Peru");
     await expect(trigger).toBeValid();
   },
