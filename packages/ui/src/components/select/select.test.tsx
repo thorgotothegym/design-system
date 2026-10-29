@@ -285,6 +285,26 @@ describe("Select", () => {
     expect(screen.getByRole("option", { name: "Peru" })).toHaveFocus();
   });
 
+  it("should draw the highlighted option as a focus ring, not only a fill", async () => {
+    const user = userEvent.setup();
+    render(<CountrySelect defaultValue="es" />);
+
+    await user.tab();
+    await user.keyboard("{Enter}");
+    await user.keyboard("{ArrowDown}");
+
+    // The fill alone is about 1.1:1 against the popover, so the inset ring is the indicator
+    // (WCAG 1.4.11). jsdom loads no stylesheet, so the classes are what can be asserted.
+    const highlighted = screen.getByRole("option", { name: "France" });
+    expect(highlighted).toHaveAttribute("data-highlighted");
+    expect(highlighted).toHaveClass(
+      "data-highlighted:outline-2",
+      "data-highlighted:outline-solid",
+      "data-highlighted:-outline-offset-2",
+      "data-highlighted:outline-focus-ring",
+    );
+  });
+
   it("should name each group with its label", async () => {
     const user = userEvent.setup();
     render(<CountrySelect />);

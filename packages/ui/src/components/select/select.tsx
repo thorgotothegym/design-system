@@ -221,8 +221,13 @@ export type SelectItemProps = ComponentPropsWithRef<
 >;
 
 /**
- * One option. `value` is required and `children` is its text, which is also what the trigger shows
- * once it is selected. A `disabled` option is skipped by the arrow keys and by typing. The check
+ * One option. The highlighted option (keyboard focus, and the pointer too: Radix highlights on
+ * pointer move) is an inset `focus.ring` outline over a `bg.subtle` fill. The fill alone is about
+ * 1.1:1 against the popover, so the ring is the indicator (WCAG 1.4.11, 3:1 against `bg.surface`
+ * and `bg.subtle`, both in the contrast gate).
+ *
+ * `value` is required and `children` is its text, which is also what the trigger shows once it is
+ * selected. A `disabled` option is skipped by the arrow keys and by typing. The check
  * mark has a reserved slot, so the text does not move when the option is selected.
  */
 const SelectItem = ({ className, children, ...props }: SelectItemProps) => (
@@ -230,7 +235,7 @@ const SelectItem = ({ className, children, ...props }: SelectItemProps) => (
     {...props}
     data-slot="select-item"
     className={cn(
-      "relative flex cursor-pointer items-center rounded-md py-2 pr-3 pl-8 outline-hidden select-none data-highlighted:bg-bg-subtle data-disabled:cursor-not-allowed data-disabled:text-text-muted",
+      "relative flex cursor-pointer items-center rounded-md py-2 pr-3 pl-8 outline-none select-none data-highlighted:bg-bg-subtle data-highlighted:outline-2 data-highlighted:outline-solid data-highlighted:-outline-offset-2 data-highlighted:outline-focus-ring data-disabled:cursor-not-allowed data-disabled:text-text-muted",
       className,
     )}
   >
