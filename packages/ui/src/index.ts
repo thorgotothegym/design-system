@@ -13,3 +13,11 @@ export { Switch } from "./components/switch";
 export type { SwitchProps } from "./components/switch";
 export { Textarea } from "./components/textarea";
 export type { TextareaProps } from "./components/textarea";
+export { Select } from "./components/select";
+export type {
+  SelectGroupProps,
+  SelectItemProps,
+  SelectLabelProps,
+  SelectProps,
+  SelectSeparatorProps,
+} from "./components/select";
