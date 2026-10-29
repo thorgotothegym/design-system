@@ -124,6 +124,7 @@ Form controls (Input, Textarea, Select, Checkbox, RadioGroup, Switch, DatePicker
 ## 7. Accessibility (non-negotiable)
 
 - Every interactive component is fully operable by keyboard, with a visible focus indicator (`:focus-visible`).
+- Every state indicator (focus, highlighted, selected, invalid) needs 3:1 non-text contrast (WCAG 1.4.11) against its adjacent colors, in both themes. A background change on its own does not count: two surfaces that are about 1.1:1 apart are not an indicator. Add a border, an inset outline with `focus.ring`, or an icon, and put the indicator/background pair in the contrast gate (`packages/tokens/src/contrast/pairs.ts`). Disabled components are exempt.
 - Correct roles, names and states. Use native elements first, ARIA only when needed.
 - Text contrast meets WCAG 2.2 AA in both light and dark themes.
 - Respect `prefers-reduced-motion`.
@@ -188,6 +189,7 @@ A component is done only when ALL of this is true:
 - [ ] Uses semantic tokens only; works in light and dark
 - [ ] All states implemented and covered by stories
 - [ ] Keyboard and screen reader behavior verified; a11y addon is clean
+- [ ] Keyboard-only pass done over every state of the component (Tab, arrows, Space, Enter, Escape): the focus, highlighted, selected and invalid indicators are visible and meet 3:1 in both themes
 - [ ] Tests written and passing
 - [ ] Uses `type` (no `interface`), no `any`; props type exported
 - [ ] No layout shift in any state; size-limit budget respected
