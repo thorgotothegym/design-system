@@ -1,0 +1,154 @@
+name: CI
+
+# Every quality gate that runs by hand (AGENTS.md, "CI"). No secrets and no external services, so
+# it is safe on pull requests from forks. The only required check is `ci-success`.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  # A new push to a pull request cancels the run it replaces; runs on main always finish.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: quality (lint, typecheck, format, placeholders)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+        with:
+          turbo-cache-key: quality
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm format:check
+      - run: pnpm check:placeholders
+
+  test:
+    name: test (with coverage thresholds)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+        with:
+          turbo-cache-key: test
+      # packages/ui runs `vitest run --coverage`: below the thresholds the command fails.
+      - run: pnpm test
+
+  build:
+    name: build (packages and Storybook)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+        with:
+          turbo-cache-key: build
+      - run: pnpm build
+      - uses: actions/upload-artifact@v7
+        with:
+          name: storybook-static
+          path: apps/storybook/storybook-static
+          retention-days: 14
+          if-no-files-found: error
+
+  size:
+    name: size (bundle and CSS budgets)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+        with:
+          turbo-cache-key: size
+      - run: pnpm size
+
+  a11y:
+    name: a11y (every story in Chromium, both themes)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # The demo `play` functions run at full speed in CI (packages/ui/src/test/demo.ts).
+      STORYBOOK_PLAY_DELAY: "0"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+        with:
+          turbo-cache-key: a11y
+      - name: Read the Playwright version
+        id: playwright
+        run: echo "version=$(pnpm --filter @aleixvidal/storybook exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+      # The browser binary is cached by Playwright version; the system libraries it needs are not
+      # cacheable, so they are installed on every run.
+      - uses: actions/cache@v6
+        id: browsers
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium-headless-shell
+      - if: steps.browsers.outputs.cache-hit != 'true'
+        run: pnpm --filter @aleixvidal/storybook exec playwright install --with-deps --only-shell chromium
+      - if: steps.browsers.outputs.cache-hit == 'true'
+        run: pnpm --filter @aleixvidal/storybook exec playwright install-deps chromium
+      - run: pnpm test:storybook
+
+  consumer:
+    name: consumer (packed package in a clean app)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+        with:
+          turbo-cache-key: consumer
+      # Uses the Google Chrome that ubuntu-latest ships (Playwright channel "chrome").
+      - run: pnpm test:consumer
+
+  scaffold:
+    name: scaffold (every variant of the skill)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+        with:
+          turbo-cache-key: scaffold
+      - run: pnpm test:scaffold
+
+  changeset:
+    name: changeset (published package changes)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The whole history, so the base branch is there to compare with.
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+        with:
+          turbo-cache-key: changeset
+      # Fails when a published package changed without a changeset. Stories, tests, test helpers
+      # and scripts are not shipped, so they do not count (`changedFilePatterns` in
+      # .changeset/config.json); a pull request that changes no published file passes.
+      - run: pnpm changeset status --since=origin/${{ github.base_ref }}
+
+  ci-success:
+    name: ci-success
+    if: always()
+    needs: [quality, test, build, size, a11y, consumer, scaffold, changeset]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # `changeset` is skipped on pushes to main; skipped is fine, failed or cancelled is not.
+      - if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "Some jobs failed or were cancelled: ${{ toJSON(needs) }}"
+          exit 1
+      - run: echo "Every CI job passed."
