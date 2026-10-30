@@ -3,12 +3,16 @@
  *
  *   node .claude/skills/scaffold-component/scaffold.mts create <name> --variant native [--element input|textarea]
  *   node .claude/skills/scaffold-component/scaffold.mts create <name> --variant radix --primitive <package> --role <aria-role> [--part Thumb|Indicator]
+ *   node .claude/skills/scaffold-component/scaffold.mts create <name> --variant group --primitive <package> --role <group role> --item-role <item role>
+ *   node .claude/skills/scaffold-component/scaffold.mts create <name> --variant popover --primitive <package>
+ *   node .claude/skills/scaffold-component/scaffold.mts create <name> --variant subpath --dependency <package>
  *   node .claude/skills/scaffold-component/scaffold.mts size <name>
  *
- * `create` writes the four component files, exports the component from the package entry, adds a
- * changeset stub and a provisional size-limit entry. `size` builds the package, measures the
- * component after tree-shaking and sets its size-limit to the measured size plus a small margin.
- * Plain Node (type stripping), no dependencies.
+ * `create` writes the four component files with the checklist on top, a changeset stub and a
+ * provisional size-limit entry, and exports the component: from the package entry, or for
+ * `subpath` from its own entry point (entry file, `exports`, tsup entry, manifest test and README
+ * line). `size` builds the package, measures the component after tree-shaking and sets its
+ * size-limit to the measured size plus a small margin. Plain Node (type stripping), no dependencies.
  */
 import { spawnSync } from "node:child_process";
 import {
@@ -20,7 +24,9 @@ import {
 } from "node:fs";
 import { parseArgs } from "node:util";
 
-type Variant = "native" | "radix";
+const VARIANTS = ["native", "radix", "group", "popover", "subpath"] as const;
+
+type Variant = (typeof VARIANTS)[number];
 
 const ROOT = new URL("../../../", import.meta.url);
 const TEMPLATES = new URL("templates/", import.meta.url);
@@ -31,6 +37,9 @@ const PACKAGE_JSON = new URL("package.json", UI);
 const PROVISIONAL_LIMIT: Record<Variant, string> = {
   native: "9 kB",
   radix: "13.5 kB",
+  group: "18 kB",
+  popover: "36 kB",
+  subpath: "15 kB",
 };
 
 /** Headroom added to the measured size when `size` sets the budget. */
@@ -91,13 +100,15 @@ const render = (
   for (const [token, value] of Object.entries(tokens)) {
     text = text.replaceAll(`__${token}__`, value);
   }
-  const left = text.match(/__[A-Za-z]+__/);
+  // `/* @__PURE__ */` is a bundler annotation, not a template token.
+  const left = text.match(/__(?!PURE__)[A-Za-z]+__/);
   if (left !== null) fail(`template token left unreplaced: ${left[0]}`);
   return text;
 };
 
 const readPackageJson = (): {
   dependencies: Record<string, string>;
+  exports: Record<string, unknown>;
   "size-limit": { name: string; limit: string }[];
 } => JSON.parse(readFileSync(PACKAGE_JSON, "utf8"));
 
@@ -107,13 +118,37 @@ const writePackageJson = (pkg: object) =>
 const run = (command: string, args: string[], cwd: URL = ROOT) =>
   spawnSync(command, args, { cwd, encoding: "utf8", stdio: "pipe" });
 
+const requireDependency = (name: string | undefined, option: string) => {
+  if (name === undefined) return fail(`this variant needs ${option} <package>`);
+  if (readPackageJson().dependencies[name] === undefined) {
+    fail(
+      `${name} is not a dependency of @aleixvidal/ui. Check its current docs, then run: pnpm --filter @aleixvidal/ui add ${name}@<exact version>`,
+    );
+  }
+  return name;
+};
+
+const namespaceOf = (primitive: string) =>
+  `${toPascal((primitive.split("/").pop() ?? "").replace(/^react-/, ""))}Primitive`;
+
+/** Inserts `text` before the last occurrence of `marker` in a file, or fails with what to do by hand. */
+const insertBeforeLast = (file: URL, marker: string, text: string) => {
+  const source = readFileSync(file, "utf8");
+  const at = source.lastIndexOf(marker);
+  if (at === -1)
+    fail(
+      `could not find "${marker}" in ${file.pathname}; add this by hand:\n${text}`,
+    );
+  writeFileSync(file, source.slice(0, at) + text + source.slice(at));
+};
+
 const create = (values: Record<string, string | undefined>, name: string) => {
   if (!/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(name)) {
     fail(`"${name}" is not kebab-case (for example "date-picker")`);
   }
-  const variant = values.variant;
-  if (variant !== "native" && variant !== "radix") {
-    return fail('--variant must be "native" or "radix"');
+  const variant = VARIANTS.find((item) => item === values.variant);
+  if (variant === undefined) {
+    return fail(`--variant must be one of: ${VARIANTS.join(", ")}`);
   }
   const folder = new URL(`src/components/${name}/`, UI);
   if (existsSync(folder))
@@ -124,8 +159,11 @@ const create = (values: Record<string, string | undefined>, name: string) => {
     Name,
     name,
     nameCamel: toCamel(name),
+    role: "textbox",
   };
-  const flags = new Set<string>();
+  const flags = new Set<string>([variant]);
+  /** Types exported next to the component, from the package entry. */
+  const types = [`${Name}Props`];
 
   if (variant === "native") {
     const element = values.element ?? "input";
@@ -136,27 +174,55 @@ const create = (values: Record<string, string | undefined>, name: string) => {
     tokens.HtmlElement =
       element === "input" ? "HTMLInputElement" : "HTMLTextAreaElement";
     flags.add(element);
-  } else {
-    const primitive = values.primitive;
-    const role = values.role;
-    if (primitive === undefined || role === undefined) {
-      return fail(
-        "--variant radix needs --primitive <package> and --role <aria-role>",
-      );
-    }
-    if (readPackageJson().dependencies[primitive] === undefined) {
-      fail(
-        `${primitive} is not a dependency of @aleixvidal/ui. Check its current docs, then run: pnpm --filter @aleixvidal/ui add ${primitive}@<exact version>`,
-      );
-    }
+  } else if (variant === "radix") {
+    const primitive = requireDependency(values.primitive, "--primitive");
+    if (values.role === undefined)
+      fail("--variant radix needs --role <aria-role>");
     const part = values.part ?? "Thumb";
     tokens.primitive = primitive;
-    tokens.role = role;
+    tokens.role = values.role ?? "";
     tokens.Part = part;
     tokens.partKebab = part.toLowerCase();
-    tokens.Namespace = `${toPascal((primitive.split("/").pop() ?? "").replace(/^react-/, ""))}Primitive`;
-    if (ARIA_REQUIRED_ROLES.has(role)) flags.add("requiredSupported");
+    tokens.Namespace = namespaceOf(primitive);
+  } else if (variant === "group") {
+    const primitive = requireDependency(values.primitive, "--primitive");
+    if (values.role === undefined || values["item-role"] === undefined) {
+      fail(
+        "--variant group needs --role <group role> and --item-role <item role>",
+      );
+    }
+    tokens.primitive = primitive;
+    tokens.role = values.role ?? "";
+    tokens.itemRole = values["item-role"] ?? "";
+    tokens.Namespace = namespaceOf(primitive);
+    flags.add("compound");
+    types.push(`${Name}ItemProps`);
+  } else if (variant === "popover") {
+    const primitive = requireDependency(values.primitive, "--primitive");
+    tokens.primitive = primitive;
+    tokens.role = "combobox";
+    tokens.Namespace = namespaceOf(primitive);
+    flags.add("compound");
+    types.push(
+      `${Name}GroupProps`,
+      `${Name}ItemProps`,
+      `${Name}LabelProps`,
+      `${Name}SeparatorProps`,
+    );
+  } else {
+    const dependency = requireDependency(values.dependency, "--dependency");
+    tokens.dependency = dependency;
+    tokens.dependencyPattern = dependency.replace(
+      /[.*+?^${}()|[\]\\/]/g,
+      "\\$&",
+    );
   }
+  if (ARIA_REQUIRED_ROLES.has(tokens.role ?? ""))
+    flags.add("requiredSupported");
+
+  const template = (file: string) =>
+    render(readFileSync(new URL(file, TEMPLATES), "utf8"), tokens, flags);
+  tokens.checklist = template("checklist.tpl").trimEnd();
 
   const files: [template: string, target: string][] = [
     ["component.tsx.tpl", `${name}.tsx`],
@@ -166,31 +232,22 @@ const create = (values: Record<string, string | undefined>, name: string) => {
   ];
   mkdirSync(folder, { recursive: true });
   const written: string[] = [];
-  for (const [template, target] of files) {
-    const source = readFileSync(
-      new URL(`${variant}/${template}`, TEMPLATES),
-      "utf8",
-    );
-    writeFileSync(new URL(target, folder), render(source, tokens, flags));
+  for (const [source, target] of files) {
+    writeFileSync(new URL(target, folder), template(`${variant}/${source}`));
     written.push(`packages/ui/src/components/${name}/${target}`);
   }
-
-  appendFileSync(
-    new URL("src/index.ts", UI),
-    `export { ${Name} } from "./components/${name}";\nexport type { ${Name}Props } from "./components/${name}";\n`,
-  );
 
   const changeset = `.changeset/add-${name}.md`;
   writeFileSync(
     new URL(changeset, ROOT),
-    `---\n"@aleixvidal/ui": minor\n---\n\nAdd the \`${Name}\` component. SCAFFOLD-PLACEHOLDER: describe what it does for the people who install the package.\n`,
+    template(`${variant}/changeset.md.tpl`),
   );
-  written.push(changeset, "packages/ui/src/index.ts");
+  written.push(changeset);
 
   const pkg = readPackageJson();
   const entry = {
     name: Name,
-    path: "dist/index.js",
+    path: variant === "subpath" ? `dist/${name}.js` : "dist/index.js",
     import: `{ ${Name} }`,
     ignore: ["react", "react-dom"],
     limit: PROVISIONAL_LIMIT[variant],
@@ -203,6 +260,63 @@ const create = (values: Record<string, string | undefined>, name: string) => {
     0,
     entry,
   );
+
+  if (variant === "subpath") {
+    // Its own entry point: the entry file, an `exports` entry, a tsup entry, a manifest test that
+    // fails if the root entry exports it, and the import path in the README.
+    writeFileSync(
+      new URL(`src/${name}.ts`, UI),
+      template("subpath/entry.ts.tpl"),
+    );
+    pkg.exports[`./${name}`] = {
+      types: `./dist/${name}.d.ts`,
+      import: `./dist/${name}.js`,
+    };
+    const tsup = new URL("tsup.config.ts", UI);
+    const config = readFileSync(tsup, "utf8");
+    const entries = config.match(/entry: \[([^\]]*)\]/);
+    if (entries === null)
+      fail("could not find `entry: [...]` in tsup.config.ts");
+    writeFileSync(
+      tsup,
+      config.replace(
+        entries?.[0] ?? "",
+        `entry: [${(entries?.[1] ?? "").trim().replace(/,$/, "")}, "src/${name}.ts"]`,
+      ),
+    );
+    insertBeforeLast(
+      new URL("src/package.test.ts", UI),
+      "});",
+      template("subpath/manifest-test.ts.tpl"),
+    );
+    const readme = new URL("README.md", UI);
+    insertBeforeLast(
+      readme,
+      '";\n```',
+      `";\nimport { ${Name} } from "@aleixvidal/ui/${name}`,
+    );
+    const text = readFileSync(readme, "utf8");
+    const section = text.indexOf("### Entry points");
+    const next = text.indexOf("\n## ", section);
+    if (section === -1 || next === -1)
+      fail("could not find the Entry points section in packages/ui/README.md");
+    writeFileSync(
+      readme,
+      `${text.slice(0, next)}\n${template("subpath/readme.md.tpl")}${text.slice(next)}`,
+    );
+    written.push(
+      `packages/ui/src/${name}.ts`,
+      "packages/ui/tsup.config.ts",
+      "packages/ui/src/package.test.ts",
+      "packages/ui/README.md",
+    );
+  } else {
+    appendFileSync(
+      new URL("src/index.ts", UI),
+      `export { ${Name} } from "./components/${name}";\nexport type { ${types.join(", ")} } from "./components/${name}";\n`,
+    );
+    written.push("packages/ui/src/index.ts");
+  }
   writePackageJson(pkg);
   written.push("packages/ui/package.json");
 
@@ -213,7 +327,7 @@ const create = (values: Record<string, string | undefined>, name: string) => {
     `Created ${Name} (${variant}). Files:\n  ${written.join("\n  ")}`,
   );
   console.log(
-    `\nNext: node .claude/skills/scaffold-component/scaffold.mts size ${name}\nThen resolve every SCAFFOLD-PLACEHOLDER: pnpm check:placeholders`,
+    `\nNext: node .claude/skills/scaffold-component/scaffold.mts size ${name}\nThen work through the checklist at the top of ${name}.tsx and resolve every SCAFFOLD-PLACEHOLDER: pnpm check:placeholders`,
   );
 };
 
@@ -266,7 +380,9 @@ const { values, positionals } = parseArgs({
     element: { type: "string" },
     primitive: { type: "string" },
     role: { type: "string" },
+    "item-role": { type: "string" },
     part: { type: "string" },
+    dependency: { type: "string" },
   },
 });
 const [command, name] = positionals;

@@ -9,6 +9,8 @@ import { join, relative } from "node:path";
 const MARKER = "SCAFFOLD-PLACEHOLDER";
 const ROOT = new URL("../", import.meta.url).pathname;
 const FOLDERS = ["packages/ui/src", ".changeset"];
+/** The `subpath` variant also leaves a marker in the README paragraph about its entry point. */
+const FILES = ["packages/ui/README.md"];
 
 const listFiles = (folder: string): string[] =>
   readdirSync(folder, { withFileTypes: true }).flatMap((entry) =>
@@ -17,7 +19,10 @@ const listFiles = (folder: string): string[] =>
       : [join(folder, entry.name)],
   );
 
-const found = FOLDERS.flatMap((folder) => listFiles(join(ROOT, folder)))
+const found = [
+  ...FOLDERS.flatMap((folder) => listFiles(join(ROOT, folder))),
+  ...FILES.map((file) => join(ROOT, file)),
+]
   .map((file) => ({
     file: relative(ROOT, file),
     lines: readFileSync(file, "utf8")
@@ -36,4 +41,4 @@ if (found.length > 0) {
   process.exit(1);
 }
 
-console.log(`No ${MARKER} left in ${FOLDERS.join(" or ")}.`);
+console.log(`No ${MARKER} left in ${[...FOLDERS, ...FILES].join(", ")}.`);
