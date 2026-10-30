@@ -287,6 +287,21 @@ describe("DatePicker", () => {
     expect(segment("day")).toHaveTextContent("14");
   });
 
+  it("should give focus back to the part the calendar was opened from, not to the button", async () => {
+    const user = userEvent.setup();
+    render(<StartDate defaultValue="2026-10-14" />);
+
+    await user.click(segment("year"));
+    await user.keyboard("{Alt>}{ArrowDown}{/Alt}");
+    await user.keyboard("{Escape}");
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    // React Aria gives focus back on the next animation frame.
+    await waitFor(() => {
+      expect(segment("year")).toHaveFocus();
+    });
+  });
+
   it("should choose a day with the pointer", async () => {
     const user = userEvent.setup();
     const onValueChange = vi.fn();

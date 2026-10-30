@@ -213,7 +213,9 @@ export type DatePickerProps = {
  * digits fills a part and moves on, Up and Down change it, Backspace clears it. Alt + Down, or
  * Enter on the button, opens the calendar: the arrows move by day, Page Up and Page Down by month
  * (with Shift, by year), Home and End to the start and end of the week, Enter chooses the day and
- * closes, Escape closes without choosing; focus goes back to the calendar button.
+ * closes, Escape closes without choosing. However the calendar closes (choosing a day, Escape, or
+ * a click outside, which only closes it), focus goes back to where it was opened from: the
+ * calendar button, or the part where Alt + Down was pressed.
  *
  * The value is an ISO 8601 date string (`"2026-10-30"`), with no time or time zone, so it does
  * not move by a day in other time zones and goes into a form or a schema as it is.
