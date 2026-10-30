@@ -5,7 +5,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "env": ["NODE_ENV"],
+      "env": ["NODE_ENV", "STORYBOOK_PLAY_DELAY"],
       "outputs": ["dist/**", "storybook-static/**"]
     },
     "lint": {},
@@ -15,6 +15,11 @@
     "test": {
       "dependsOn": ["^build"],
       "env": ["NODE_ENV"]
+    },
+    "test:storybook": {
+      "dependsOn": ["^build"],
+      "env": ["STORYBOOK_PLAY_DELAY"],
+      "cache": false
     },
     "size": {
       "dependsOn": ["build"]

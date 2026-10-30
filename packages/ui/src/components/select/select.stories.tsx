@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, screen, userEvent, waitFor, within } from "storybook/test";
 import { useState } from "react";
+import { startDemo } from "../../test/demo";
 import { Field } from "../field";
 import { Select } from "./select";
 
@@ -217,20 +218,6 @@ export const PseudoStates: Story = {
 const closeList = async () => {
   await userEvent.keyboard("{Escape}");
   await waitFor(() => expect(screen.queryByRole("listbox")).toBeNull());
-};
-
-/**
- * The interaction stories that demonstrate a flow (not the layout checks) run at a readable pace:
- * a short pause before the first step and a delay after each one, so that opening, moving and
- * choosing can be followed in the canvas instead of flashing by on load. Only the pace changes;
- * the assertions are the same as at full speed.
- */
-const DEMO_FIRST_STEP_PAUSE = 600;
-const DEMO_STEP_DELAY = 250;
-
-const startDemo = async () => {
-  await new Promise((resolve) => setTimeout(resolve, DEMO_FIRST_STEP_PAUSE));
-  return userEvent.setup({ delay: DEMO_STEP_DELAY });
 };
 
 /**
