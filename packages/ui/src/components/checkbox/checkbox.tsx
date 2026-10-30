@@ -14,7 +14,7 @@ const checkboxClasses = [
   "m-0 box-border inline-flex size-5 shrink-0 appearance-none items-center justify-center rounded-md border border-border-control bg-bg-input p-0 text-text-on-primary",
   "not-data-invalid:not-data-disabled:hover:border-brand-primary",
   "not-data-invalid:not-data-disabled:active:border-brand-primary",
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring",
+  "focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-focus-ring",
   "not-data-disabled:data-[state=checked]:bg-brand-primary not-data-disabled:data-[state=indeterminate]:bg-brand-primary",
   "not-data-disabled:not-data-invalid:data-[state=checked]:border-brand-primary not-data-disabled:not-data-invalid:data-[state=indeterminate]:border-brand-primary",
   "data-invalid:border-border-danger",

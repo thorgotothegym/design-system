@@ -16,7 +16,7 @@ const textareaVariants = cva(
     "m-0 box-border block w-full resize-y rounded-lg border border-border-control bg-bg-input px-3 py-2 font-mono text-text-default placeholder:text-text-placeholder",
     "not-data-invalid:not-data-disabled:not-data-readonly:hover:border-brand-primary",
     "not-data-invalid:not-data-disabled:not-data-readonly:active:border-brand-primary",
-    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring",
+    "focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-focus-ring",
     "data-invalid:border-border-danger",
     "data-readonly:bg-bg-subtle",
     "data-disabled:cursor-not-allowed data-disabled:bg-bg-subtle data-disabled:text-text-muted",

@@ -28,7 +28,7 @@ const rangeClasses =
 const thumbClasses = [
   "m-0 box-border block size-6 cursor-grab appearance-none rounded-full border-2 border-brand-primary bg-bg-input p-0",
   "not-data-disabled:hover:bg-bg-subtle not-data-disabled:active:cursor-grabbing",
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring",
+  "focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-focus-ring",
   "in-data-invalid:border-border-danger",
   "data-disabled:cursor-not-allowed data-disabled:border-text-muted data-disabled:bg-bg-subtle",
 ];

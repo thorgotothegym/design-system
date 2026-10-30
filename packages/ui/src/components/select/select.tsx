@@ -19,7 +19,7 @@ const triggerVariants = cva(
     "not-data-invalid:not-data-disabled:hover:border-brand-primary",
     "not-data-invalid:not-data-disabled:active:border-brand-primary",
     "not-data-invalid:data-[state=open]:border-brand-primary",
-    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring",
+    "focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-focus-ring",
     "data-invalid:border-border-danger",
     "data-disabled:cursor-not-allowed data-disabled:bg-bg-subtle data-disabled:text-text-muted",
     "motion-safe:transition-[border-color]",
@@ -235,7 +235,7 @@ const SelectItem = ({ className, children, ...props }: SelectItemProps) => (
     {...props}
     data-slot="select-item"
     className={cn(
-      "relative flex cursor-pointer items-center rounded-md py-2 pr-3 pl-8 outline-none select-none data-highlighted:bg-bg-subtle data-highlighted:outline-2 data-highlighted:outline-solid data-highlighted:-outline-offset-2 data-highlighted:outline-focus-ring data-disabled:cursor-not-allowed data-disabled:text-text-muted",
+      "relative flex cursor-pointer items-center rounded-md py-2 pr-3 pl-8 outline-transparent select-none data-highlighted:bg-bg-subtle data-highlighted:outline-2 data-highlighted:outline-solid data-highlighted:-outline-offset-2 data-highlighted:outline-focus-ring data-disabled:cursor-not-allowed data-disabled:text-text-muted",
       className,
     )}
   >

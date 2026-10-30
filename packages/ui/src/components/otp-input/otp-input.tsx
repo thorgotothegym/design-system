@@ -26,7 +26,7 @@ const isDevelopment =
 const slotClasses = [
   "relative box-border flex h-12 w-10 items-center justify-center rounded-lg border border-border-control bg-bg-input font-mono text-lg text-text-default",
   "data-hovering:border-brand-primary",
-  "data-active:outline-2 data-active:outline-offset-2 data-active:outline-focus-ring",
+  "data-active:outline-2 data-active:outline-solid data-active:outline-offset-2 data-active:outline-focus-ring",
   "in-data-invalid:border-border-danger",
   "in-data-readonly:bg-bg-subtle",
   "in-data-disabled:cursor-not-allowed in-data-disabled:bg-bg-subtle in-data-disabled:text-text-muted",

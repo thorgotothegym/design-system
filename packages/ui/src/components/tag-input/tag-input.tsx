@@ -49,7 +49,7 @@ const SEPARATORS = /[,\n\r\t]+/;
 const boxClasses = [
   "box-border flex min-h-10 w-full flex-wrap items-center gap-2 rounded-lg border border-border-control bg-bg-input px-3 py-1 font-mono text-md text-text-default",
   "not-data-invalid:not-data-disabled:not-data-readonly:hover:border-brand-primary",
-  "has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-2 has-[input:focus-visible]:outline-focus-ring",
+  "has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-solid has-[input:focus-visible]:outline-offset-2 has-[input:focus-visible]:outline-focus-ring",
   "data-invalid:border-border-danger",
   "data-readonly:bg-bg-subtle",
   "data-disabled:cursor-not-allowed data-disabled:bg-bg-subtle data-disabled:text-text-muted",
@@ -62,7 +62,7 @@ const chipClasses =
 const removeClasses = [
   "m-0 box-border inline-flex size-6 shrink-0 cursor-pointer appearance-none items-center justify-center border-0 bg-transparent p-0 text-text-muted",
   "not-disabled:hover:text-text-danger",
-  "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus-ring",
+  "focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-focus-ring",
   "disabled:cursor-not-allowed",
 ];
 
@@ -338,7 +338,7 @@ export const TagInput = ({
         }}
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
-        className="m-0 min-w-24 flex-1 appearance-none border-0 bg-transparent p-0 text-inherit outline-hidden [font:inherit] placeholder:text-text-placeholder disabled:cursor-not-allowed"
+        className="m-0 min-w-24 flex-1 appearance-none border-0 bg-transparent p-0 text-inherit outline-transparent [font:inherit] placeholder:text-text-placeholder disabled:cursor-not-allowed"
       />
       {name !== undefined &&
         tags.map((tag, index) => (
