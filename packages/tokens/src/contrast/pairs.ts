@@ -97,5 +97,13 @@ export const pairs: readonly Pair[] = [
 
   // The unfilled track of a Slider is drawn with border.control, also inside a card (bg.surface).
   control("border.control", "bg.surface"),
+
+  // DatePicker. The selected day is a brand.primary fill on the calendar (bg.surface), and today is
+  // a dot: brand.primary on the surface, text.on-primary when today is also selected. The part of
+  // the date being edited is a brand.primary fill on the field (bg.input). Each is the indicator,
+  // so each is declared here as a 3:1 pair even where the same colors are already checked as text.
+  control("brand.primary", "bg.surface"),
+  control("text.on-primary", "brand.primary"),
+  control("brand.primary", "bg.input"),
   decorative("bg.subtle", "bg.base", ["light"]),
 ];
