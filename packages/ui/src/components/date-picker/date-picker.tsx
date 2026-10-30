@@ -1,7 +1,13 @@
-import { parseDate } from "@internationalized/date";
+import { parseDate, toCalendar } from "@internationalized/date";
 import type { CalendarDate } from "@internationalized/date";
-import { useImperativeHandle, useRef, useState } from "react";
-import type { FocusEventHandler, Ref } from "react";
+import {
+  useContext,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
+import type { ContextType, FocusEventHandler, Ref } from "react";
 import { Button } from "react-aria-components/Button";
 import {
   Calendar,
@@ -18,6 +24,7 @@ import {
   DateSegment,
   Group,
 } from "react-aria-components/DatePicker";
+import { DateFieldStateContext } from "react-aria-components/DateField";
 import { Dialog } from "react-aria-components/Dialog";
 import { I18nProvider } from "react-aria-components/I18nProvider";
 import { Popover } from "react-aria-components/Popover";
@@ -140,15 +147,66 @@ const toCalendarDate = (value: string, prop: string) => {
 const toOptionalDate = (value: string | null | undefined, prop: string) =>
   value == null ? value : toCalendarDate(value, prop);
 
+type DateFieldState = NonNullable<ContextType<typeof DateFieldStateContext>>;
+
+/**
+ * A year shorter than four digits is still being typed or deleted (2, 20, 202 on the way to
+ * 2025, or back): React Aria accepts it as the year 202, so it is treated as incomplete here.
+ */
+const MIN_COMPLETE_YEAR = 1000;
+
+/**
+ * The date the field shows, or `null` while it does not show a complete one. React Aria keeps
+ * its last complete value while a part is empty or invalid and only changes what it displays, so
+ * the value alone would report a date the user no longer sees (2026-10-01 for "10/dd/2026").
+ */
+const shownDate = ({ value, segments, calendar }: DateFieldState) => {
+  if (value === null) return null;
+  // In the calendar the field displays, which is the locale's (Buddhist years in th-TH, ...).
+  const shown = toCalendar(value, calendar);
+  const parts: Partial<Record<string, number>> = {
+    year: shown.year,
+    month: shown.month,
+    day: shown.day,
+  };
+  const complete =
+    shown.year >= MIN_COMPLETE_YEAR &&
+    segments.every(
+      (segment) =>
+        !segment.isEditable ||
+        (!segment.isPlaceholder && segment.value === parts[segment.type]),
+    );
+  return complete ? value.toString() : null;
+};
+
+/**
+ * Rendered with the year part, inside React Aria's date field, the only place its state is
+ * available. Reports the shown date whenever it changes; it renders nothing.
+ */
+const ShownDateReporter = ({
+  onChange,
+}: {
+  onChange: (value: string | null) => void;
+}) => {
+  const state = useContext(DateFieldStateContext);
+  const shown = state === null ? null : shownDate(state);
+
+  useEffect(() => {
+    onChange(shown);
+  }, [shown, onChange]);
+
+  return null;
+};
+
 export type DatePickerProps = {
   /** Controlled date, as an ISO 8601 date string (`"2026-10-30"`), or `null` for no date. */
   value?: string | null;
   /** Initial date when the component manages its own state, as an ISO 8601 date string. */
   defaultValue?: string | null;
   /**
-   * Called with the new date as an ISO 8601 date string. While a date is typed it is called only
-   * once every part has been entered. Clearing parts one by one keeps the last complete date as
-   * the value until every part is empty, and then it is called with `null` (React Aria's behavior).
+   * Called with the new date as an ISO 8601 date string, or with `null` while the field does not
+   * show a complete date: as soon as a part is cleared, and while a year has fewer than four
+   * digits. The field keeps showing what was typed.
    */
   onValueChange?: (value: string | null) => void;
   /** The earliest date that can be chosen (`"YYYY-MM-DD"`). Earlier days are disabled in the calendar. */
@@ -175,7 +233,7 @@ export type DatePickerProps = {
   readOnly?: boolean;
   /** Marks the date as required (`aria-required`). Inside a `Field`, the Field's `required` is used as well. */
   required?: boolean;
-  /** Submits the date with a form, as an ISO 8601 date string in a hidden input. */
+  /** Submits the date with a form, as an ISO 8601 date string in a hidden input (empty while incomplete). */
   name?: string;
   /** The id of the field. Inside a `Field`, the Field's id is used. */
   id?: string;
@@ -228,7 +286,8 @@ export type DatePickerProps = {
  * invalid by React Aria itself (red border and `aria-invalid`), as is any date while `invalid` is
  * set; either one is enough. The message is always yours: put it in a `Field.Error` with the
  * Field's `invalid`. A field that is invalid with no `Field.Error` is not announced to screen
- * readers as an error and shows no reason, so validate the same rules in your form.
+ * readers as an error and shows no reason, so validate the same rules in your form. A partly
+ * filled date is reported as `null` but not marked invalid: a `required` rule in your form catches it.
  *
  * `className` goes to the root; `ref` goes to the first editable part (see `ref`). React Aria
  * adds one small `<style>` element at runtime (and on iOS a second one while the calendar is
@@ -277,19 +336,39 @@ export const DatePicker = ({
       null,
   );
 
-  // Only the first value matters, as with a native `defaultValue`.
-  const [initialDate] = useState(() =>
-    toOptionalDate(defaultValue, "defaultValue"),
+  // React Aria always gets a controlled value of its own, so that reporting `null` for a partly
+  // cleared field (which a controlled parent then passes back) does not wipe what is shown.
+  const [ariaValue, setAriaValue] = useState(() =>
+    value === undefined
+      ? (toOptionalDate(defaultValue, "defaultValue") ?? null)
+      : (toOptionalDate(value, "value") ?? null),
   );
+  const [reported, setReported] = useState(() =>
+    value === undefined ? (defaultValue ?? null) : value,
+  );
+  const [previousValue, setPreviousValue] = useState(value);
+
+  // A new controlled value that is not the one just reported comes from the parent (a reset, a
+  // date set elsewhere): show it.
+  if (value !== previousValue) {
+    setPreviousValue(value);
+    if (value !== undefined && value !== reported) {
+      setAriaValue(toOptionalDate(value, "value") ?? null);
+      setReported(value);
+    }
+  }
+
+  const report = (next: string | null) => {
+    if (next === reported) return;
+    setReported(next);
+    onValueChange?.(next);
+  };
 
   const picker = (
     <AriaDatePicker<CalendarDate>
       id={state.id}
-      value={toOptionalDate(value, "value")}
-      defaultValue={initialDate}
-      onChange={(date) =>
-        onValueChange?.(date === null ? null : date.toString())
-      }
+      value={ariaValue}
+      onChange={setAriaValue}
       minValue={toOptionalDate(min, "min")}
       maxValue={toOptionalDate(max, "max")}
       isDateUnavailable={
@@ -304,7 +383,6 @@ export const DatePicker = ({
       isReadOnly={readOnly}
       isRequired={Boolean(required) || Boolean(state["aria-required"])}
       validationBehavior="aria"
-      name={name}
       autoFocus={autoFocus}
       onFocus={onFocus}
       onBlur={onBlur}
@@ -321,11 +399,16 @@ export const DatePicker = ({
       >
         <DateInput className="flex flex-1 items-center">
           {(segment) => (
-            <DateSegment
-              segment={segment}
-              data-slot="date-picker-segment"
-              className={cn(segmentClasses)}
-            />
+            <>
+              {segment.type === "year" && (
+                <ShownDateReporter onChange={report} />
+              )}
+              <DateSegment
+                segment={segment}
+                data-slot="date-picker-segment"
+                className={cn(segmentClasses)}
+              />
+            </>
           )}
         </DateInput>
         <Button
@@ -380,6 +463,11 @@ export const DatePicker = ({
           </Calendar>
         </Dialog>
       </Popover>
+      {/* What a form submits: the reported date, so a partly cleared field submits nothing.
+          React Aria's own input would submit its last complete value. */}
+      {name !== undefined && (
+        <input type="hidden" name={name} value={reported ?? ""} />
+      )}
     </AriaDatePicker>
   );
 
