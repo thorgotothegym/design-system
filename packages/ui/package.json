@@ -14,6 +14,10 @@
     "./otp-input": {
       "types": "./dist/otp-input.d.ts",
       "import": "./dist/otp-input.js"
+    },
+    "./date-picker": {
+      "types": "./dist/date-picker.d.ts",
+      "import": "./dist/date-picker.js"
     }
   },
   "files": [
@@ -60,6 +64,7 @@
     "vitest": "catalog:"
   },
   "dependencies": {
+    "@internationalized/date": "3.12.4",
     "@radix-ui/react-checkbox": "1.4.1",
     "@radix-ui/react-label": "2.1.17",
     "@radix-ui/react-radio-group": "1.5.1",
@@ -70,6 +75,7 @@
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "input-otp": "1.5.0",
+    "react-aria-components": "1.22.1",
     "tailwind-merge": "3.7.0"
   },
   "size-limit": [
@@ -174,10 +180,20 @@
       "limit": "12 kB"
     },
     {
+      "name": "DatePicker",
+      "path": "dist/date-picker.js",
+      "import": "{ DatePicker }",
+      "ignore": [
+        "react",
+        "react-dom"
+      ],
+      "limit": "70.7 kB"
+    },
+    {
       "name": "CSS (dist/styles.css)",
       "path": "dist/styles.css",
       "rolldown": false,
-      "limit": "3.6 kB"
+      "limit": "3.9 kB"
     }
   ]
 }

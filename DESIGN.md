@@ -29,7 +29,7 @@ Contrast ratios below are WCAG 2.x, computed with a script from these exact OKLC
 | `text.default` | `oklch(0.75 0.15 145)` | 9.82:1 on `bg.base` |
 | `text.muted` | `oklch(0.62 0.09 145)` | 5.94:1 on `bg.base` |
 | `text.placeholder` | `oklch(0.58 0.08 145)` | 4.76:1 on `bg.input` |
-| `brand.primary` | `oklch(0.70 0.18 145)` | 8.29:1 on `bg.base` |
+| `brand.primary` | `oklch(0.70 0.18 145)` | 8.29:1 on `bg.base`. As a state fill: 8.24:1 on `bg.surface` (the selected day and the today dot of a calendar), 7.87:1 on `bg.input` (the part of a date being edited) |
 | `text.on-primary` | `oklch(0.08 0 0)` | 8.29:1 on `brand.primary` |
 | `text.danger` | `oklch(0.70 0.19 25)` | 7.15:1 on `bg.base` |
 | `border.decorative` | `oklch(0.20 0.05 145)` | 1.16:1. Decoration only (cards, dividers). Never as the only boundary of a control |
@@ -53,7 +53,7 @@ Differences from the personal site, on purpose (the site values failed AA):
 | `text.default` | `oklch(0.22 0.04 145)` | 16.23:1 on `bg.base` |
 | `text.muted` | `oklch(0.45 0.05 145)` | 6.85:1 on `bg.base` |
 | `text.placeholder` | `oklch(0.50 0.05 145)` | 5.87:1 on `bg.input` |
-| `brand.primary` | `oklch(0.45 0.14 145)` | 6.61:1 on `bg.base`. Also valid for links |
+| `brand.primary` | `oklch(0.45 0.14 145)` | 6.61:1 on `bg.base`. Also valid for links. As a state fill: 7.00:1 on `bg.surface` (the selected day and the today dot of a calendar) and on `bg.input` (the part of a date being edited) |
 | `text.on-primary` | `oklch(0.98 0.01 145)` | 6.61:1 on `brand.primary` |
 | `text.danger` | `oklch(0.50 0.20 27)` | 6.27:1 on `bg.base` |
 | `border.decorative` | `oklch(0.90 0.03 145)` | 1.26:1 on `bg.base`. Decoration only, same rule as in dark: never the only boundary of a control |

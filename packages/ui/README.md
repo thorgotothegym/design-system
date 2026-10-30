@@ -28,13 +28,16 @@ export const NameField = () => (
 
 ### Entry points
 
-Everything is exported from `@aleixvidal/ui`, except components whose dependency a bundler cannot tree-shake, which have their own entry point so that they only cost something when you import them:
+Everything is exported from `@aleixvidal/ui`, except components whose dependency a bundler cannot tree-shake, or that are much heavier than the rest, which have their own entry point so that they only cost something when you import them:
 
 ```tsx
 import { OtpInput } from "@aleixvidal/ui/otp-input";
+import { DatePicker } from "@aleixvidal/ui/date-picker";
 ```
 
 `OtpInput` is built on `input-otp`, which adds one `<style id="input-otp-style">` element to the page when the first field mounts. Under a Content-Security-Policy that forbids inline styles, pass `nonce` to `OtpInput` (and allow that nonce in `style-src`), or the element is blocked: the field still works, only the rules that hide the selection and autofill highlight and an iOS workaround are missing.
+
+`DatePicker` is built on React Aria and weighs about 70 kB brotli, most of it React Aria's date and calendar code and the translated strings of 34 locales (about 10 kB). If your app supports only some locales, drop the others with [`@react-aria/optimize-locales-plugin`](https://react-spectrum.adobe.com/react-aria/internationalization.html) in your bundler. Its value is an ISO 8601 date string (`"2026-10-30"`). When rendering on the server, set `locale`: otherwise React Aria renders `en-US` on the server and switches to the browser's locale after hydration, which reorders the date. React Aria adds one small `<style>` element (and on iOS a second one while the calendar is open); under a Content-Security-Policy that forbids inline styles, add `<meta name="csp-nonce" content="...">` with your nonce, or they are blocked: the field still works, only touch behavior (no double-tap delay, no scrolling behind the calendar) is lost.
 
 ## Themes
 
