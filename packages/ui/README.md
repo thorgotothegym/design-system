@@ -26,6 +26,16 @@ export const NameField = () => (
 );
 ```
 
+### Entry points
+
+Everything is exported from `@aleixvidal/ui`, except components whose dependency a bundler cannot tree-shake, which have their own entry point so that they only cost something when you import them:
+
+```tsx
+import { OtpInput } from "@aleixvidal/ui/otp-input";
+```
+
+`OtpInput` is built on `input-otp`, which adds one `<style id="input-otp-style">` element to the page when the first field mounts. Under a Content-Security-Policy that forbids inline styles, pass `nonce` to `OtpInput` (and allow that nonce in `style-src`), or the element is blocked: the field still works, only the rules that hide the selection and autofill highlight and an iOS workaround are missing.
+
 ## Themes
 
 Dark is the default. Set `data-theme` on the root element to choose one:

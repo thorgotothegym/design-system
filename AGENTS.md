@@ -86,6 +86,7 @@ packages/ui/src/components/<name>/
 
 - File and folder names: `kebab-case`. Component names: `PascalCase`.
 - Named exports only. No default exports. Re-export every public component from `packages/ui/src/index.ts`.
+  - Exception: a component whose dependency cannot be tree-shaken (the package has no `"sideEffects": false`, so a bundler keeps it for anyone who imports the root entry) ships as its own entry point, `@aleixvidal/ui/<name>`, with a `src/<name>.ts` entry in `tsup.config.ts`, an `exports` entry and its own `size-limit` path. It is not exported from `index.ts`. `OtpInput` (`input-otp`) is the first: exporting it from the root made every other component about 2.7 kB larger.
 - Forward refs on components that wrap a DOM element. Spread remaining props onto the root element and merge `className` with `cn()`.
 - Props: extend the native element's props (`React.ComponentPropsWithoutRef<'input'>`) instead of redefining them. Document each prop with a JSDoc comment so autodocs picks it up.
 - Variants and sizes: use `cva`. Keep the variant surface small and justified. Do not add a prop "just in case".
@@ -140,6 +141,7 @@ What we can do is write components that do not hurt them, and enforce it with au
 - **INP**: keep input handlers cheap. No heavy work on every keystroke; debounce or defer it. Do not re-render large trees on each change. Use `useMemo`/`useCallback` only when there is a measured reason.
 - **LCP / load cost**: the library must be tree-shakeable (`"sideEffects": false` where true, ESM output, no barrel-induced side effects). Heavy components (DatePicker, anything with large dependencies) must be importable separately or lazy-loadable.
 - **Bundle size**: every component has a size budget enforced with `size-limit` in CI. Adding a dependency that grows a component noticeably needs justification in the PR.
+- **CSS size**: if the CSS exceeds 4 kB brotli, look for repeated utility patterns to share before raising the budget again.
 - **Runtime hygiene**: no layout thrashing, no unnecessary effects, clean up listeners and observers.
 - **Storybook site**: run Lighthouse CI against the built Storybook (static) in CI and keep Performance and Accessibility scores above the thresholds set in `lighthouserc`. Do not lower thresholds to make a build pass.
 
