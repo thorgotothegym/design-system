@@ -119,6 +119,8 @@ How to use it:
     - [ ] Storybook accessibility checks run in CI (addon-vitest with Playwright) and fail the build on any violation, in both themes
       - [ ] size-limit budgets cover both the JS entry points and dist/styles.css
   - [ ] Storybook accessibility checks run in CI (addon-vitest with Playwright) and fail the build on any violation, in both themes
+    - [ ] CI runs pnpm check:placeholders and fails on any SCAFFOLD-PLACEHOLDER
+  - [ ] CI scaffolds a throwaway component in each variant (native and radix) and checks that it passes lint, typecheck and tests
 
 ### T06. Repo-local skill: scaffold-component
 - Mode: unattended
