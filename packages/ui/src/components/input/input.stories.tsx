@@ -169,3 +169,6 @@ export const ValidationFlow: Story = {
     );
   },
 };
+
+/** Probe: an input with no accessible name. */
+export const A11yProbe: Story = { args: { "aria-label": undefined } };
