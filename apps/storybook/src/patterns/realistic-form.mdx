@@ -1,0 +1,100 @@
+import { Canvas, Meta } from "@storybook/addon-docs/blocks";
+import * as RealisticFormStories from "./realistic-form.stories";
+
+<Meta of={RealisticFormStories} />
+
+# Realistic form
+
+A registration for a fictional conference, Interface Week, built only from the library's public entry points. It shows the components working as a system the way a product team would use them: labels, help and errors wired by `Field`, validation with [react-hook-form](https://react-hook-form.com), an error summary, a submitting state and a second step with a one-time code. It is also a consumer check: if an entry point breaks, this page breaks.
+
+For what the library is and where its source lives, see the [Introduction](?path=/docs/introduction--docs).
+
+<Canvas of={RealisticFormStories.Default} />
+
+## Imports
+
+Everything comes from the package's public entry points. Two components have their own entry point, so they cost nothing unless you import them:
+
+```tsx
+import {
+  Checkbox,
+  Field,
+  Input,
+  RadioGroup,
+  Select,
+  Slider,
+  Switch,
+  TagInput,
+  Textarea,
+} from "@aleixvidal/ui";
+import { DatePicker } from "@aleixvidal/ui/date-picker";
+import { OtpInput } from "@aleixvidal/ui/otp-input";
+import "@aleixvidal/ui/styles.css";
+```
+
+## Composition rules
+
+- **Every control sits in a `Field`.** The `Field` wires the label, the description, the error and `aria-invalid`, `aria-required` and `disabled` to the control. Give each `Field` an `id` when something links to it, such as the error summary.
+- **`Field.Error` is always rendered**, empty while the field is valid. Its line is reserved and it is a live region, so an error appears without moving anything and is announced.
+- **The form's state lives in react-hook-form.** Native-element controls (Input, Textarea) use `register`; the others use `Controller`, passing `value`, the change handler, `onBlur` and `ref`. The `ref` is what lets react-hook-form, or a link in the summary, move focus to the field.
+- **Validate on blur and on submit** (`mode: "onTouched"`), with one exception: do not pass `onBlur` to a `Select`. Opening its list moves focus out of the trigger, which would show "Choose your country" while the person is still choosing.
+- **A failed submit focuses the error summary**, not the first field (`shouldFocusError: false`). The summary lists every problem in the order of the form, and each link moves focus to its field. For a `RadioGroup`, pass the `ref` to the first option, since the group itself cannot take focus.
+- **While submitting, keep focus where it is.** Disable the fields, set `aria-busy` on the form, and mark the button `aria-disabled` instead of `disabled`: disabling the focused button drops focus to the page. Put the progress text in a `role="status"` line whose space is already reserved.
+- **Move focus to each new step's heading** (`tabIndex={-1}`), so the change is announced.
+
+## One field, wired
+
+```tsx
+<Controller
+  control={control}
+  name="arrival"
+  rules={{ required: "Enter a complete date (month, day and year)" }}
+  render={({ field }) => (
+    <Field
+      id="registration-arrival"
+      invalid={errors.arrival !== undefined}
+      required
+    >
+      <Field.Label>Arrival date</Field.Label>
+      <DatePicker
+        ref={field.ref}
+        name={field.name}
+        min="2027-03-13"
+        max="2027-03-19"
+        value={field.value}
+        onValueChange={field.onChange}
+        onBlur={field.onBlur}
+      />
+      <Field.Error>{errors.arrival?.message}</Field.Error>
+    </Field>
+  )}
+/>
+```
+
+## The date field reports no date until it shows a complete one
+
+`DatePicker` reports `null` while any part is empty or the year has fewer than four digits, and the date only once the field shows a complete one. So an empty field and a partly filled one look the same to the form, and one required message covers both: "Enter a complete date (month, day and year)" (see the WithErrors story).
+
+| The field shows | The form receives |
+| --------------- | ----------------- |
+| 3/16/2027       | `"2027-03-16"`    |
+| 3/dd/2027       | `null`            |
+| mm/16/2027      | `null`            |
+| 3/16/202        | `null`            |
+| mm/dd/yyyy      | `null`            |
+
+The field itself is not marked invalid while it is incomplete; the form's required rule and the `Field.Error` explain it.
+
+## Read-only
+
+Input, Textarea, DatePicker and TagInput have a read-only mode: the value can be focused, read and copied. RadioGroup, Select, Slider, Switch and Checkbox are built on Radix primitives that have none, so the ReadOnly story disables them instead. Their values stay visible, but they cannot be focused.
+
+## Stories
+
+- **Default:** the empty form.
+- **WithErrors:** submitted with a partly typed date and nothing else; the summary takes focus and its links reach each field.
+- **ServerError:** an email the demo server already knows (`taken@example.com`).
+- **FilledAndSubmitted** and **KeyboardOnly:** the whole flow, the second one without a pointer. Both run at a readable pace; CI runs them at full speed with `STORYBOOK_PLAY_DELAY=0`.
+- **Submitting**, **Success**, **Disabled** and **ReadOnly:** the other states.
+
+The submit button is part of this page only: the library has no Button.

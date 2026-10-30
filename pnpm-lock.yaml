@@ -116,6 +116,9 @@ importers:
       react-dom:
         specifier: 'catalog:'
         version: 19.2.8(react@19.2.8)
+      react-hook-form:
+        specifier: 7.91.0
+        version: 7.91.0(@types/react@19.2.18)(react@19.2.8)
       storybook:
         specifier: 10.6.3
         version: 10.6.3(@types/react@19.2.18)(prettier@3.9.6)(react@19.2.8)

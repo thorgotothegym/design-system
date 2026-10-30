@@ -176,6 +176,9 @@ try {
   const after = run("node", ["scripts/check-placeholders.mts"], worktree);
   check(after.status === 0, "check:placeholders passes once they are resolved");
 
+  // `--force`: Turborepo 2.8+ shares the local cache between git worktrees, and the generated
+  // files are the same on every run, so without it these tasks are replayed from an earlier run
+  // instead of executed. The cache line of each task is printed as proof ("force executing").
   for (const task of ["lint", "typecheck", "test"]) {
     const result = run(
       "pnpm",
@@ -184,10 +187,15 @@ try {
         "run",
         task,
         "--filter=@aleixvidal/ui",
-        "--output-logs=errors-only",
+        "--force",
+        "--output-logs=hash-only",
       ],
       worktree,
     );
+    for (const line of result.stdout.split("\n")) {
+      if (/cache (hit|miss|bypass)/.test(line))
+        console.log(`      ${line.trim()}`);
+    }
     check(result.status === 0, `${task} passes with the five components`);
     if (result.status !== 0) console.error(result.stdout, result.stderr);
   }
