@@ -63,7 +63,9 @@
     "@radix-ui/react-checkbox": "1.4.1",
     "@radix-ui/react-label": "2.1.17",
     "@radix-ui/react-radio-group": "1.5.1",
+    "@radix-ui/react-roving-focus": "1.2.1",
     "@radix-ui/react-select": "2.4.1",
+    "@radix-ui/react-slider": "1.6.1",
     "@radix-ui/react-switch": "1.4.1",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
@@ -142,6 +144,26 @@
       "limit": "35.6 kB"
     },
     {
+      "name": "Slider",
+      "path": "dist/index.js",
+      "import": "{ Slider }",
+      "ignore": [
+        "react",
+        "react-dom"
+      ],
+      "limit": "17.3 kB"
+    },
+    {
+      "name": "TagInput",
+      "path": "dist/index.js",
+      "import": "{ TagInput }",
+      "ignore": [
+        "react",
+        "react-dom"
+      ],
+      "limit": "16.2 kB"
+    },
+    {
       "name": "OtpInput",
       "path": "dist/otp-input.js",
       "import": "{ OtpInput }",
@@ -155,7 +177,7 @@
       "name": "CSS (dist/styles.css)",
       "path": "dist/styles.css",
       "rolldown": false,
-      "limit": "3.1 kB"
+      "limit": "3.6 kB"
     }
   ]
 }

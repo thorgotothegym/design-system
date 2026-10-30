@@ -141,6 +141,7 @@ What we can do is write components that do not hurt them, and enforce it with au
 - **INP**: keep input handlers cheap. No heavy work on every keystroke; debounce or defer it. Do not re-render large trees on each change. Use `useMemo`/`useCallback` only when there is a measured reason.
 - **LCP / load cost**: the library must be tree-shakeable (`"sideEffects": false` where true, ESM output, no barrel-induced side effects). Heavy components (DatePicker, anything with large dependencies) must be importable separately or lazy-loadable.
 - **Bundle size**: every component has a size budget enforced with `size-limit` in CI. Adding a dependency that grows a component noticeably needs justification in the PR.
+- **CSS size**: if the CSS exceeds 4 kB brotli, look for repeated utility patterns to share before raising the budget again.
 - **Runtime hygiene**: no layout thrashing, no unnecessary effects, clean up listeners and observers.
 - **Storybook site**: run Lighthouse CI against the built Storybook (static) in CI and keep Performance and Accessibility scores above the thresholds set in `lighthouserc`. Do not lower thresholds to make a build pass.
 
