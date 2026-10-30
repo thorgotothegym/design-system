@@ -36,4 +36,12 @@ describe("@aleixvidal/ui package manifest", () => {
     expect(pkg.exports).toHaveProperty("./otp-input");
     expect(root).not.toMatch(/otp-input|input-otp/);
   });
+
+  it("should ship DatePicker as its own entry point, not from the root entry", () => {
+    const root = readFileSync(new URL("./index.ts", import.meta.url), "utf8");
+
+    // React Aria makes it about 70 kB brotli, twice the heaviest component in the root entry.
+    expect(pkg.exports).toHaveProperty("./date-picker");
+    expect(root).not.toMatch(/date-picker|react-aria/);
+  });
 });
