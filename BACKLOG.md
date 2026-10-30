@@ -259,6 +259,9 @@ Launch each batch, review the PRs, merge, then start the next batch.
   - [ ] Consumer smoke test: a fresh app installs the package, imports a component and its CSS, and renders it
   - [ ] Storybook is live at the subdomain and linked from aleixvidal.dev and the README
 
+### Future improvements
+- [ ] A read-only mode for the Radix-based controls (RadioGroup, Select, Slider, Switch, Checkbox), which Radix does not provide: the realistic form's ReadOnly story disables them instead
+
 ---
 
 ## Prompt templates (paste into Claude Code or Copilot in VSCode)
