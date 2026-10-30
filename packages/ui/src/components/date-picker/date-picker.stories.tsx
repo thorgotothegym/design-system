@@ -281,14 +281,15 @@ const ControlledEmptyExample = () => {
 
 /**
  * The calendar with the keyboard only, step by step: Alt + Down opens it on the selected day, the
- * arrows move by day, Page Down by month, Enter chooses and closes, and focus goes back to the
- * calendar button. Escape closes without choosing.
+ * arrows move by day, Page Down by month, Enter chooses and closes, and focus goes back to where
+ * the calendar was opened from (here the month). Escape closes without choosing.
  */
 export const KeyboardCalendar: Story = {
   render: () => <ControlledExample />,
   play: async ({ canvasElement }) => {
     const user = await startDemo();
     const canvas = within(canvasElement);
+    const month = canvas.getByRole("spinbutton", { name: /^month/ });
 
     await user.tab();
     await user.keyboard("{Alt>}{ArrowDown}{/Alt}");
@@ -307,9 +308,9 @@ export const KeyboardCalendar: Story = {
     await user.keyboard("{Enter}");
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     await expect(canvas.getByText("Value: 2025-04-20")).toBeVisible();
-    await waitFor(() => expect(calendarButton(canvasElement)).toHaveFocus());
+    await waitFor(() => expect(month).toHaveFocus());
 
-    await user.keyboard("{Enter}");
+    await user.keyboard("{Alt>}{ArrowDown}{/Alt}");
     await expect(await screen.findByRole("dialog")).toBeVisible();
     await user.keyboard("{ArrowLeft}{Escape}");
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
@@ -369,8 +370,10 @@ export const ValidationFlow: Story = {
       canvas.getByText("The course starts on March 3, 2025 or later"),
     ).toBeVisible();
     await expect(month).toHaveAttribute("aria-invalid", "true");
+    // In a browser React Aria also puts the selected date first ("Selected Date: ..."), so only
+    // the end of the description is checked.
     await expect(month).toHaveAccessibleDescription(
-      "March 3, 2025 or later. The course starts on March 3, 2025 or later",
+      /March 3, 2025 or later\. The course starts on March 3, 2025 or later$/,
     );
 
     await user.click(canvas.getByRole("spinbutton", { name: /^day/ }));

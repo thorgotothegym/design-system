@@ -1,7 +1,12 @@
 import { withThemeByDataAttribute } from "@storybook/addon-themes";
 import type { Preview } from "@storybook/react-vite";
+import { configure } from "storybook/test";
 import "./preview.css";
 import { ThemedDocsContainer } from "./themed-docs-container";
+
+// The same convention as the unit tests (packages/ui/src/test/setup.ts): `getByTestId` reads the
+// permanent `data-slot` hook, since component roots have no accessible role.
+configure({ testIdAttribute: "data-slot" });
 
 const preview: Preview = {
   tags: ["autodocs"],
