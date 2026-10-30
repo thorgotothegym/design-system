@@ -73,9 +73,9 @@ export const WithLabelAndDescription: Story = {
 
     await userEvent.click(canvas.getByText("__Name__ label"));
     await expect(control).toBeChecked();
-
-    await userEvent.tab();
+    // In a browser, clicking the label also moves the focus to the control.
     await expect(control).toHaveFocus();
+
     await userEvent.keyboard(" ");
     await expect(control).not.toBeChecked();
     await expect(control).toHaveAccessibleDescription(

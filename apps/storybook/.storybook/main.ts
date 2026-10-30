@@ -30,7 +30,16 @@ const config: StorybookConfig = {
     check: false,
   },
   viteFinal: (viteConfig) =>
-    mergeConfig(viteConfig, { plugins: [tailwindcss()] }),
+    mergeConfig(viteConfig, {
+      plugins: [tailwindcss()],
+      // The pace of the demo `play` functions (packages/ui/src/test/demo.ts). CI sets it to 0;
+      // unset, the demos keep their readable pace. The Vitest addon applies this config too.
+      define: {
+        __STORYBOOK_PLAY_DELAY__: JSON.stringify(
+          process.env.STORYBOOK_PLAY_DELAY ?? "",
+        ),
+      },
+    }),
 };
 
 // Storybook reads its configuration from the default export; this is the one allowed exception

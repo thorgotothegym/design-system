@@ -67,10 +67,34 @@ pnpm typecheck
 pnpm test
 pnpm build
 pnpm size           # bundle size budgets (size-limit)
+pnpm format:check   # prettier --check .
+pnpm check:placeholders  # fails on any SCAFFOLD-PLACEHOLDER
+pnpm test:storybook # every story in Chromium, both themes: play functions and axe
+pnpm test:consumer  # the packed package in a clean app, checked in Chrome
+pnpm test:scaffold  # one component per scaffold variant, in a throwaway worktree
 pnpm changeset      # add a changeset for any user-facing change
 ```
 
 Before saying a task is done, `pnpm lint && pnpm typecheck && pnpm test && pnpm build` must pass, and so must `storybook build` if you touched stories or components.
+
+### CI
+
+`.github/workflows/ci.yml` runs on every pull request and on every push to `main`, with no secrets, so pull requests from forks run it too. Each job runs the same command you run locally:
+
+| Job | Command |
+| --- | --- |
+| quality | `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm check:placeholders` |
+| test | `pnpm test` (the coverage thresholds fail the job) |
+| build | `pnpm build`, including `storybook build`; the static Storybook is uploaded as the `storybook-static` artifact |
+| size | `pnpm size` (every component budget and the CSS budget) |
+| a11y | `STORYBOOK_PLAY_DELAY=0 pnpm test:storybook` (Chromium via Playwright: `pnpm --filter @aleixvidal/storybook exec playwright install chromium` once, locally) |
+| consumer | `pnpm test:consumer` (needs Google Chrome and the network) |
+| scaffold | `pnpm test:scaffold` |
+| changeset | `pnpm changeset status --since=origin/main`, on pull requests only. Stories, tests, `src/test/**` and `scripts/**` are not shipped, so they need no changeset (`changedFilePatterns` in `.changeset/config.json`) |
+
+- `STORYBOOK_PLAY_DELAY` sets the pace of the demo `play` functions (`startDemo()` in `packages/ui/src/test/demo.ts`): milliseconds after each step, 250 when unset, and a pause of 2.4 steps before the first one. CI sets it to `0`. It applies to `pnpm storybook`, `storybook build` and `pnpm test:storybook`.
+- `ci-success` is the single required check: it waits for every other job and fails if any failed or was cancelled. When you add a job, add it to its `needs`.
+- No secrets, tokens or remote caches: the Turborepo cache is local, restored with `actions/cache`. Official `actions/*` are pinned by major version; any other action by full commit SHA with the version in a comment.
 
 ## 5. Component conventions
 

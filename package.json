@@ -13,7 +13,9 @@
     "format:check": "prettier --check .",
     "changeset": "changeset",
     "check:placeholders": "node scripts/check-placeholders.mts",
-    "test:consumer": "turbo run test:consumer"
+    "test:consumer": "turbo run test:consumer",
+    "test:storybook": "turbo run test:storybook",
+    "test:scaffold": "node scripts/test-scaffold.mts"
   },
   "devDependencies": {
     "@changesets/cli": "3.0.3",

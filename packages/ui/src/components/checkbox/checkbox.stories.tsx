@@ -83,9 +83,9 @@ export const WithLabelAndDescription: Story = {
 
     await userEvent.click(canvas.getByText("Subscribe to the newsletter"));
     await expect(checkbox).not.toBeChecked();
-
-    await userEvent.tab();
+    // In a browser, clicking the label also moves the focus to the checkbox.
     await expect(checkbox).toHaveFocus();
+
     await userEvent.keyboard(" ");
     await expect(checkbox).toBeChecked();
   },
