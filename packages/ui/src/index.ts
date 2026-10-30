@@ -28,3 +28,5 @@ export type {
 } from "./components/select";
 export { TagInput } from "./components/tag-input";
 export type { TagInputMessages, TagInputProps } from "./components/tag-input";
+export { Slider } from "./components/slider";
+export type { SliderProps } from "./components/slider";

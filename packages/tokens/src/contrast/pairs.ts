@@ -94,5 +94,8 @@ export const pairs: readonly Pair[] = [
   // (WCAG 1.4.11); the fill alone (about 1.1:1 on the surface) does not count.
   control("focus.ring", "bg.surface"),
   control("focus.ring", "bg.subtle"),
+
+  // The unfilled track of a Slider is drawn with border.control, also inside a card (bg.surface).
+  control("border.control", "bg.surface"),
   decorative("bg.subtle", "bg.base", ["light"]),
 ];
