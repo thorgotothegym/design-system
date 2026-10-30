@@ -1,3 +1,4 @@
+__checklist__
 import * as __Namespace__ from "__primitive__";
 import type { ComponentPropsWithRef } from "react";
 import { cn } from "../../lib/cn";

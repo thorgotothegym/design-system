@@ -1,0 +1,1 @@
+`__Name__` is built on `__dependency__`. SCAFFOLD-PLACEHOLDER: say what it weighs and why it has its own entry point, and, if `__dependency__` adds `<style>` elements, how to pass a nonce under a Content-Security-Policy (as the `OtpInput` and `DatePicker` paragraphs do).
