@@ -16,7 +16,7 @@ const inputVariants = cva(
     "box-border flex w-full items-center gap-2 rounded-lg border border-border-control bg-bg-input px-3 font-mono text-text-default",
     "not-data-invalid:not-data-disabled:not-data-readonly:hover:border-brand-primary",
     "not-data-invalid:not-data-disabled:not-data-readonly:active:border-brand-primary",
-    "has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-focus-ring",
+    "has-focus-visible:outline-2 has-focus-visible:outline-solid has-focus-visible:outline-offset-2 has-focus-visible:outline-focus-ring",
     "data-invalid:border-border-danger",
     "data-readonly:bg-bg-subtle",
     "data-disabled:cursor-not-allowed data-disabled:bg-bg-subtle data-disabled:text-text-muted",
@@ -145,7 +145,7 @@ export const Input = ({
         aria-invalid={state["aria-invalid"] ?? props["aria-invalid"]}
         aria-required={state["aria-required"] ?? props["aria-required"]}
         aria-busy={loading || undefined}
-        className="m-0 min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-inherit outline-hidden [font:inherit] placeholder:text-text-placeholder disabled:cursor-not-allowed"
+        className="m-0 min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-inherit outline-transparent [font:inherit] placeholder:text-text-placeholder disabled:cursor-not-allowed"
       />
       {suffix !== undefined && (
         <span className="flex shrink-0 items-center text-text-muted">

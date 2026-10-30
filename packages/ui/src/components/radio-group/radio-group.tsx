@@ -30,7 +30,7 @@ const radioItemClasses = [
   "m-0 box-border inline-flex size-5 shrink-0 appearance-none items-center justify-center rounded-full border border-border-control bg-bg-input p-0 text-text-on-primary",
   "not-data-disabled:not-in-data-invalid:hover:border-brand-primary",
   "not-data-disabled:not-in-data-invalid:active:border-brand-primary",
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring",
+  "focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-focus-ring",
   "not-data-disabled:data-[state=checked]:bg-brand-primary",
   "not-data-disabled:not-in-data-invalid:data-[state=checked]:border-brand-primary",
   "in-data-invalid:border-border-danger",

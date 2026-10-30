@@ -34,7 +34,7 @@ import { useFieldState } from "../field/use-field-state";
 const groupClasses = [
   "box-border flex h-10 w-full items-center gap-2 rounded-lg border border-border-control bg-bg-input pr-1 pl-3 font-mono text-md text-text-default",
   "not-in-data-invalid:not-in-data-disabled:not-in-data-readonly:data-hovered:border-brand-primary",
-  "has-data-focused:outline-2 has-data-focused:outline-offset-2 has-data-focused:outline-focus-ring",
+  "has-data-focused:outline-2 has-data-focused:outline-solid has-data-focused:outline-offset-2 has-data-focused:outline-focus-ring",
   "in-data-invalid:border-border-danger",
   "in-data-readonly:bg-bg-subtle",
   "in-data-disabled:cursor-not-allowed in-data-disabled:bg-bg-subtle in-data-disabled:text-text-muted",
@@ -47,14 +47,14 @@ const groupClasses = [
  * which part the keys will change.
  */
 const segmentClasses = [
-  "box-border rounded-md px-px tabular-nums outline-hidden",
+  "box-border rounded-md px-px tabular-nums outline-transparent",
   "data-placeholder:text-text-placeholder in-data-disabled:text-text-muted",
   "data-focused:bg-brand-primary data-focused:text-text-on-primary",
 ];
 
 /** A square icon button: the calendar trigger in the field and the month arrows in the popover. */
 const iconButtonClasses = [
-  "m-0 box-border flex size-8 shrink-0 cursor-pointer appearance-none items-center justify-center rounded-lg border-0 bg-transparent p-0 text-text-muted outline-hidden",
+  "m-0 box-border flex size-8 shrink-0 cursor-pointer appearance-none items-center justify-center rounded-lg border-0 bg-transparent p-0 text-text-muted outline-transparent",
   "data-hovered:text-text-default",
   "data-focus-visible:outline-2 data-focus-visible:outline-solid data-focus-visible:outline-focus-ring",
   "data-disabled:cursor-not-allowed",
@@ -66,7 +66,7 @@ const iconButtonClasses = [
  * z-index is replaced through `style`) and the same surface.
  */
 const popoverClasses =
-  "z-(--ds-z-dropdown) box-border rounded-lg border border-border-decorative bg-bg-surface p-2 font-mono text-text-default shadow-md outline-hidden";
+  "z-(--ds-z-dropdown) box-border rounded-lg border border-border-decorative bg-bg-surface p-2 font-mono text-text-default shadow-md outline-transparent";
 
 /**
  * A day is a 40px square (above the 24px WCAG 2.2 minimum target). States, each a `data-*`
@@ -81,7 +81,7 @@ const popoverClasses =
  * - outside the month: not painted, but it keeps its place in the grid.
  */
 const cellClasses = [
-  "relative m-0 box-border flex size-10 cursor-pointer items-center justify-center rounded-lg text-md text-text-default tabular-nums outline-hidden",
+  "relative m-0 box-border flex size-10 cursor-pointer items-center justify-center rounded-lg text-md text-text-default tabular-nums outline-transparent",
   "not-data-selected:not-data-disabled:not-data-unavailable:data-hovered:bg-bg-subtle",
   "data-selected:bg-brand-primary data-selected:text-text-on-primary",
   "data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-solid data-focus-visible:outline-focus-ring",
@@ -343,7 +343,7 @@ export const DatePicker = ({
         data-slot="date-picker-popover"
         className={popoverClasses}
       >
-        <Dialog className="outline-hidden">
+        <Dialog className="outline-transparent">
           <Calendar data-slot="date-picker-calendar">
             <header className="flex items-center gap-2 pb-2">
               <Button slot="previous" className={cn(iconButtonClasses)}>
