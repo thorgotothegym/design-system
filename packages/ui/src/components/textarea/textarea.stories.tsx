@@ -27,6 +27,7 @@ type Story = StoryObj<typeof meta>;
 const SAMPLE =
   "The form saved without a confirmation.\nI expected a message after pressing the button.";
 
+// SCAFFOLD-PLACEHOLDER: probe marker left behind
 export const Default: Story = {};
 
 export const Small: Story = { args: { size: "sm" } };
