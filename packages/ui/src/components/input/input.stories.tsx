@@ -170,5 +170,5 @@ export const ValidationFlow: Story = {
   },
 };
 
-/** Probe: an input with no accessible name. */
-export const A11yProbe: Story = { args: { "aria-label": undefined } };
+/** Probe: a button with no accessible name (axe "button-name"). */
+export const A11yProbe: Story = { render: () => <button type="button" /> };
