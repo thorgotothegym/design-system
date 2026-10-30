@@ -203,7 +203,78 @@ describe("DatePicker", () => {
     expect(segment("day")).toHaveAttribute("aria-valuetext", "Empty");
   });
 
-  it("should call onValueChange with null only once every part is cleared", async () => {
+  it("should emit the date the field shows when one digit of the day is deleted", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <StartDate defaultValue="2026-10-14" onValueChange={onValueChange} />,
+    );
+
+    await user.click(segment("day"));
+    await user.keyboard("{Backspace}");
+
+    // "14" becomes "1": a complete date that the field shows, October 1.
+    expect(segment("day")).toHaveTextContent("1");
+    expect(onValueChange).toHaveBeenLastCalledWith("2026-10-01");
+  });
+
+  it("should emit null when the day is cleared, while the field still shows the month and year", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <StartDate defaultValue="2026-10-14" onValueChange={onValueChange} />,
+    );
+
+    await user.click(segment("day"));
+    await user.keyboard("{Backspace}{Backspace}");
+
+    expect(onValueChange).toHaveBeenLastCalledWith(null);
+    expect(segment("day")).toHaveAttribute("aria-valuetext", "Empty");
+    expect(segment("month")).toHaveTextContent("10");
+    expect(segment("year")).toHaveTextContent("2026");
+  });
+
+  it("should emit null when only the month is cleared", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <StartDate defaultValue="2026-10-14" onValueChange={onValueChange} />,
+    );
+
+    await user.click(segment("month"));
+    await user.keyboard("{Backspace}{Backspace}");
+
+    expect(onValueChange).toHaveBeenLastCalledWith(null);
+  });
+
+  it("should never emit a year with fewer than four digits while the year is deleted", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <StartDate defaultValue="2026-10-14" onValueChange={onValueChange} />,
+    );
+
+    await user.click(segment("year"));
+    await user.keyboard("{Backspace}{Backspace}{Backspace}");
+
+    expect(segment("year")).toHaveTextContent("2");
+    expect(onValueChange.mock.calls.flat()).toEqual([null]);
+  });
+
+  it("should emit null when the year is empty", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <StartDate defaultValue="2026-10-14" onValueChange={onValueChange} />,
+    );
+
+    await user.click(segment("year"));
+    await user.keyboard("{Backspace}{Backspace}{Backspace}{Backspace}");
+
+    expect(onValueChange).toHaveBeenLastCalledWith(null);
+  });
+
+  it("should emit null when every part is cleared", async () => {
     const user = userEvent.setup();
     const onValueChange = vi.fn();
     render(
@@ -214,13 +285,51 @@ describe("DatePicker", () => {
     await user.keyboard("{Backspace}{Backspace}");
     await user.click(segment("day"));
     await user.keyboard("{Backspace}{Backspace}");
-
-    expect(onValueChange).not.toHaveBeenCalledWith(null);
-
     await user.click(segment("year"));
     await user.keyboard("{Backspace}{Backspace}{Backspace}{Backspace}");
 
     expect(onValueChange).toHaveBeenLastCalledWith(null);
+    expect(segment("month")).toHaveAttribute("aria-valuetext", "Empty");
+  });
+
+  it("should emit the date again when a cleared part is typed back", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <StartDate defaultValue="2026-10-14" onValueChange={onValueChange} />,
+    );
+
+    await user.click(segment("month"));
+    await user.keyboard("{Backspace}{Backspace}");
+    await user.keyboard("10");
+
+    expect(onValueChange).toHaveBeenLastCalledWith("2026-10-14");
+  });
+
+  it("should end on the typed date, with no other complete date, when a date is typed digit by digit", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(<StartDate onValueChange={onValueChange} />);
+
+    await user.click(segment("month"));
+    await user.keyboard("03122025");
+
+    const emitted = onValueChange.mock.calls.flat();
+    expect(emitted.at(-1)).toBe("2025-03-12");
+    expect(emitted.filter((value) => value !== null)).toEqual(["2025-03-12"]);
+  });
+
+  it("should keep showing what was typed when a controlled date is partly cleared", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(<ControlledStartDate onValueChange={onValueChange} />);
+
+    await user.click(segment("day"));
+    await user.keyboard("{Backspace}{Backspace}");
+
+    expect(onValueChange).toHaveBeenLastCalledWith(null);
+    expect(segment("month")).toHaveTextContent("10");
+    expect(segment("year")).toHaveTextContent("2026");
   });
 
   it("should open the calendar from the button on the selected month", async () => {
@@ -503,6 +612,38 @@ describe("DatePicker", () => {
     await user.click(screen.getByRole("button", { name: "Save" }));
 
     expect(onSubmit).toHaveBeenCalledWith("2026-10-12");
+  });
+
+  it("should submit no date with a native form while the date is only partly filled", async () => {
+    const user = userEvent.setup();
+    render(
+      <form aria-label="Course">
+        <StartDate name="start" defaultValue="2026-10-14" />
+      </form>,
+    );
+    const form = screen.getByRole<HTMLFormElement>("form", { name: "Course" });
+
+    expect(new FormData(form).get("start")).toBe("2026-10-14");
+
+    await user.click(segment("day"));
+    await user.keyboard("{Backspace}{Backspace}");
+
+    expect(new FormData(form).get("start")).toBe("");
+  });
+
+  it("should fail react-hook-form's required rule while the date is only partly filled", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    render(<FormExample onSubmit={onSubmit} />);
+
+    await user.click(segment("month"));
+    await user.keyboard("10122026");
+    await user.click(segment("day"));
+    await user.keyboard("{Backspace}{Backspace}");
+    await user.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(await screen.findByText("Choose a start date")).toBeInTheDocument();
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it("should forward the ref to the first part and className to the root", () => {
