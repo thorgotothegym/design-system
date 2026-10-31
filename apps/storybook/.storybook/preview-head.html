@@ -22,3 +22,15 @@
   crossorigin
 />
 <link rel="stylesheet" href="./fonts/fonts.css" />
+<script>
+  // The theme in the URL (a link or reload with `globals=theme:light`) on the first paint, before
+  // Storybook's scripts run; without it the page paints dark first. theme.ts reads it the same way.
+  document.documentElement.setAttribute(
+    "data-theme",
+    new URLSearchParams(location.search)
+      .get("globals")
+      ?.match(/theme:(\w+)/)?.[1] === "light"
+      ? "light"
+      : "dark",
+  );
+</script>
