@@ -4,7 +4,7 @@
   "installCommand": "cd ../.. && npx --yes \"$(node -p \"require('./package.json').packageManager\")\" install --frozen-lockfile",
   "buildCommand": "cd ../.. && npx --yes \"$(node -p \"require('./package.json').packageManager\")\" turbo run build --filter=@aleixvidal/storybook",
   "outputDirectory": "storybook-static",
-  "ignoreCommand": "cd ../.. && npx --yes \"turbo@$(node -p \"require('./package.json').devDependencies.turbo\")\" query affected --packages @aleixvidal/storybook --base=\"$VERCEL_GIT_PREVIOUS_SHA\" --exit-code",
+  "ignoreCommand": "sh scripts/vercel-ignore.sh",
   "headers": [
     {
       "source": "/(.*)",

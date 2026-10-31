@@ -9,14 +9,14 @@ Everything that can live in the repository does: [`apps/storybook/vercel.json`](
 
 ## What vercel.json does
 
-| Setting           | Value                                                                                                                                                                          | Why                                                                                                                                                                                                                                                                            |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `framework`       | `storybook`                                                                                                                                                                    | The Vercel preset for a static Storybook.                                                                                                                                                                                                                                      |
-| `installCommand`  | `cd ../.. && npx --yes "$(node -p "require('./package.json').packageManager")" install --frozen-lockfile`                                                                      | Installs from the repository root with the exact pnpm in the root `packageManager` field (`pnpm@11.x`). Vercel picks the oldest pnpm in its image for a custom `pnpm install`, and Corepack would need a dashboard variable. Reading the field keeps the version in one place. |
-| `buildCommand`    | `cd ../.. && npx --yes "<same pnpm>" turbo run build --filter=@aleixvidal/storybook`                                                                                           | The same Turborepo task as `pnpm build`, filtered to this app. `dependsOn: ["^build"]` builds `@aleixvidal/tokens` and `@aleixvidal/ui` first. Running pnpm through `npx` puts that pnpm on the `PATH`, so the `pnpm run build` calls Turborepo makes use it too.              |
-| `outputDirectory` | `storybook-static`                                                                                                                                                             | What `storybook build -o storybook-static` writes. The app's `build` script then runs `scripts/brand-html.ts`, which sets the page titles (see below).                                                                                                                         |
-| `ignoreCommand`   | `turbo query affected --packages @aleixvidal/storybook --base="$VERCEL_GIT_PREVIOUS_SHA" --exit-code` (through `npx`, with the Turborepo version from the root `package.json`) | Skips the deployment when nothing the site is built from changed. See [Skipped builds](#skipped-builds).                                                                                                                                                                       |
-| `headers`         | see below                                                                                                                                                                      | Caching, security and indexing.                                                                                                                                                                                                                                                |
+| Setting           | Value                                                                                                     | Why                                                                                                                                                                                                                                                                            |
+| ----------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `framework`       | `storybook`                                                                                               | The Vercel preset for a static Storybook.                                                                                                                                                                                                                                      |
+| `installCommand`  | `cd ../.. && npx --yes "$(node -p "require('./package.json').packageManager")" install --frozen-lockfile` | Installs from the repository root with the exact pnpm in the root `packageManager` field (`pnpm@11.x`). Vercel picks the oldest pnpm in its image for a custom `pnpm install`, and Corepack would need a dashboard variable. Reading the field keeps the version in one place. |
+| `buildCommand`    | `cd ../.. && npx --yes "<same pnpm>" turbo run build --filter=@aleixvidal/storybook`                      | The same Turborepo task as `pnpm build`, filtered to this app. `dependsOn: ["^build"]` builds `@aleixvidal/tokens` and `@aleixvidal/ui` first. Running pnpm through `npx` puts that pnpm on the `PATH`, so the `pnpm run build` calls Turborepo makes use it too.              |
+| `outputDirectory` | `storybook-static`                                                                                        | What `storybook build -o storybook-static` writes. The app's `build` script then runs `scripts/brand-html.ts`, which sets the page titles (see below).                                                                                                                         |
+| `ignoreCommand`   | `sh scripts/vercel-ignore.sh`                                                                             | Skips the deployment only when Turborepo says nothing the site is built from changed; anything else builds. See [Skipped builds](#skipped-builds).                                                                                                                             |
+| `headers`         | see below                                                                                                 | Caching, security and indexing.                                                                                                                                                                                                                                                |
 
 ### Headers
 
@@ -52,11 +52,19 @@ The public name, byline and tagline are constants in [`apps/storybook/src/site.t
 
 ## Skipped builds
 
-Vercel already skips the project when no workspace it depends on changed, but it treats files outside the workspaces (`docs/`, `.github/`, `BACKLOG.md`, `AGENTS.md`, root scripts) as global changes and builds anyway. The `ignoreCommand` closes that gap. It asks Turborepo whether `@aleixvidal/storybook` or one of its dependencies changed since the last deployment:
+Vercel already skips the project when no workspace it depends on changed, but it treats files outside the workspaces (`docs/`, `.github/`, `BACKLOG.md`, `AGENTS.md`, root scripts) as global changes and builds anyway. The `ignoreCommand` closes that gap.
 
-- **exit 0:** nothing affected, so Vercel skips;
-- **exit 1:** affected, so Vercel builds;
-- **exit 2:** an error, so Vercel builds. This covers the first deployment of a branch (no previous commit) and a previous commit that is not in Vercel's shallow clone (`--depth=10`).
+**Vercel accepts only two exit codes** from the Ignored Build Step: 0 skips the deployment and 1 builds it. **Any other code fails the deployment.** `turbo query affected --exit-code` returns 2 on an error, for example with an empty `--base` on a branch's first deployment, so it cannot be the command on its own. [`scripts/vercel-ignore.sh`](../apps/storybook/scripts/vercel-ignore.sh) wraps it so that **the only way to skip is the query succeeding with exit 0**. Every other outcome exits 1 and builds:
+
+| Situation                                                                                                | Exit | Result |
+| -------------------------------------------------------------------------------------------------------- | ---- | ------ |
+| The query runs and nothing `@aleixvidal/storybook` is built from changed since `VERCEL_GIT_PREVIOUS_SHA` | 0    | skip   |
+| The query runs and something changed                                                                     | 1    | build  |
+| No previous deployment: `VERCEL_GIT_PREVIOUS_SHA` empty or unset (a branch's first deployment)           | 1    | build  |
+| The previous commit is not in the clone (unknown, or older than Vercel's `--depth=10` shallow clone)     | 1    | build  |
+| `npx` or `turbo` missing, no network to download turbo, or any other code from the query                 | 1    | build  |
+
+`apps/storybook/scripts/vercel-ignore.test.ts` (in `pnpm test`) checks the empty, unset and unknown previous commit, and the mapping of every query result (with an `npx` stub, so it runs offline).
 
 A change to `turbo.json` or a root file Turborepo hashes for every task (`.nvmrc`, `pnpm-workspace.yaml`) affects every package, so it builds. Checked on real commits from a clean clone:
 
@@ -97,10 +105,8 @@ sh -c "$(node -p "require('./vercel.json').buildCommand")"
 ls storybook-static   # index.html, iframe.html, assets/, fonts/, favicon.svg, og-image.png, robots.txt
 ```
 
-To check whether a commit would be deployed:
+To check whether a commit would be deployed, run the same script Vercel runs, from `apps/storybook`, on a clean tree (uncommitted changes count as changes):
 
 ```sh
-pnpm exec turbo query affected --packages @aleixvidal/storybook --base=<previous sha> --head=<sha> --exit-code; echo $?
+VERCEL_GIT_PREVIOUS_SHA=<previous deployed sha> sh scripts/vercel-ignore.sh; echo $?   # 0 skip, 1 build
 ```
-
-Run it on a clean tree: uncommitted changes count as changes.
