@@ -25,8 +25,14 @@ const config: StorybookConfig = {
   staticDirs: ["../public"],
   // The description, canonical address and social tags, after manager-head.html. The tab title is
   // set in manager.ts and, for the HTML as served, by scripts/brand-html.ts after the build.
-  managerHead: (head) =>
-    `${head}\n${siteHeadTags(toHex(themeValues.dark["bg.base"]))}`,
+  // The background is the manager's own (appBg), so its first paint, before Storybook injects its
+  // theme from JavaScript, is dark instead of one white frame on every load. No `color-scheme`: a
+  // preview iframe whose scheme differed from the manager's would get an opaque canvas until its
+  // own CSS loads.
+  managerHead: (head) => {
+    const background = toHex(themeValues.dark["bg.base"]);
+    return `${head}\n<style>html { background: ${background}; }</style>\n${siteHeadTags(background)}`;
+  },
   core: { disableTelemetry: true, disableWhatsNewNotifications: true },
   features: {
     sidebarOnboardingChecklist: false,
