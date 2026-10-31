@@ -18,6 +18,8 @@ const storiesIn = (
   plugins: [storybookTest({ configDir, initialGlobals: { theme } })],
   test: {
     name: `storybook-${theme}`,
+    // Fails a story that logs console.error or console.warn (React warnings included).
+    setupFiles: ["./.storybook/vitest.setup.ts"],
     // The demo play functions run at a readable pace unless STORYBOOK_PLAY_DELAY is 0 (as in CI);
     // a whole form at that pace takes longer than Vitest's default 15 seconds.
     testTimeout: 60_000,
@@ -37,7 +39,11 @@ export default defineConfig({
         extends: true,
         test: {
           name: "unit",
-          include: ["src/**/*.test.ts", "scripts/**/*.test.ts"],
+          include: [
+            "src/**/*.test.ts",
+            "scripts/**/*.test.ts",
+            ".storybook/**/*.test.ts",
+          ],
         },
       },
       storiesIn("dark"),

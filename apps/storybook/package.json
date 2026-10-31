@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "storybook": "node scripts/copy-fonts.ts && storybook dev -p 6006",
-    "build": "node scripts/copy-fonts.ts && storybook build -o storybook-static",
+    "build": "node scripts/copy-fonts.ts && storybook build -o storybook-static && node scripts/brand-html.ts",
+    "brand-assets": "node scripts/copy-fonts.ts && node scripts/brand-assets.ts",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --project unit",

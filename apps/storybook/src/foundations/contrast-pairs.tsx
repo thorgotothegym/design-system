@@ -1,10 +1,8 @@
 import { themeValues, themes } from "@aleixvidal/tokens";
-import { checkContrast, pairs } from "@aleixvidal/tokens/contrast";
 import type { PairResult } from "@aleixvidal/tokens/contrast";
 import type { ColorToken, Theme } from "@aleixvidal/tokens";
+import { pairKey, report, roleOf } from "./contrast-report";
 import { DataCell, DataRow, DataTable } from "./data-table";
-
-const report = checkContrast(themeValues, pairs);
 
 type SampleProps = { result: PairResult };
 
@@ -51,7 +49,7 @@ export const ContrastPairs = () => (
         {report.results
           .filter((result) => result.theme === theme)
           .map((result) => (
-            <DataRow key={`${result.fg}-${result.bg}`}>
+            <DataRow key={pairKey(result)}>
               <DataCell>
                 <code>{result.fg}</code> on <code>{result.bg}</code>
               </DataCell>
@@ -60,7 +58,9 @@ export const ContrastPairs = () => (
               </DataCell>
               <DataCell>{result.ratio.toFixed(2)}:1</DataCell>
               <DataCell>
-                {result.min === null ? "none (decorative)" : `${result.min}:1`}
+                {result.min === null
+                  ? "none (decorative)"
+                  : `${result.min}:1 (${roleOf(result.min)})`}
               </DataCell>
               <DataCell>
                 <strong

@@ -21,3 +21,20 @@ body {
   color: var(--ds-color-text-default);
   font-family: var(--ds-font-mono);
 }
+
+/* Storybook's loaders cover the preview in white while a story or docs page prepares. */
+.sb-preparing-story,
+.sb-preparing-docs {
+  background-color: var(--ds-color-bg-base);
+}
+
+/*
+ * Set for two frames while the theme changes (theme.ts): without it the components' border-color
+ * transitions fade from the old theme's colors on the new background. Hover and focus keep them.
+ */
+.ds-theme-switching,
+.ds-theme-switching *,
+.ds-theme-switching ::before,
+.ds-theme-switching ::after {
+  transition: none !important;
+}

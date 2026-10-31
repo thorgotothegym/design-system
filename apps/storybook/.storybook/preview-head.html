@@ -1,3 +1,5 @@
+<!-- The same icon as the manager, so the browser does not request a missing /favicon.ico for the preview iframe. -->
+<link rel="icon" type="image/svg+xml" href="./favicon.svg" />
 <link
   rel="preload"
   href="./fonts/files/ibm-plex-mono-latin-400-normal.woff2"
@@ -20,3 +22,15 @@
   crossorigin
 />
 <link rel="stylesheet" href="./fonts/fonts.css" />
+<script>
+  // The theme in the URL (a link or reload with `globals=theme:light`) on the first paint, before
+  // Storybook's scripts run; without it the page paints dark first. theme.ts reads it the same way.
+  document.documentElement.setAttribute(
+    "data-theme",
+    new URLSearchParams(location.search)
+      .get("globals")
+      ?.match(/theme:(\w+)/)?.[1] === "light"
+      ? "light"
+      : "dark",
+  );
+</script>

@@ -1,6 +1,9 @@
+import { themeValues } from "@aleixvidal/tokens";
 import type { StorybookConfig } from "@storybook/react-vite";
 import tailwindcss from "@tailwindcss/vite";
 import { mergeConfig } from "vite";
+import { toHex } from "../src/lib/css-values";
+import { siteHeadTags } from "../src/site";
 
 const config: StorybookConfig = {
   framework: "@storybook/react-vite",
@@ -17,8 +20,13 @@ const config: StorybookConfig = {
     "storybook-addon-pseudo-states",
   ],
   // IBM Plex Mono is self-hosted: scripts/copy-fonts.ts copies the woff2 files into public/fonts,
-  // public/fonts/fonts.css declares them, and the *-head.html files load them.
+  // public/fonts/fonts.css declares them, and the *-head.html files load them. public/ also holds
+  // the favicon (Storybook picks up public/favicon.svg), the Open Graph image and robots.txt.
   staticDirs: ["../public"],
+  // The description, canonical address and social tags, after manager-head.html. The tab title is
+  // set in manager.ts and, for the HTML as served, by scripts/brand-html.ts after the build.
+  managerHead: (head) =>
+    `${head}\n${siteHeadTags(toHex(themeValues.dark["bg.base"]))}`,
   core: { disableTelemetry: true, disableWhatsNewNotifications: true },
   features: {
     sidebarOnboardingChecklist: false,
