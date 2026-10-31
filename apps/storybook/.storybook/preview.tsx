@@ -1,13 +1,22 @@
+import * as addonDocs from "@storybook/addon-docs";
 import { withThemeByDataAttribute } from "@storybook/addon-themes";
 import type { Preview } from "@storybook/react-vite";
 import { configure } from "storybook/test";
-import { createDocsRenderer } from "./docs-renderer";
+import { wrapDocsRenderer } from "./docs-renderer";
 import "./preview.css";
 import { ThemedDocsContainer } from "./themed-docs-container";
 
 // The same convention as the unit tests (packages/ui/src/test/setup.ts): `getByTestId` reads the
 // permanent `data-slot` hook, since component roots have no accessible role.
 configure({ testIdAttribute: "data-slot" });
+
+// A theme switch must not remount the docs page (docs-renderer.ts). If an upstream change makes
+// the renderer impossible to wrap, Storybook's default renderer stays and the docs still work.
+const docsRenderer = wrapDocsRenderer(addonDocs.DocsRenderer);
+if (docsRenderer === undefined)
+  console.warn(
+    "docs-renderer.ts could not wrap DocsRenderer: using Storybook's default renderer, so a theme switch remounts docs pages. See docs/theme-switch.md.",
+  );
 
 const preview: Preview = {
   tags: ["autodocs"],
@@ -25,8 +34,7 @@ const preview: Preview = {
     a11y: { test: "error" },
     docs: {
       container: ThemedDocsContainer,
-      // A theme switch must not remount the docs page (docs-renderer.ts).
-      renderer: async () => createDocsRenderer(),
+      ...(docsRenderer && { renderer: async () => docsRenderer }),
     },
     options: {
       storySort: {

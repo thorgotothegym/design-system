@@ -37,7 +37,11 @@ export default defineConfig({
         extends: true,
         test: {
           name: "unit",
-          include: ["src/**/*.test.ts", "scripts/**/*.test.ts"],
+          include: [
+            "src/**/*.test.ts",
+            "scripts/**/*.test.ts",
+            ".storybook/**/*.test.ts",
+          ],
         },
       },
       storiesIn("dark"),
