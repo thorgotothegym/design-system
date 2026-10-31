@@ -1,6 +1,7 @@
 import { withThemeByDataAttribute } from "@storybook/addon-themes";
 import type { Preview } from "@storybook/react-vite";
 import { configure } from "storybook/test";
+import { createDocsRenderer } from "./docs-renderer";
 import "./preview.css";
 import { ThemedDocsContainer } from "./themed-docs-container";
 
@@ -22,7 +23,11 @@ const preview: Preview = {
     // The tokens set the page background; a second background switcher would only fight them.
     backgrounds: { disabled: true },
     a11y: { test: "error" },
-    docs: { container: ThemedDocsContainer },
+    docs: {
+      container: ThemedDocsContainer,
+      // A theme switch must not remount the docs page (docs-renderer.ts).
+      renderer: async () => createDocsRenderer(),
+    },
     options: {
       storySort: {
         order: [
