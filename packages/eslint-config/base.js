@@ -65,4 +65,20 @@ export const config = [
       "testing-library/no-container": "error",
     },
   },
+  {
+    // Asynchronous results are awaited, in tests and in story `play` functions (AGENTS.md
+    // section 9, "Waiting for asynchronous results"). These catch an un-awaited userEvent call,
+    // findBy* query or waitFor; an assertion made before the result arrives needs review.
+    files: ["**/*.test.{ts,tsx}", "**/*.stories.{ts,tsx}"],
+    plugins: { "testing-library": testingLibrary },
+    rules: {
+      "testing-library/await-async-events": [
+        "error",
+        { eventModule: "userEvent" },
+      ],
+      "testing-library/await-async-queries": "error",
+      "testing-library/await-async-utils": "error",
+      "testing-library/prefer-find-by": "error",
+    },
+  },
 ];

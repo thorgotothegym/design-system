@@ -196,7 +196,8 @@ export const KeyboardNavigation: Story = {
     await user.keyboard("{Enter}");
     await waitFor(() => expect(screen.queryByRole("listbox")).toBeNull());
     await expect(trigger).toHaveTextContent("Banana");
-    await expect(trigger).toHaveFocus();
+    // The focus goes back to the trigger in a timeout after the list unmounts.
+    await waitFor(() => expect(trigger).toHaveFocus());
   },
 };
 

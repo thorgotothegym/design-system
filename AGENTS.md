@@ -200,6 +200,15 @@ Test behavior from the user's point of view, not implementation details.
 - Use `screen` for queries. Use `userEvent` for every interaction; never `fireEvent`.
 - Do not access DOM nodes directly (`container.querySelector`, `.parentElement`).
 
+### Waiting for asynchronous results
+After an action whose effect is asynchronous, wait for the observable result with `findBy*` or `waitFor`. Never assert straight after the action, and never add a fixed sleep or a longer timeout. Such an assertion passes on a fast machine and fails under load in CI. These are the patterns found so far, in tests and `play` functions:
+- **Focus moved by an effect or a timer.** Radix FocusScope restores focus to the trigger in a `setTimeout` when a popover closes. Radix RovingFocus moves focus in a `setTimeout`. React Aria focuses a calendar day in an effect. Focus placed in a component's own `useEffect` (after removing a tag, an error summary, a step heading) is the same case. Use `await waitFor(() => expect(x).toHaveFocus())`.
+- **A value or state reported from an effect.** `input-otp` calls `onComplete` from an effect. A value reported from a `useEffect` (DatePicker) also arrives after the render. Use `waitFor` or `findByText`.
+- **Opening a popover, a list or a calendar.** Use `await screen.findByRole(...)`, never `getByRole` straight after the click or key.
+- **A viewport resize.** The test runner sets a story's viewport before `play`, but the browser fires `resize` on the next frame, and Radix Select closes on any window resize. A story that runs after a viewport change waits for that frame before opening, with `viewportResized()` in `select.stories.tsx`. Move it to `src/test/` when a second story needs it.
+
+A change made synchronously by a React event handler (a click, a key, submit, blur) is already there when `await userEvent...` resolves. It needs no waiting. ESLint (`testing-library/await-async-events`, `await-async-queries`, `await-async-utils`, `prefer-find-by`, on tests and stories) catches an un-awaited `userEvent`, query or `waitFor`. It cannot catch an assertion made too early, nor an un-awaited call on the instance `startDemo()` returns, so this needs review too.
+
 ### What to cover
 - Renders, each variant, keyboard interaction, disabled and error states, controlled and uncontrolled usage, and ref/className forwarding.
 - Every component also has an automated accessibility check with axe, in addition to the Storybook a11y addon.
