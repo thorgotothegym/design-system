@@ -93,6 +93,7 @@ Before saying a task is done, `pnpm lint && pnpm typecheck && pnpm test && pnpm 
 | changeset | `pnpm changeset status --since=origin/main`, on pull requests only. Stories, tests, `src/test/**` and `scripts/**` are not shipped, so they need no changeset (`changedFilePatterns` in `.changeset/config.json`) |
 
 - `STORYBOOK_PLAY_DELAY` sets the pace of the demo `play` functions (`startDemo()` in `packages/ui/src/test/demo.ts`): milliseconds after each step, 250 when unset, and a pause of 2.4 steps before the first one. CI sets it to `0`. It applies to `pnpm storybook`, `storybook build` and `pnpm test:storybook`.
+- A story that logs `console.error` or `console.warn` fails `pnpm test:storybook` (`apps/storybook/.storybook/vitest.setup.ts`), so React's development-only warnings (duplicate keys, invalid props) cannot pass CI silently. Fix the cause; a message that is expected and not ours goes in its `ALLOWED` list with the reason.
 - `ci-success` is the single required check: it waits for every other job and fails if any failed or was cancelled. When you add a job, add it to its `needs`.
 - No secrets, tokens or remote caches: the Turborepo cache is local, restored with `actions/cache`. Official `actions/*` are pinned by major version; any other action by full commit SHA with the version in a comment.
 
