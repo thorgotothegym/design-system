@@ -49,7 +49,7 @@ export const ContrastPairs = () => (
         {report.results
           .filter((result) => result.theme === theme)
           .map((result) => (
-            <DataRow key={pairKey(result)}>
+            <DataRow key={`${result.fg}-${result.bg}`}>
               <DataCell>
                 <code>{result.fg}</code> on <code>{result.bg}</code>
               </DataCell>
