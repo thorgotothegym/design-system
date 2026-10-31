@@ -3,6 +3,7 @@
   "include": [".storybook", "scripts", "src"],
   "exclude": ["node_modules", "storybook-static"],
   "compilerOptions": {
-    "types": ["node"]
+    "types": ["node"],
+    "allowImportingTsExtensions": true
   }
 }

@@ -96,6 +96,10 @@ Before saying a task is done, `pnpm lint && pnpm typecheck && pnpm test && pnpm 
 - `ci-success` is the single required check: it waits for every other job and fails if any failed or was cancelled. When you add a job, add it to its `needs`.
 - No secrets, tokens or remote caches: the Turborepo cache is local, restored with `actions/cache`. Official `actions/*` are pinned by major version; any other action by full commit SHA with the version in a comment.
 
+### Deployment
+
+The Storybook deploys to Vercel (https://design.aleixvidal.dev) from `apps/storybook/vercel.json`, which sets the install, build and output, the skipped-build check and the headers. [docs/deployment.md](docs/deployment.md) explains each setting, what must be configured in the Vercel dashboard, and how to reproduce the build locally. The site's public name, byline and tagline are constants in `apps/storybook/src/site.ts`; titles, meta tags, the welcome heading and the Open Graph image derive from them (regenerate the image and favicon with `pnpm --filter @aleixvidal/storybook brand-assets`).
+
 ## 5. Component conventions
 
 Every component lives in its own folder with its files side by side:
