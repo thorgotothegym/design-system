@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, userEvent, within } from "storybook/test";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 import { useState } from "react";
 import { startDemo } from "../../test/demo";
 import { Field } from "../field";
@@ -181,7 +181,8 @@ export const VerificationFlow: Story = {
 
     await user.click(input);
     await user.keyboard("111111");
-    await expect(input).toBeInvalid();
+    // input-otp calls onComplete from an effect, after the last digit has rendered.
+    await waitFor(() => expect(input).toBeInvalid());
     await expect(input).toHaveAccessibleDescription(
       "We sent it by SMS. That code is not right",
     );
@@ -192,7 +193,9 @@ export const VerificationFlow: Story = {
     await expect(input).toBeValid();
 
     await user.keyboard(CORRECT_CODE);
+    await waitFor(() =>
+      expect(input).toHaveAccessibleDescription("Code accepted."),
+    );
     await expect(input).toBeValid();
-    await expect(input).toHaveAccessibleDescription("Code accepted.");
   },
 };

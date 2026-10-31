@@ -47,7 +47,8 @@ export const WithErrors: Story = {
     const summary = await canvas.findByRole("region", {
       name: "Fix 7 problems to continue",
     });
-    await expect(summary).toHaveFocus();
+    // The summary takes focus in an effect, after it has rendered.
+    await waitFor(() => expect(summary).toHaveFocus());
     await expect(
       within(summary)
         .getAllByRole("link")
@@ -90,7 +91,7 @@ export const ServerError: Story = {
     const summary = await canvas.findByRole("region", {
       name: "Fix 1 problem to continue",
     });
-    await expect(summary).toHaveFocus();
+    await waitFor(() => expect(summary).toHaveFocus());
     await expect(
       canvas.getByRole("textbox", { name: /Email/ }),
     ).toHaveAccessibleDescription(
@@ -134,13 +135,13 @@ export const FilledAndSubmitted: Story = {
     await user.click(canvas.getByRole("button", { name: "Register" }));
 
     await expect(await canvas.findByText("Registering…")).toBeVisible();
-    await expect(
-      await canvas.findByRole(
-        "heading",
-        { name: "Check your email" },
-        { timeout: 3000 },
-      ),
-    ).toHaveFocus();
+    const nextStep = await canvas.findByRole(
+      "heading",
+      { name: "Check your email" },
+      { timeout: 3000 },
+    );
+    // The heading takes focus in an effect, after it has rendered.
+    await waitFor(() => expect(nextStep).toHaveFocus());
   },
 };
 
@@ -218,17 +219,19 @@ export const KeyboardOnly: Story = {
     ).toHaveFocus();
     await user.keyboard("{Enter}");
 
-    await expect(
-      await canvas.findByRole("heading", { name: "Check your email" }),
-    ).toHaveFocus();
+    const nextStep = await canvas.findByRole("heading", {
+      name: "Check your email",
+    });
+    await waitFor(() => expect(nextStep).toHaveFocus());
     await user.tab();
     await user.keyboard(DEMO_CODE);
     await user.tab();
     await user.keyboard("{Enter}");
 
-    await expect(
-      await canvas.findByRole("heading", { name: "You are registered" }),
-    ).toHaveFocus();
+    const done = await canvas.findByRole("heading", {
+      name: "You are registered",
+    });
+    await waitFor(() => expect(done).toHaveFocus());
   },
 };
 

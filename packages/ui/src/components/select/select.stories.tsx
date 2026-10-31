@@ -237,15 +237,19 @@ export const KeyboardNavigation: Story = {
 
     await user.keyboard("{Enter}");
     const listbox = await screen.findByRole("listbox");
-    await expect(
-      within(listbox).getByRole("option", { name: "Spain" }),
-    ).toHaveFocus();
+    // Radix moves the focus to the selected option once the list is positioned, after it appears.
+    await waitFor(() =>
+      expect(
+        within(listbox).getByRole("option", { name: "Spain" }),
+      ).toHaveFocus(),
+    );
 
     await user.keyboard("{ArrowDown}");
     await user.keyboard("{Enter}");
     await waitFor(() => expect(screen.queryByRole("listbox")).toBeNull());
     await expect(trigger).toHaveTextContent("Portugal");
-    await expect(trigger).toHaveFocus();
+    // The focus goes back to the trigger in a timeout after the list unmounts.
+    await waitFor(() => expect(trigger).toHaveFocus());
 
     await user.keyboard("c");
     await expect(trigger).toHaveTextContent("Canada");
@@ -323,6 +327,15 @@ const expectInsideViewport = async (element: Element) => {
 };
 
 /**
+ * The test runner sets the story's viewport before `play`, but the browser fires the `resize`
+ * event for it on the next frame, before that frame's animation callbacks. Radix Select closes on
+ * any window resize, so a list opened before then can close at once. Resolves once that frame has
+ * run, so a pending resize has been delivered.
+ */
+const viewportResized = () =>
+  new Promise((resolve) => requestAnimationFrame(resolve));
+
+/**
  * A narrow screen (320px wide, the mobile1 viewport) with the trigger in the bottom-right corner
  * and long options: the list flips above the trigger, keeps within the viewport and scrolls.
  */
@@ -346,6 +359,7 @@ export const SmallViewport: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await viewportResized();
 
     await userEvent.click(canvas.getByRole("combobox", { name: "Time zone" }));
     const listbox = await screen.findByRole("listbox");
@@ -370,6 +384,8 @@ export const PageWithScrollbar: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const trigger = canvas.getByRole("combobox", { name: "Country" });
+    // After a story with another viewport (SmallViewport), the runner restores the default size.
+    await viewportResized();
     const before = trigger.getBoundingClientRect().left;
 
     await userEvent.click(trigger);
