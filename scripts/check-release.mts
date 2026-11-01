@@ -2,11 +2,11 @@
  * Release plan check: `pnpm check:release`.
  *
  * Runs `changeset version` in a temporary git worktree (never in this checkout) and fails if it
- * errors, so a pending changeset that would break the release is caught on the pull request that
- * adds it, not on release day. `changeset status --since` cannot catch it: it only reads the
- * changesets of the pull request, while `changeset version` reads all of them. Example: a
- * changeset that names the private @aleixvidal/tokens next to @aleixvidal/ui ("Mixed changesets
- * that contain both ignored and not ignored packages are not allowed").
+ * errors, so a release that would fail is caught on the pull request, not on release day.
+ * `changeset status --since` only reads the changesets of the pull request, so it cannot see the
+ * changesets already on main: neither ones that were never checked (the two that named the
+ * private @aleixvidal/tokens next to @aleixvidal/ui predate CI), nor ones a pull request breaks
+ * without adding a changeset (making a package private, changing .changeset/config.json).
  * The worktree starts from HEAD plus the uncommitted changes of this checkout, and is removed at
  * the end whatever happens, so no file is left behind and no tracked file is touched.
  * Plain Node (type stripping), no dependencies.
