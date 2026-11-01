@@ -370,6 +370,7 @@ export const RegistrationForm = ({
           required
           disabled={disabled}
         >
+          <Field.Label>Full name</Field.Label>
           <Input
             autoComplete="name"
             readOnly={readOnly}
