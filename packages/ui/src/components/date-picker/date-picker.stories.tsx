@@ -220,6 +220,24 @@ export const Focused: Story = {
   },
 };
 
+/**
+ * An empty field with the month focused: the placeholder ("mm") on the filled part being edited.
+ * The a11y check runs on the state `play` leaves, so this story keeps that state for it (the
+ * placeholder must stay readable on the fill, not keep its own color).
+ */
+export const FocusedEmpty: Story = {
+  play: async ({ canvasElement }) => {
+    const month = within(canvasElement).getByRole("spinbutton", {
+      name: /^month/,
+    });
+
+    await userEvent.tab();
+
+    await waitFor(() => expect(month).toHaveAttribute("data-focused"));
+    await expect(month).toHaveTextContent("mm");
+  },
+};
+
 /** The calendar button with the keyboard focus ring. */
 export const ButtonFocused: Story = {
   args: { defaultValue: FIXED_DATE },

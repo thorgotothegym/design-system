@@ -102,6 +102,8 @@ export const pairs: readonly Pair[] = [
   // a dot: brand.primary on the surface, text.on-primary when today is also selected. The part of
   // the date being edited is a brand.primary fill on the field (bg.input). Each is the indicator,
   // so each is declared here as a 3:1 pair even where the same colors are already checked as text.
+  // The text of the part being edited, a value or the placeholder ("mm"), is text.on-primary on that
+  // fill: the 4.5:1 DESIGN.md pair above. text.placeholder never sits on brand.primary.
   control("brand.primary", "bg.surface"),
   control("text.on-primary", "brand.primary"),
   control("brand.primary", "bg.input"),
