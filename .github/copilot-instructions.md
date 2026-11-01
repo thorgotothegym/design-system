@@ -20,5 +20,8 @@ Rules that must never be missed (the full list is in `AGENTS.md`):
 - Never disable a check to make it pass. If you cannot fix it, stop and report.
 - No employer-related content of any kind in this repository.
 - If a decision is ambiguous and hard to reverse, stop and write down the options instead of guessing.
+- Report real results and follow AGENTS.md section 11, "Verifying and reporting": a check that must run is never replayed from the Turborepo cache, a failed job is reported rather than re-run until green, and tokens (Chromatic, Vercel, npm) are never printed or pasted.
 
-To create a new component, use the prompt `scaffold-component` (`.github/prompts/scaffold-component.prompt.md`, run it with `/scaffold-component` in Copilot Chat). It follows the same workflow as the Claude Code skill in `.claude/skills/scaffold-component/`, which is the single source of truth for the templates and conventions.
+For commands and CI, read AGENTS.md section 4; for deployment and the theme switch, `docs/`.
+
+To create a new component, use the prompt `scaffold-component` (`.github/prompts/scaffold-component.prompt.md`, run it with `/scaffold-component` in Copilot Chat). It has five variants: native element, Radix primitive, group, popover and subpath (own entry point). It follows the same workflow as the Claude Code skill in `.claude/skills/scaffold-component/`, which is the single source of truth for the templates and conventions.
