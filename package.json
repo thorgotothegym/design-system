@@ -14,7 +14,7 @@
     "changeset": "changeset",
     "check:placeholders": "node scripts/check-placeholders.mts",
     "check:release": "node scripts/check-release.mts",
-    "lighthouse": "lhci collect && lhci upload && node scripts/lighthouse-summary.mts",
+    "lighthouse": "lhci collect && lhci upload && node scripts/lighthouse-summary.mts && lhci assert",
     "test:consumer": "turbo run test:consumer",
     "test:storybook": "turbo run test:storybook",
     "test:scaffold": "node scripts/test-scaffold.mts"
