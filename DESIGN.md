@@ -16,7 +16,7 @@ Sources of truth derived from the personal site: green hue 145 in OKLCH, near-bl
 ## 2. Color
 
 All colors are authored in **OKLCH**. Components use semantic tokens only (see AGENTS.md section 6).
-Contrast ratios below are WCAG 2.x, computed with a script from these exact OKLCH values. Re-verify in the browser and with the Storybook a11y addon; they are not a substitute for it.
+Contrast ratios are not typed here: the contrast gate measures every declared pair in both themes (`pnpm --filter @aleixvidal/tokens contrast`, part of `pnpm test`), and the Foundations / Color story shows the same report (Contrast Ratios). The ratios kept below explain a design decision. Re-verify in the browser and with the Storybook a11y addon; the gate is not a substitute for them.
 
 ### 2.1 Dark theme (default, matches the site)
 
@@ -26,16 +26,16 @@ Contrast ratios below are WCAG 2.x, computed with a script from these exact OKLC
 | `bg.surface` | `oklch(0.10 0 0)` | cards, popovers |
 | `bg.subtle` | `oklch(0.12 0 0)` | muted areas |
 | `bg.input` | `oklch(0.15 0 0)` | field background, secondary surfaces |
-| `text.default` | `oklch(0.75 0.15 145)` | 9.82:1 on `bg.base` |
-| `text.muted` | `oklch(0.62 0.09 145)` | 5.94:1 on `bg.base` |
-| `text.placeholder` | `oklch(0.58 0.08 145)` | 4.76:1 on `bg.input` |
-| `brand.primary` | `oklch(0.70 0.18 145)` | 8.29:1 on `bg.base`. As a state fill: 8.24:1 on `bg.surface` (the selected day and the today dot of a calendar), 7.87:1 on `bg.input` (the part of a date being edited) |
-| `text.on-primary` | `oklch(0.08 0 0)` | 8.29:1 on `brand.primary` |
-| `text.danger` | `oklch(0.70 0.19 25)` | 7.15:1 on `bg.base` |
+| `text.default` | `oklch(0.75 0.15 145)` | body text |
+| `text.muted` | `oklch(0.62 0.09 145)` | secondary text, helper text |
+| `text.placeholder` | `oklch(0.58 0.08 145)` | placeholder on `bg.input` |
+| `brand.primary` | `oklch(0.70 0.18 145)` | accent and links; as a state fill: the selected day and the today dot of a calendar (on `bg.surface`), the part of a date being edited (on `bg.input`) |
+| `text.on-primary` | `oklch(0.08 0 0)` | text on a `brand.primary` fill, a value or a placeholder |
+| `text.danger` | `oklch(0.70 0.19 25)` | error messages |
 | `border.decorative` | `oklch(0.20 0.05 145)` | 1.16:1. Decoration only (cards, dividers). Never as the only boundary of a control |
-| `border.danger` | `oklch(0.70 0.19 25)` | 7.15:1 on `bg.base`, 6.79:1 on `bg.input` (min 3:1). Same value as `text.danger`. Border of a control in the invalid state |
-| `border.control` | `oklch(0.50 0.10 145)` | 3.62:1 on `bg.base`, 3.43:1 on `bg.input`, 3.60:1 on `bg.surface` (min 3:1) |
-| `focus.ring` | `oklch(0.70 0.18 145)` | 8.29:1 on `bg.base`, 8.24:1 on `bg.surface`, 8.10:1 on `bg.subtle` (the highlighted option of a popup) |
+| `border.danger` | `oklch(0.70 0.19 25)` | same value as `text.danger`. Border of a control in the invalid state |
+| `border.control` | `oklch(0.50 0.10 145)` | the boundary of a control (3:1 on every background it sits on) |
+| `focus.ring` | `oklch(0.70 0.18 145)` | focus indicator, and the inset outline of the highlighted option of a popup (on `bg.subtle`) |
 
 Differences from the personal site, on purpose (the site values failed AA):
 - Muted text was `oklch(0.50 0.08 145)` at 3.59:1. Raised.
@@ -49,26 +49,26 @@ Differences from the personal site, on purpose (the site values failed AA):
 | --- | --- | --- |
 | `bg.base` | `oklch(0.98 0.01 145)` | |
 | `bg.surface` / `bg.input` | `oklch(1 0 0)` | |
-| `bg.subtle` | `oklch(0.95 0.015 145)` | 1.09:1 against `bg.base`. 14.91:1 with `text.default` and 6.29:1 with `text.muted` on top of it |
-| `text.default` | `oklch(0.22 0.04 145)` | 16.23:1 on `bg.base` |
-| `text.muted` | `oklch(0.45 0.05 145)` | 6.85:1 on `bg.base` |
-| `text.placeholder` | `oklch(0.50 0.05 145)` | 5.87:1 on `bg.input` |
-| `brand.primary` | `oklch(0.45 0.14 145)` | 6.61:1 on `bg.base`. Also valid for links. As a state fill: 7.00:1 on `bg.surface` (the selected day and the today dot of a calendar) and on `bg.input` (the part of a date being edited) |
-| `text.on-primary` | `oklch(0.98 0.01 145)` | 6.61:1 on `brand.primary` |
-| `text.danger` | `oklch(0.50 0.20 27)` | 6.27:1 on `bg.base` |
+| `bg.subtle` | `oklch(0.95 0.015 145)` | 1.09:1 against `bg.base`, so it is a fill, never an indicator on its own. `text.default` and `text.muted` stay readable on it |
+| `text.default` | `oklch(0.22 0.04 145)` | body text |
+| `text.muted` | `oklch(0.45 0.05 145)` | secondary text, helper text |
+| `text.placeholder` | `oklch(0.50 0.05 145)` | placeholder on `bg.input` |
+| `brand.primary` | `oklch(0.45 0.14 145)` | accent and links; as a state fill: the selected day and the today dot of a calendar, the part of a date being edited |
+| `text.on-primary` | `oklch(0.98 0.01 145)` | text on a `brand.primary` fill |
+| `text.danger` | `oklch(0.50 0.20 27)` | error messages |
 | `border.decorative` | `oklch(0.90 0.03 145)` | 1.26:1 on `bg.base`. Decoration only, same rule as in dark: never the only boundary of a control |
-| `border.danger` | `oklch(0.50 0.20 27)` | 6.27:1 on `bg.base`, 6.64:1 on `bg.input` (min 3:1). Same value as `text.danger`. Border of a control in the invalid state |
-| `border.control` | `oklch(0.60 0.07 145)` | 3.60:1 on `bg.base`, 3.81:1 on `bg.surface` |
-| `focus.ring` | `oklch(0.45 0.14 145)` | same value as `brand.primary`: 6.61:1 on `bg.base`, 7.00:1 on `bg.input` and `bg.surface`, 6.07:1 on `bg.subtle` (the highlighted option of a popup) |
+| `border.danger` | `oklch(0.50 0.20 27)` | same value as `text.danger`. Border of a control in the invalid state |
+| `border.control` | `oklch(0.60 0.07 145)` | the boundary of a control |
+| `focus.ring` | `oklch(0.45 0.14 145)` | same value as `brand.primary`; focus indicator and highlighted option, as in dark |
 
 ### 2.3 Rules
 
 - Text needs 4.5:1, large text and control boundaries need 3:1, in BOTH themes.
 - A state indicator (focus, highlighted, selected, invalid) needs 3:1 against its adjacent colors. A fill that differs from its surroundings by about 1.1:1 (`bg.subtle` on `bg.surface`) is not an indicator on its own: add an inset `focus.ring` outline, a border or an icon.
-- Every new semantic color needs a light and a dark value and a measured ratio in this table.
+- Every new semantic color needs a light and a dark value in the tables above and a pair in the contrast gate (`packages/tokens/src/contrast/pairs.ts`); the gate fails on a semantic color that no pair mentions.
 - A contrast script must run in CI over the token files and fail the build on any pair below its minimum. Do not lower a minimum to pass.
-  - Implemented in `packages/tokens/scripts/contrast` (`pnpm --filter @aleixvidal/tokens contrast`, also part of `pnpm test`). The pairs are declared in `pairs.ts`; a semantic color that no pair mentions fails the script.
-  - The ratios in the tables above are the ones the script prints. It measures the 8-bit colors a browser paints (what axe and devtools report), not unrounded values. When a token changes, re-run it and update the tables.
+  - Implemented: `packages/tokens/scripts/check-contrast.ts` (`pnpm --filter @aleixvidal/tokens contrast`, also part of `pnpm test`), with the logic in `packages/tokens/src/contrast/` and the pairs in `pairs.ts`. A semantic color that no pair mentions fails the script.
+  - It measures the 8-bit colors a browser paints (what axe and devtools report), not unrounded values. Its output, and the Foundations / Color story, are where the current ratios are read.
 - Keep colors inside sRGB, or provide an sRGB-safe value. Out-of-gamut values are silently clipped and the measured ratio stops being true.
 - The `.dark` / `:root` duplication on the personal site is not carried over: tokens have a single source and the theme is switched by one attribute or class.
 
@@ -76,7 +76,12 @@ Differences from the personal site, on purpose (the site values failed AA):
 
 - Family: IBM Plex Mono, fallback Geist Mono, then `monospace`.
 - Monospace is the identity. Use it for labels, values, buttons, code and headings.
-- **Open decision:** whether helper text and long-form copy use a proportional sans (`font.sans` token) for readability. Until decided, everything is mono and the token exists so it can change in one place.
+- **Today everything renders in IBM Plex Mono.** The `font.sans` token resolves to the same stack as `font.mono`. It is already assigned to the roles that would use a proportional sans, so switching them is a one-token change (`font.sans` in `packages/tokens/tokens/typography.json`):
+  - `Field.Description` and `Field.Error` (`packages/ui/src/components/field/field.tsx`);
+  - the weekday headers of the DatePicker calendar (`packages/ui/src/components/date-picker/date-picker.tsx`);
+  - in the realistic form, the links of the error summary, the submit status line ("Registering…") and the confirmation message of the last step (`apps/storybook/src/patterns/registration-form.tsx`);
+  - the "Value: …" lines of the controlled-usage stories.
+- A proportional sans has **not** been chosen (section 7). Labels, values, buttons and headings stay mono either way.
 - The type scale, weights and line heights are tokens. Define them once, document them in a Storybook story, and never hardcode sizes.
 
 Defined values (T01). `font.sans` currently resolves to the same stack as `font.mono`.
@@ -139,6 +144,6 @@ The personal site uses CRT scanlines, a grid overlay, a vignette, text glow, a b
 
 ## 7. Open decisions
 
-- [ ] Proportional sans for long-form text, or mono everywhere
+- [ ] Choose a proportional sans for the `font.sans` roles listed in section 3 (helper, error and calendar text), or keep mono. Change it in one place: `font.sans` in `packages/tokens/tokens/typography.json`
 - [ ] Final adjectives and any reference sites to calibrate the feel
 - [ ] Whether opt-in flair (scanlines, grid) ships in the package or only in Storybook
