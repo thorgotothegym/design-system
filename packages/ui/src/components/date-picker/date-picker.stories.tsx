@@ -253,11 +253,12 @@ export const TypedEntry: Story = {
 
     await user.keyboard("12");
     await user.keyboard("2025");
-    await expect(canvas.getByText("Value: 2025-03-12")).toBeVisible();
+    // The value is reported from an effect once the shown date is complete.
+    await expect(await canvas.findByText("Value: 2025-03-12")).toBeVisible();
 
     await user.keyboard("{Shift>}{Tab}{/Shift}");
     await user.keyboard("{ArrowUp}");
-    await expect(canvas.getByText("Value: 2025-03-13")).toBeVisible();
+    await expect(await canvas.findByText("Value: 2025-03-13")).toBeVisible();
   },
 };
 
@@ -296,14 +297,15 @@ export const KeyboardCalendar: Story = {
     await expect(await screen.findByRole("dialog")).toBeVisible();
     await waitFor(() => expect(dayCell(/March 12, 2025/)).toHaveFocus());
 
+    // React Aria focuses the new day cell in an effect, after the key press has rendered.
     await user.keyboard("{ArrowRight}");
-    await expect(dayCell(/March 13, 2025/)).toHaveFocus();
+    await waitFor(() => expect(dayCell(/March 13, 2025/)).toHaveFocus());
 
     await user.keyboard("{ArrowDown}");
-    await expect(dayCell(/March 20, 2025/)).toHaveFocus();
+    await waitFor(() => expect(dayCell(/March 20, 2025/)).toHaveFocus());
 
     await user.keyboard("{PageDown}");
-    await expect(dayCell(/April 20, 2025/)).toHaveFocus();
+    await waitFor(() => expect(dayCell(/April 20, 2025/)).toHaveFocus());
 
     await user.keyboard("{Enter}");
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());

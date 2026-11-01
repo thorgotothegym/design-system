@@ -30,6 +30,13 @@
 //       so the steps can be followed; no `play` changes what the first paint shows (open things
 //       with `defaultOpen`, not from `play`); anything with dates uses a fixed date, and a story
 //       that depends on today is excluded from Chromatic. Review (AGENTS.md section 8).
+// - [ ] In `play` and tests, every result that arrives asynchronously is awaited with `findBy*` or
+//       `waitFor`, never asserted straight after the action, with no fixed sleep and no longer
+//       timeout. That covers focus moved in an effect or a `setTimeout` (Radix FocusScope and
+//       RovingFocus, React Aria), a value or `onComplete` reported from an effect, an opened
+//       popover, and a viewport resize, which arrives on the next frame (`viewportResized()` in
+//       select.stories.tsx). ESLint catches un-awaited calls only; review the rest (AGENTS.md
+//       section 9, "Waiting for asynchronous results").
 //#if group
 // - [ ] Group: the `Field.Label` names the group (aria-labelledby), the group is one tab stop, the
 //       arrow keys move and select, and each item sits in its own `<Field orientation="horizontal">`,

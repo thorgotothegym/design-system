@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, within } from "storybook/test";
+import { expect, waitFor, within } from "storybook/test";
 import { useState } from "react";
 import { startDemo } from "../../test/demo";
 import { Field } from "../field";
@@ -162,16 +162,20 @@ export const KeyboardNavigation: Story = {
       canvas.getByRole("button", { name: "Remove react" }),
     ).toHaveFocus();
 
+    // The roving focus group moves the focus in a timeout after the key press.
     await user.keyboard("{ArrowRight}");
-    await expect(
-      canvas.getByRole("button", { name: "Remove css" }),
-    ).toHaveFocus();
+    await waitFor(() =>
+      expect(canvas.getByRole("button", { name: "Remove css" })).toHaveFocus(),
+    );
 
+    // After a removal the focus is placed in an effect, once the tag is gone.
     await user.keyboard("{Delete}");
     await expect(status).toHaveTextContent("css removed, 1 tag");
-    await expect(
-      canvas.getByRole("button", { name: "Remove react" }),
-    ).toHaveFocus();
+    await waitFor(() =>
+      expect(
+        canvas.getByRole("button", { name: "Remove react" }),
+      ).toHaveFocus(),
+    );
   },
 };
 

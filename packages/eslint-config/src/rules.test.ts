@@ -176,3 +176,56 @@ describe("test files", () => {
     expect(ids).toEqual([]);
   });
 });
+
+describe("asynchronous results in tests and stories", () => {
+  const storyFile = "sample.stories.tsx";
+  const play = (body: string) =>
+    `import { expect, screen, userEvent, waitFor } from "storybook/test";\nexport const play = async () => {\n${body}\n};\n`;
+
+  it("should reject a userEvent call that is not awaited in a story", async () => {
+    const ids = await ruleIds(
+      play('  userEvent.click(screen.getByRole("button"));'),
+      storyFile,
+    );
+
+    expect(ids).toContain("testing-library/await-async-events");
+  });
+
+  it("should reject a findBy query that is not awaited in a story", async () => {
+    const ids = await ruleIds(
+      play('  screen.findByRole("listbox");'),
+      storyFile,
+    );
+
+    expect(ids).toContain("testing-library/await-async-queries");
+  });
+
+  it("should reject a waitFor that is not awaited in a test", async () => {
+    const ids = await ruleIds(
+      "import { screen, waitFor } from '@testing-library/react';\nimport { expect } from 'vitest';\nexport const check = async () => {\n  waitFor(() => expect(screen.getByRole('dialog')).toBeVisible());\n};\n",
+      "sample.test.ts",
+    );
+
+    expect(ids).toContain("testing-library/await-async-utils");
+  });
+
+  it("should reject waitFor around a getBy query instead of findBy in a story", async () => {
+    const ids = await ruleIds(
+      play('  await waitFor(() => screen.getByRole("listbox"));'),
+      storyFile,
+    );
+
+    expect(ids).toContain("testing-library/prefer-find-by");
+  });
+
+  it("should accept awaited events, findBy queries and waitFor on a result", async () => {
+    const ids = await ruleIds(
+      play(
+        '  await userEvent.click(screen.getByRole("button"));\n  await screen.findByRole("listbox");\n  await waitFor(() => expect(screen.getByRole("button")).toHaveFocus());',
+      ),
+      storyFile,
+    );
+
+    expect(ids).toEqual([]);
+  });
+});
