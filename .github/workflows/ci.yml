@@ -158,10 +158,20 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           turbo-cache-key: changeset
+      # A Dependabot pull request (its author, or its dependabot/... branch) that changes only
+      # `devDependencies` or `size-limit` of published packages needs no changeset: consumers
+      # install nothing new. Any other change to a published package still requires one.
+      - id: dev-only
+        if: github.event.pull_request.user.login == 'dependabot[bot]' || startsWith(github.head_ref, 'dependabot/')
+        run: node scripts/dependabot-changeset.mts origin/${{ github.base_ref }} >> "$GITHUB_OUTPUT"
+      - if: steps.dev-only.outputs.exempt == 'true'
+        run: |
+          echo "No changeset required: a dev-only dependency update (scripts/dependabot-changeset.mts)." >> "$GITHUB_STEP_SUMMARY"
       # Fails when a published package changed without a changeset. Stories, tests, test helpers
       # and scripts are not shipped, so they do not count (`changedFilePatterns` in
       # .changeset/config.json); a pull request that changes no published file passes.
-      - run: pnpm changeset status --since=origin/${{ github.base_ref }}
+      - if: steps.dev-only.outputs.exempt != 'true'
+        run: pnpm changeset status --since=origin/${{ github.base_ref }}
 
   release:
     name: release (changeset version dry run)
