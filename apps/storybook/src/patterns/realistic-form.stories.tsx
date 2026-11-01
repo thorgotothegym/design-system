@@ -21,7 +21,16 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+/**
+ * The form is the one page-sized layout in the Storybook, so Chromatic also captures it at 320px
+ * (the narrowest phone width WCAG reflow asks for), in the dark theme. Only these two stories:
+ * every extra mode multiplies the snapshot count.
+ */
+const narrowMode = {
+  chromatic: { modes: { "narrow dark": { theme: "dark", viewport: 320 } } },
+};
+
+export const Default: Story = { parameters: narrowMode };
 
 /**
  * Submitted with the arrival date only partly typed and everything else empty: the error summary
@@ -29,6 +38,7 @@ export const Default: Story = {};
  * date's message is the same for an empty and a partly filled date, since both report no date.
  */
 export const WithErrors: Story = {
+  parameters: narrowMode,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 

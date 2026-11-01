@@ -32,6 +32,16 @@ const preview: Preview = {
     // The tokens set the page background; a second background switcher would only fight them.
     backgrounds: { disabled: true },
     a11y: { test: "error" },
+    // Chromatic captures every story once per mode: one per theme, through the same `theme`
+    // global as the toolbar (theme.ts, preview-head.html). A few layout stories add a narrow
+    // viewport mode of their own. Baselines are keyed to these names: renaming one starts a new
+    // baseline.
+    chromatic: {
+      modes: {
+        dark: { theme: "dark" },
+        light: { theme: "light" },
+      },
+    },
     docs: {
       container: ThemedDocsContainer,
       ...(docsRenderer && { renderer: async () => docsRenderer }),

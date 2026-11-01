@@ -1,0 +1,76 @@
+name: Chromatic
+
+# Visual regression: every story, in both themes (`chromatic.modes` in .storybook/preview.tsx),
+# compared with the accepted baseline (AGENTS.md, "CI"). It is its own status check and not part
+# of `ci-success`: on a pull request a visual change waits for a person to accept it in
+# Chromatic, and the job needs a secret that pull requests from forks and Dependabot do not get.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: chromatic-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  chromatic:
+    name: chromatic (visual regression, both themes)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Read by the action from the environment; never echoed or written anywhere.
+      CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+      # The demo `play` functions run at full speed, so each snapshot is their end state.
+      STORYBOOK_PLAY_DELAY: "0"
+      # On pull requests, test the head of the branch, not GitHub's merge commit: Chromatic's
+      # documented setup for the pull_request event, so baselines and TurboSnap follow the branch.
+      CHROMATIC_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
+      CHROMATIC_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      CHROMATIC_SLUG: ${{ github.repository }}
+    steps:
+      - if: env.CHROMATIC_PROJECT_TOKEN == ''
+        run: |
+          echo "Chromatic skipped: CHROMATIC_PROJECT_TOKEN is not available to this run (a pull request from a fork or from Dependabot)." | tee -a "$GITHUB_STEP_SUMMARY"
+      - if: env.CHROMATIC_PROJECT_TOKEN != ''
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          # The whole history: Chromatic finds the baseline build in it, and TurboSnap compares
+          # the files changed since that baseline.
+          fetch-depth: 0
+      - if: env.CHROMATIC_PROJECT_TOKEN != ''
+        uses: ./.github/actions/setup
+        with:
+          turbo-cache-key: chromatic
+      - if: env.CHROMATIC_PROJECT_TOKEN != ''
+        run: pnpm exec turbo run build --filter=@aleixvidal/storybook^...
+      # `--stats-json` writes preview-stats.json, the module graph TurboSnap traces.
+      - if: env.CHROMATIC_PROJECT_TOKEN != ''
+        run: pnpm --filter @aleixvidal/storybook run build:chromatic
+      - if: env.CHROMATIC_PROJECT_TOKEN != ''
+        id: chromatic
+        uses: chromaui/action@f305ef908327aee3b80b0e6b3bbb60a742eaa049 # v18.13.6
+        with:
+          workingDir: apps/storybook
+          storybookBuildDir: storybook-static
+          # TurboSnap: only stories whose files changed since the baseline are captured again.
+          onlyChanged: true
+          # On main the changes were reviewed in the pull request.
+          autoAcceptChanges: main
+          # On a pull request, unaccepted visual changes fail the check until they are accepted
+          # in Chromatic and the job is run again.
+          exitZeroOnChanges: false
+      - if: always() && steps.chromatic.outputs.buildUrl != ''
+        run: |
+          {
+            echo "### Chromatic"
+            echo
+            echo "- Build: ${{ steps.chromatic.outputs.buildUrl }}"
+            echo "- Stories: ${{ steps.chromatic.outputs.specCount }}, tests: ${{ steps.chromatic.outputs.testCount }}"
+            echo "- Captured: ${{ steps.chromatic.outputs.actualCaptureCount }}, inherited (TurboSnap): ${{ steps.chromatic.outputs.inheritedCaptureCount }}"
+            echo "- Changes: ${{ steps.chromatic.outputs.changeCount }}, pending review: ${{ steps.chromatic.outputs.pendingCount }}, errors: ${{ steps.chromatic.outputs.errorCount }}"
+          } >> "$GITHUB_STEP_SUMMARY"
