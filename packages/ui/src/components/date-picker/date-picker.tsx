@@ -51,11 +51,13 @@ const groupClasses = [
 /**
  * One segment (month, day, year) or a literal separator. The segment being edited is filled with
  * `brand.primary`, which stands out from `bg.input` at 7:1 or more in both themes, so it is clear
- * which part the keys will change.
+ * which part the keys will change. Its text is `text.on-primary` whether it holds a value or the
+ * placeholder ("mm"): `text.placeholder` on that fill is about 1.2:1 to 1.7:1, so the placeholder
+ * color applies only while the segment is not focused.
  */
 const segmentClasses = [
   "box-border rounded-md px-px tabular-nums outline-transparent",
-  "data-placeholder:text-text-placeholder in-data-disabled:text-text-muted",
+  "not-data-focused:data-placeholder:text-text-placeholder in-data-disabled:text-text-muted",
   "data-focused:bg-brand-primary data-focused:text-text-on-primary",
 ];
 
