@@ -45,7 +45,8 @@ packages/
   tokens/             Design tokens (JSON source -> CSS vars / TS / Tailwind preset)
   ui/                 The components (published as @aleixvidal/ui)
   eslint-config/      Shared ESLint config
-.github/workflows/    ci.yml, chromatic.yml, release.yml
+.github/workflows/    ci.yml, chromatic.yml (release.yml comes with the first release, T23)
+.github/dependabot.yml
 .changeset/
 ```
 
@@ -87,6 +88,7 @@ Before saying a task is done, `pnpm lint && pnpm typecheck && pnpm test && pnpm 
 | quality | `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm check:placeholders` |
 | test | `pnpm test` (the coverage thresholds fail the job) |
 | build | `pnpm build`, including `storybook build`; the static Storybook is uploaded as the `storybook-static` artifact |
+| lighthouse | `pnpm lighthouse` on the `storybook-static` artifact of the build job: `lhci` serves it locally and runs Lighthouse (desktop preset) five times on the Storybook root, the Input docs page and the realistic form story; reports are the `lighthouse-reports` artifact, and the medians are in the job summary. Thresholds in `lighthouserc.json`, on the median: Performance 0.70, 0.90 and 0.84, Accessibility 0.98. They were set a little below the medians measured on the CI runner (root 73–83, Input docs 94–95, realistic form 87–93, Accessibility 100). Locally: `pnpm build`, then `pnpm lighthouse` (needs Google Chrome). Never lower a threshold to make a build pass |
 | size | `pnpm size` (every component budget and the CSS budget). A component budget is set about 3–4 % above the measured size, so a small source change or a minor dependency update does not fail it, while a real regression still does. Re-check it when the margin drops below about 3 %. A budget raised further needs a bundle analysis in the PR (what contributes the most bytes). The CSS budget follows the 4 kB review threshold in Performance. |
 | a11y | `STORYBOOK_PLAY_DELAY=0 pnpm test:storybook` (Chromium via Playwright: `pnpm --filter @aleixvidal/storybook exec playwright install chromium` once, locally) |
 | consumer | `pnpm test:consumer` (needs Google Chrome and the network) |
@@ -97,6 +99,27 @@ Before saying a task is done, `pnpm lint && pnpm typecheck && pnpm test && pnpm 
 - `STORYBOOK_PLAY_DELAY` sets the pace of the demo `play` functions (`startDemo()` in `packages/ui/src/test/demo.ts`): milliseconds after each step, 250 when unset, and a pause of 2.4 steps before the first one. CI sets it to `0`. It applies to `pnpm storybook`, `storybook build` and `pnpm test:storybook`.
 - A story that logs `console.error` or `console.warn` fails `pnpm test:storybook` (`apps/storybook/.storybook/vitest.setup.ts`), so React's development-only warnings (duplicate keys, invalid props) cannot pass CI silently. Fix the cause; a message that is expected and not ours goes in its `ALLOWED` list with the reason.
 - `ci-success` is the single required check: it waits for every other job and fails if any failed or was cancelled. When you add a job, add it to its `needs`.
+
+#### Chromatic (visual regression)
+
+`.github/workflows/chromatic.yml` publishes the Storybook to Chromatic and compares every story with its accepted baseline, once per mode: `dark` and `light` (`chromatic.modes` in `.storybook/preview.tsx`, through the `theme` global), plus a 320px `narrow dark` mode on the realistic form's `Default` and `WithErrors`. That is 324 snapshots for a full build (165 stories, 4 of them excluded with `chromatic.disableSnapshot` because they depend on today's date or repeat another story's end state).
+
+- **Not part of `ci-success`.** On a pull request a visual change waits for a person to accept it in Chromatic, and the job needs the `CHROMATIC_PROJECT_TOKEN` secret, which pull requests from forks do not get. It is its own status check: when it fails with visual changes (exit code 1), review them in Chromatic (link in the job summary), accept or fix them, and run the job again. On `main` changes are accepted automatically: they were reviewed in the pull request.
+- **Budget.** The plan allows a fixed number of snapshots a month (5,000 on the free plan), and each full build costs 324. So the workflow runs only for changes that can alter a story (its `paths` list), not on draft pull requests (it starts when the pull request is marked ready), and not for a merge commit on `main` whose tree is the pull request head, already built there. A newer push to the same pull request cancels the run it replaces. TurboSnap (`onlyChanged`) is on. A change to `packages/ui/src` or anywhere in `packages/tokens` (the token JSON included) still captures every story, because the realistic form and Foundations stories use those packages from `dist/`, which TurboSnap cannot trace.
+- **What it costs (estimated 2026-11-01).** About 30 pull requests a month, 2–3 pushes each, plus the merges to `main`, is roughly 105 builds and about 34,000 snapshots without these measures. With them it is about 44 builds and 13,000–14,000 snapshots: the path filter saves little because about 92 % of past pull requests touched those paths, the draft rule assumes 1.5 builds per pull request, and the merge rule skips about 92 % of `main` builds. That is still above the free plan's 5,000. To get under it without weakening the check:
+  - **(a)** resolve `@aleixvidal/ui` and `@aleixvidal/tokens` to their sources in the Storybook build, so TurboSnap can trace them and drop the `externals`. Estimate: 4,000–5,000 a month. It changes what the realistic form renders from (source instead of `dist/`), so it needs a decision.
+  - **(b)** a paid plan (Starter: 35,000 a month).
+  - Running Chromatic less often or with fewer modes would weaken it.
+- **Allowance used up.** The CLI exits with 11 (or 12, payment required) and captures nothing. The job then passes with a warning on the run and in its summary saying the commit was not checked. It never looks like a check that ran. Run it again once the allowance resets, before merging anything visual.
+- **Dependabot.** Pull requests opened by Dependabot cannot read Actions secrets. The token must also exist as a Dependabot secret: Settings, Secrets and variables, Dependabot, `CHROMATIC_PROJECT_TOKEN`, the same value as the Actions secret. Without it, Chromatic does not run on dependency updates, and their visual changes would be accepted on `main` without review.
+
+#### Dependabot
+
+`.github/dependabot.yml` opens weekly pull requests for npm (the pnpm workspace) and GitHub Actions, with the `chore(deps)` or `chore(deps-dev)` prefix.
+
+- **npm:** majors are never proposed (section 2). Minor and patch updates come grouped in one pull request. The dependencies pinned for a reason come in their own pull requests: Storybook and its addons (an update needs the manual check in `docs/theme-switch.md` and an update of `VERIFIED_STORYBOOK_VERSION`), React Aria with `@internationalized/date` (check the DatePicker stories and budget), `turbo`, and `typescript` (pinned to 6.0.3 in `packages/eslint-config`).
+- **GitHub Actions:** grouped, majors included. A SHA-pinned action keeps its version comment on the same line, which Dependabot updates with the SHA.
+- **Changesets:** a Dependabot pull request that changes only `devDependencies` or `size-limit` in the published packages' `package.json` needs no changeset. The `changeset` job checks this with `scripts/dependabot-changeset.mts` and passes. An update to `dependencies` or `peerDependencies`, which consumers install, still requires one: add a `patch` changeset to the pull request. Updates to the root, `apps/storybook` and the private packages never need one.
 - No secrets, tokens or remote caches: the Turborepo cache is local, restored with `actions/cache`. Official `actions/*` are pinned by major version; any other action by full commit SHA with the version in a comment.
 
 ### Deployment

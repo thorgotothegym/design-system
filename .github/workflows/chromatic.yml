@@ -1,0 +1,150 @@
+name: Chromatic
+
+# Visual regression: every story, in both themes (`chromatic.modes` in .storybook/preview.tsx),
+# compared with the accepted baseline (AGENTS.md, "CI"). It is its own status check and not part
+# of `ci-success`: on a pull request a visual change waits for a person to accept it in
+# Chromatic, and the job needs a secret that pull requests from forks do not get.
+#
+# Each build costs about 324 snapshots of the plan's monthly allowance, so it only runs when it
+# can find something (AGENTS.md, "CI", for the numbers):
+# - only for changes that can alter a story's pixels (`paths`);
+# - not on draft pull requests (it runs when one is marked ready, and on every later push);
+# - a newer push to the same pull request cancels the run it replaces;
+# - on main, not for a merge commit whose tree is the pull request head it merges, which was
+#   built and reviewed there (Chromatic takes baselines from the nearest ancestor with a build).
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - packages/ui/src/**
+      - packages/ui/package.json
+      - packages/ui/tsup.config.ts
+      - packages/tokens/**
+      - apps/storybook/src/**
+      - apps/storybook/.storybook/**
+      - apps/storybook/public/**
+      - apps/storybook/package.json
+      - apps/storybook/scripts/copy-fonts.ts
+      - pnpm-lock.yaml
+      - .github/workflows/chromatic.yml
+      - "!**/*.test.ts"
+      - "!**/*.test.tsx"
+      - "!**/*.md"
+  push:
+    branches: [main]
+    # The same list as for pull requests.
+    paths:
+      - packages/ui/src/**
+      - packages/ui/package.json
+      - packages/ui/tsup.config.ts
+      - packages/tokens/**
+      - apps/storybook/src/**
+      - apps/storybook/.storybook/**
+      - apps/storybook/public/**
+      - apps/storybook/package.json
+      - apps/storybook/scripts/copy-fonts.ts
+      - pnpm-lock.yaml
+      - .github/workflows/chromatic.yml
+      - "!**/*.test.ts"
+      - "!**/*.test.tsx"
+      - "!**/*.md"
+
+concurrency:
+  group: chromatic-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  chromatic:
+    name: chromatic (visual regression, both themes)
+    if: github.event_name == 'push' || !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Read by the action from the environment; never echoed or written anywhere.
+      CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+      # The demo `play` functions run at full speed, so each snapshot is their end state.
+      STORYBOOK_PLAY_DELAY: "0"
+      # On pull requests, test the head of the branch, not GitHub's merge commit: Chromatic's
+      # documented setup for the pull_request event, so baselines and TurboSnap follow the branch.
+      CHROMATIC_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
+      CHROMATIC_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      CHROMATIC_SLUG: ${{ github.repository }}
+    steps:
+      - if: env.CHROMATIC_PROJECT_TOKEN == ''
+        run: |
+          echo "::warning::Chromatic did not run: CHROMATIC_PROJECT_TOKEN is not available to this run (a pull request from a fork). Visual changes were not checked."
+          echo "Chromatic did not run: CHROMATIC_PROJECT_TOKEN is not available to this run (a pull request from a fork). Visual changes were not checked." >> "$GITHUB_STEP_SUMMARY"
+      - if: env.CHROMATIC_PROJECT_TOKEN != ''
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          # The whole history: Chromatic finds the baseline build in it, TurboSnap compares the
+          # files changed since that baseline, and a merge commit is compared with its parents.
+          fetch-depth: 0
+      - if: env.CHROMATIC_PROJECT_TOKEN != '' && github.event_name == 'push'
+        id: merged
+        run: |
+          if git rev-parse --verify --quiet HEAD^2 >/dev/null && git diff --quiet HEAD^2 HEAD; then
+            echo "built-in-pr=true" >> "$GITHUB_OUTPUT"
+            echo "Chromatic skipped: this merge commit has the same tree as the pull request head it merges (${{ github.sha }}^2), which was built and reviewed in the pull request. Later builds take their baselines from that build." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - if: env.CHROMATIC_PROJECT_TOKEN != '' && steps.merged.outputs.built-in-pr != 'true'
+        uses: ./.github/actions/setup
+        with:
+          turbo-cache-key: chromatic
+      - if: env.CHROMATIC_PROJECT_TOKEN != '' && steps.merged.outputs.built-in-pr != 'true'
+        run: pnpm exec turbo run build --filter=@aleixvidal/storybook^...
+      # `--stats-json` writes preview-stats.json, the module graph TurboSnap traces.
+      - if: env.CHROMATIC_PROJECT_TOKEN != '' && steps.merged.outputs.built-in-pr != 'true'
+        run: pnpm --filter @aleixvidal/storybook run build:chromatic
+      - if: env.CHROMATIC_PROJECT_TOKEN != '' && steps.merged.outputs.built-in-pr != 'true'
+        id: chromatic
+        # The next step turns the exit code into the job's result.
+        continue-on-error: true
+        uses: chromaui/action@f305ef908327aee3b80b0e6b3bbb60a742eaa049 # v18.13.6
+        with:
+          workingDir: apps/storybook
+          storybookBuildDir: storybook-static
+          # TurboSnap: only stories whose files changed since the baseline are captured again.
+          onlyChanged: true
+          # The realistic form and the Foundations stories import @aleixvidal/ui and
+          # @aleixvidal/tokens from dist/, which git does not track, so TurboSnap cannot trace a
+          # source change to them. A change to the ui source or to the tokens (their JSON in
+          # packages/tokens/tokens, the build, the theme) captures every story.
+          externals: |
+            packages/ui/src/**
+            packages/tokens/**
+          # On main the changes were reviewed in the pull request.
+          autoAcceptChanges: main
+          # On a pull request, unaccepted visual changes fail the check until they are accepted
+          # in Chromatic and the job is run again.
+          exitZeroOnChanges: false
+      - if: always() && steps.chromatic.outputs.buildUrl != ''
+        run: |
+          {
+            echo "### Chromatic"
+            echo
+            echo "- Build: ${{ steps.chromatic.outputs.buildUrl }}"
+            echo "- Stories: ${{ steps.chromatic.outputs.specCount }}, tests: ${{ steps.chromatic.outputs.testCount }}"
+            echo "- Captured: ${{ steps.chromatic.outputs.actualCaptureCount }}, inherited (TurboSnap): ${{ steps.chromatic.outputs.inheritedCaptureCount }}"
+            echo "- Changes: ${{ steps.chromatic.outputs.changeCount }}, pending review: ${{ steps.chromatic.outputs.pendingCount }}, errors: ${{ steps.chromatic.outputs.errorCount }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+      # Exit codes from the Chromatic CLI: 0 passed, 1 changes to review, 11 snapshot allowance
+      # used up, 12 payment required; anything else is an error. When the allowance is used up
+      # nothing was captured: the job passes with a warning on the run and in the summary, so it
+      # never looks like a check that ran.
+      - if: steps.chromatic.outcome == 'failure'
+        env:
+          CODE: ${{ steps.chromatic.outputs.code }}
+        run: |
+          if [ "$CODE" = "11" ] || [ "$CODE" = "12" ]; then
+            message="Chromatic did not run: the snapshot allowance of the Chromatic plan is used up (exit code $CODE). Visual changes in this commit were NOT checked; run the job again once the allowance resets or the plan changes."
+            echo "::warning::$message"
+            echo "$message" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "::error::Chromatic failed with exit code ${CODE:-unknown} (1: visual changes to review in Chromatic; other codes: see the log above)."
+          exit 1

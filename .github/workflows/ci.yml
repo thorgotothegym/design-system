@@ -59,6 +59,30 @@ jobs:
           retention-days: 14
           if-no-files-found: error
 
+  lighthouse:
+    name: lighthouse (built Storybook, desktop)
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+        with:
+          turbo-cache-key: lighthouse
+      # The Storybook the build job produced, served by lhci from disk (lighthouserc.json).
+      - uses: actions/download-artifact@v8
+        with:
+          name: storybook-static
+          path: apps/storybook/storybook-static
+      - run: pnpm lighthouse
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci/reports
+          retention-days: 14
+          if-no-files-found: ignore
+
   size:
     name: size (bundle and CSS budgets)
     runs-on: ubuntu-latest
@@ -134,10 +158,20 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           turbo-cache-key: changeset
+      # A Dependabot pull request (its author, or its dependabot/... branch) that changes only
+      # `devDependencies` or `size-limit` of published packages needs no changeset: consumers
+      # install nothing new. Any other change to a published package still requires one.
+      - id: dev-only
+        if: github.event.pull_request.user.login == 'dependabot[bot]' || startsWith(github.head_ref, 'dependabot/')
+        run: node scripts/dependabot-changeset.mts origin/${{ github.base_ref }} >> "$GITHUB_OUTPUT"
+      - if: steps.dev-only.outputs.exempt == 'true'
+        run: |
+          echo "No changeset required: a dev-only dependency update (scripts/dependabot-changeset.mts)." >> "$GITHUB_STEP_SUMMARY"
       # Fails when a published package changed without a changeset. Stories, tests, test helpers
       # and scripts are not shipped, so they do not count (`changedFilePatterns` in
       # .changeset/config.json); a pull request that changes no published file passes.
-      - run: pnpm changeset status --since=origin/${{ github.base_ref }}
+      - if: steps.dev-only.outputs.exempt != 'true'
+        run: pnpm changeset status --since=origin/${{ github.base_ref }}
 
   release:
     name: release (changeset version dry run)
@@ -160,7 +194,18 @@ jobs:
     name: ci-success
     if: always()
     needs:
-      [quality, test, build, size, a11y, consumer, scaffold, changeset, release]
+      [
+        quality,
+        test,
+        build,
+        lighthouse,
+        size,
+        a11y,
+        consumer,
+        scaffold,
+        changeset,
+        release,
+      ]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

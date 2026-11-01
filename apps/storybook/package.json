@@ -6,6 +6,7 @@
   "scripts": {
     "storybook": "node scripts/copy-fonts.ts && storybook dev -p 6006",
     "build": "node scripts/copy-fonts.ts && storybook build -o storybook-static && node scripts/brand-html.ts",
+    "build:chromatic": "node scripts/copy-fonts.ts && storybook build -o storybook-static --stats-json",
     "brand-assets": "node scripts/copy-fonts.ts && node scripts/brand-assets.ts",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",

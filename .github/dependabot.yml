@@ -1,0 +1,66 @@
+# Dependency updates (AGENTS.md, "CI"). Every dependency is pinned to an exact version, so each
+# update is a pull request that runs the full CI. Majors are never proposed for npm: AGENTS.md
+# section 2 says not to bump a major without being asked.
+version: 2
+updates:
+  - package-ecosystem: npm
+    # The pnpm workspace: the root lockfile covers every package.
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      # "chore(deps): ..." and "chore(deps-dev): ...", valid Conventional Commits.
+      prefix: chore
+      include: scope
+    ignore:
+      - dependency-name: "*"
+        update-types: [version-update:semver-major]
+    groups:
+      # Storybook is pinned to the version the docs renderer wrapper was verified against
+      # (VERIFIED_STORYBOOK_VERSION in apps/storybook/.storybook/docs-renderer.ts; its test fails
+      # on any other version). An update needs the manual check in docs/theme-switch.md, so it is
+      # always its own pull request, with the addons that must move with it.
+      storybook:
+        patterns:
+          - storybook
+          - "@storybook/*"
+          - storybook-addon-*
+      # The DatePicker: react-aria-components and the date library it is built with move together,
+      # and are checked against the DatePicker stories and its 73.2 kB size budget.
+      react-aria:
+        patterns:
+          - react-aria-components
+          - "@internationalized/date"
+      # Everything else, minor and patch, in one weekly pull request.
+      minor-and-patch:
+        update-types: [minor, patch]
+        patterns: ["*"]
+        exclude-patterns:
+          - storybook
+          - "@storybook/*"
+          - storybook-addon-*
+          - react-aria-components
+          - "@internationalized/date"
+          # Pinned on purpose, each proposed in its own pull request: turbo (the CI and the
+          # Vercel build run it), and TypeScript, which packages/eslint-config pins to 6.0.3
+          # because typescript-eslint needs the compiler API TypeScript 7 no longer ships.
+          - turbo
+          - typescript
+
+  - package-ecosystem: github-actions
+    # The workflows, and the composite setup action they share.
+    directories:
+      - /
+      - /.github/actions/setup
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: chore(deps)
+    groups:
+      # Majors included: official actions are referenced by major (actions/checkout@v7), and any
+      # other action by full commit SHA with the version in a comment on the same line, which
+      # Dependabot updates together with the SHA.
+      github-actions:
+        patterns: ["*"]

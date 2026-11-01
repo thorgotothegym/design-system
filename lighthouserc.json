@@ -1,0 +1,81 @@
+{
+  "ci": {
+    "collect": {
+      "staticDistDir": "./apps/storybook/storybook-static",
+      "url": [
+        "http://localhost/index.html",
+        "http://localhost/iframe.html?viewMode=docs&id=form-components-input--docs",
+        "http://localhost/iframe.html?viewMode=story&id=patterns-realistic-form--default"
+      ],
+      "numberOfRuns": 5,
+      "settings": {
+        "preset": "desktop"
+      }
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": "./.lighthouseci/reports"
+    },
+    "assert": {
+      "assertMatrix": [
+        {
+          "matchingUrlPattern": "/index\\.html",
+          "assertions": {
+            "categories:performance": [
+              "error",
+              {
+                "minScore": 0.7,
+                "aggregationMethod": "median"
+              }
+            ],
+            "categories:accessibility": [
+              "error",
+              {
+                "minScore": 0.98,
+                "aggregationMethod": "median"
+              }
+            ]
+          }
+        },
+        {
+          "matchingUrlPattern": "form-components-input--docs",
+          "assertions": {
+            "categories:performance": [
+              "error",
+              {
+                "minScore": 0.9,
+                "aggregationMethod": "median"
+              }
+            ],
+            "categories:accessibility": [
+              "error",
+              {
+                "minScore": 0.98,
+                "aggregationMethod": "median"
+              }
+            ]
+          }
+        },
+        {
+          "matchingUrlPattern": "patterns-realistic-form--default",
+          "assertions": {
+            "categories:performance": [
+              "error",
+              {
+                "minScore": 0.84,
+                "aggregationMethod": "median"
+              }
+            ],
+            "categories:accessibility": [
+              "error",
+              {
+                "minScore": 0.98,
+                "aggregationMethod": "median"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
