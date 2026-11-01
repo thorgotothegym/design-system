@@ -19,9 +19,7 @@ on:
       - packages/ui/src/**
       - packages/ui/package.json
       - packages/ui/tsup.config.ts
-      - packages/tokens/src/**
-      - packages/tokens/scripts/**
-      - packages/tokens/package.json
+      - packages/tokens/**
       - apps/storybook/src/**
       - apps/storybook/.storybook/**
       - apps/storybook/public/**
@@ -39,9 +37,7 @@ on:
       - packages/ui/src/**
       - packages/ui/package.json
       - packages/ui/tsup.config.ts
-      - packages/tokens/src/**
-      - packages/tokens/scripts/**
-      - packages/tokens/package.json
+      - packages/tokens/**
       - apps/storybook/src/**
       - apps/storybook/.storybook/**
       - apps/storybook/public/**
@@ -116,10 +112,11 @@ jobs:
           onlyChanged: true
           # The realistic form and the Foundations stories import @aleixvidal/ui and
           # @aleixvidal/tokens from dist/, which git does not track, so TurboSnap cannot trace a
-          # source change to them. A change to either package's source captures every story.
+          # source change to them. A change to the ui source or to the tokens (their JSON in
+          # packages/tokens/tokens, the build, the theme) captures every story.
           externals: |
             packages/ui/src/**
-            packages/tokens/src/**
+            packages/tokens/**
           # On main the changes were reviewed in the pull request.
           autoAcceptChanges: main
           # On a pull request, unaccepted visual changes fail the check until they are accepted
