@@ -184,7 +184,18 @@ jobs:
     name: ci-success
     if: always()
     needs:
-      [quality, test, build, size, a11y, consumer, scaffold, changeset, release]
+      [
+        quality,
+        test,
+        build,
+        lighthouse,
+        size,
+        a11y,
+        consumer,
+        scaffold,
+        changeset,
+        release,
+      ]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
