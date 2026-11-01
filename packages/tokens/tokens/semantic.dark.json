@@ -45,7 +45,7 @@
         "brand": {
           "primary": {
             "$type": "color",
-            "$value": "{palette.green.l70-c180}"
+            "$value": "{palette.green.l75-c150}"
           }
         },
         "border": {
