@@ -69,6 +69,7 @@ pnpm build
 pnpm size           # bundle size budgets (size-limit)
 pnpm format:check   # prettier --check .
 pnpm check:placeholders  # fails on any SCAFFOLD-PLACEHOLDER
+pnpm check:release  # `changeset version` dry run over every pending changeset, in a throwaway worktree
 pnpm test:storybook # every story in Chromium, both themes: play functions and axe
 pnpm test:consumer  # the packed package in a clean app, checked in Chrome
 pnpm test:scaffold  # one component per scaffold variant, in a throwaway worktree
@@ -91,6 +92,7 @@ Before saying a task is done, `pnpm lint && pnpm typecheck && pnpm test && pnpm 
 | consumer | `pnpm test:consumer` (needs Google Chrome and the network) |
 | scaffold | `pnpm test:scaffold` |
 | changeset | `pnpm changeset status --since=origin/main`, on pull requests only. Stories, tests, `src/test/**` and `scripts/**` are not shipped, so they need no changeset (`changedFilePatterns` in `.changeset/config.json`) |
+| release | `pnpm check:release`: runs `changeset version` over every pending changeset in a throwaway worktree and fails if it errors, on pull requests and on pushes to `main`. `changeset status --since` only reads the pull request's own changesets, so it cannot see one already on `main` that breaks the release. A changeset names `@aleixvidal/ui` only: `@aleixvidal/tokens` is private, Changesets does not version it, and a changeset that mixes it with `ui` fails (a token change that consumers see is described in the `ui` changeset) |
 
 - `STORYBOOK_PLAY_DELAY` sets the pace of the demo `play` functions (`startDemo()` in `packages/ui/src/test/demo.ts`): milliseconds after each step, 250 when unset, and a pause of 2.4 steps before the first one. CI sets it to `0`. It applies to `pnpm storybook`, `storybook build` and `pnpm test:storybook`.
 - A story that logs `console.error` or `console.warn` fails `pnpm test:storybook` (`apps/storybook/.storybook/vitest.setup.ts`), so React's development-only warnings (duplicate keys, invalid props) cannot pass CI silently. Fix the cause; a message that is expected and not ours goes in its `ALLOWED` list with the reason.
