@@ -86,7 +86,7 @@ Before saying a task is done, `pnpm lint && pnpm typecheck && pnpm test && pnpm 
 | quality | `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm check:placeholders` |
 | test | `pnpm test` (the coverage thresholds fail the job) |
 | build | `pnpm build`, including `storybook build`; the static Storybook is uploaded as the `storybook-static` artifact |
-| size | `pnpm size` (every component budget and the CSS budget) |
+| size | `pnpm size` (every component budget and the CSS budget). A component budget is set about 3–4 % above the measured size, so a small source change or a minor dependency update does not fail it, while a real regression still does. Re-check it when the margin drops below about 3 %. A budget raised further needs a bundle analysis in the PR (what contributes the most bytes). The CSS budget follows the 4 kB review threshold in Performance. |
 | a11y | `STORYBOOK_PLAY_DELAY=0 pnpm test:storybook` (Chromium via Playwright: `pnpm --filter @aleixvidal/storybook exec playwright install chromium` once, locally) |
 | consumer | `pnpm test:consumer` (needs Google Chrome and the network) |
 | scaffold | `pnpm test:scaffold` |
