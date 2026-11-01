@@ -13,6 +13,7 @@
     "format:check": "prettier --check .",
     "changeset": "changeset",
     "check:placeholders": "node scripts/check-placeholders.mts",
+    "check:release": "node scripts/check-release.mts",
     "test:consumer": "turbo run test:consumer",
     "test:storybook": "turbo run test:storybook",
     "test:scaffold": "node scripts/test-scaffold.mts"
@@ -20,7 +21,7 @@
   "devDependencies": {
     "@changesets/cli": "3.0.3",
     "prettier": "3.9.6",
-    "turbo": "^2.11.10",
+    "turbo": "2.11.10",
     "typescript": "catalog:"
   },
   "packageManager": "pnpm@11.25.0",
