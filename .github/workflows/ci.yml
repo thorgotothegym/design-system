@@ -59,6 +59,30 @@ jobs:
           retention-days: 14
           if-no-files-found: error
 
+  lighthouse:
+    name: lighthouse (built Storybook, desktop)
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+        with:
+          turbo-cache-key: lighthouse
+      # The Storybook the build job produced, served by lhci from disk (lighthouserc.json).
+      - uses: actions/download-artifact@v8
+        with:
+          name: storybook-static
+          path: apps/storybook/storybook-static
+      - run: pnpm lighthouse
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci/reports
+          retention-days: 14
+          if-no-files-found: ignore
+
   size:
     name: size (bundle and CSS budgets)
     runs-on: ubuntu-latest

@@ -43,4 +43,7 @@ packages/tokens/src/generated
 
 # Storybook static build
 storybook-static
+
+# Lighthouse CI runs and reports (pnpm lighthouse)
+.lighthouseci
 apps/storybook/public/fonts/files
