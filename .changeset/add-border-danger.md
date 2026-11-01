@@ -1,5 +1,4 @@
 ---
-"@aleixvidal/tokens": minor
 "@aleixvidal/ui": patch
 ---
 
