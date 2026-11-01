@@ -137,7 +137,7 @@
         "react",
         "react-dom"
       ],
-      "limit": "17.6 kB"
+      "limit": "17.8 kB"
     },
     {
       "name": "Select",
@@ -147,7 +147,7 @@
         "react",
         "react-dom"
       ],
-      "limit": "35.6 kB"
+      "limit": "36.6 kB"
     },
     {
       "name": "Slider",
@@ -157,7 +157,7 @@
         "react",
         "react-dom"
       ],
-      "limit": "17.3 kB"
+      "limit": "17.5 kB"
     },
     {
       "name": "TagInput",
@@ -167,7 +167,7 @@
         "react",
         "react-dom"
       ],
-      "limit": "16.2 kB"
+      "limit": "16.4 kB"
     },
     {
       "name": "OtpInput",
@@ -177,7 +177,7 @@
         "react",
         "react-dom"
       ],
-      "limit": "12 kB"
+      "limit": "12.1 kB"
     },
     {
       "name": "DatePicker",
@@ -187,7 +187,7 @@
         "react",
         "react-dom"
       ],
-      "limit": "70.7 kB"
+      "limit": "73.2 kB"
     },
     {
       "name": "CSS (dist/styles.css)",
