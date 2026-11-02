@@ -22,7 +22,7 @@
   "devDependencies": {
     "@changesets/cli": "3.0.3",
     "@lhci/cli": "0.15.1",
-    "prettier": "3.9.6",
+    "prettier": "3.9.10",
     "turbo": "2.11.10",
     "typescript": "catalog:"
   },
