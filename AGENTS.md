@@ -74,7 +74,7 @@ pnpm size           # bundle size budgets (size-limit)
 pnpm format:check   # prettier --check .
 pnpm check:placeholders  # fails on any SCAFFOLD-PLACEHOLDER
 pnpm check:release  # `changeset version` dry run over every pending changeset, in a throwaway worktree
-pnpm test:storybook # every story in Chromium, both themes: play functions and axe
+pnpm test:storybook # every story in Chromium, both themes: play functions and axe; plus the forced-colors checks
 pnpm test:consumer  # the packed package in a clean app, checked in Chrome
 pnpm test:scaffold  # one component per scaffold variant, in a throwaway worktree
 pnpm lighthouse     # Lighthouse CI on the built Storybook (run pnpm build first; needs Google Chrome)
@@ -177,6 +177,7 @@ Form controls (Input, Textarea, Select, Checkbox, RadioGroup, Switch, DatePicker
 - Palette tokens are the lowest layer; semantic tokens reference them; components reference only semantic tokens.
 - Dark mode is part of the token system (theme switch via CSS variables), not a per-component afterthought. Every semantic color needs a light and a dark value.
 - Changing a token's name or meaning is a breaking change and needs a changeset.
+- The one exception to "tokens only" is forced colors (Windows contrast themes). The browser replaces token colors there and paints every background as `Canvas`, so a state shown by a fill disappears. Under the `forced-colors:` variant only, use CSS system colors (`CanvasText`, `Canvas`, `Highlight`, `HighlightText`, `ButtonText`, `GrayText`, `LinkText`, as in `forced-colors:bg-[Highlight]`), and `forced-color-adjust-none` (it only acts under forced colors) where the browser would otherwise repaint them. Never use a system color outside that variant. Each state must still differ by shape, border style or fill versus no fill, not by color alone. The `storybook-forced-colors` test project checks the key states (see docs/accessibility.md).
 - Only the 13 spacing steps exist (`0`, `1`, `2`, `3`, `4`, `5`, `6`, `8`, `10`, `12`, `16`, `20`, `24`; `px` is the 1px keyword). Tailwind does not fail on a class outside them such as `pl-7` or `w-11`: it silently generates no style. `packages/ui/src/test/spacing-scale.test.ts` fails the build on such classes (and on fixed `px`, `rem` or `em` values in arbitrary spacing like `p-[7px]`) in `packages/ui` and `apps/storybook`. Arbitrary values that are not fixed spacing, such as `grid-cols-[auto_1fr]` or `max-h-[10lh]`, and CSS variables in the parenthesis syntax, such as `max-h-(--radix-select-content-available-height)`, are allowed.
 - Spacing, typography, radius, color and elevation each get their own documented story in Storybook (use doc blocks, generated from the token files, not hand-written tables).
 
