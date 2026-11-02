@@ -4,6 +4,7 @@ import { createRef, useState } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { Controller, useForm } from "react-hook-form";
+import { I18nProvider } from "react-aria-components/I18nProvider";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/axe";
 import { Field } from "../field";
@@ -119,6 +120,7 @@ const day = (name: RegExp) =>
 describe("DatePicker", () => {
   afterEach(() => {
     vi.useRealTimers();
+    document.documentElement.lang = "";
   });
 
   it("should render a group of date parts named by the Field label", () => {
@@ -504,6 +506,40 @@ describe("DatePicker", () => {
     expect(
       within(screen.getByRole("dialog")).getByRole("heading"),
     ).toHaveTextContent("octubre de 2026");
+  });
+
+  it("should declare its language on the field and the calendar when the page is in another one", async () => {
+    document.documentElement.lang = "en";
+    const user = userEvent.setup();
+    render(<StartDate defaultValue="2026-10-14" locale="es-ES" />);
+
+    const dialog = await openCalendar(user);
+
+    expect(screen.getByTestId("date-picker")).toHaveAttribute("lang", "es-ES");
+    expect(dialog).toHaveAttribute("lang", "es-ES");
+  });
+
+  it("should not declare a language when it is the page's", async () => {
+    document.documentElement.lang = "en";
+    const user = userEvent.setup();
+    render(<StartDate defaultValue="2026-10-14" locale="en-US" />);
+
+    const dialog = await openCalendar(user);
+
+    expect(screen.getByTestId("date-picker")).not.toHaveAttribute("lang");
+    expect(dialog).not.toHaveAttribute("lang");
+  });
+
+  it("should take the language from an enclosing I18nProvider", () => {
+    document.documentElement.lang = "en";
+
+    render(
+      <I18nProvider locale="fr-FR">
+        <DatePicker aria-label="Start date" defaultValue="2026-10-14" />
+      </I18nProvider>,
+    );
+
+    expect(screen.getByTestId("date-picker")).toHaveAttribute("lang", "fr-FR");
   });
 
   it("should start the week on the locale's first day or on firstDayOfWeek", async () => {
