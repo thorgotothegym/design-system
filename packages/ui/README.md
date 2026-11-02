@@ -1,6 +1,6 @@
 # @aleixvidal/ui
 
-Accessible React form components: Field, Input, Textarea, Checkbox, Switch, RadioGroup, Select, Slider, TagInput, OtpInput and DatePicker. The live documentation is the Storybook at [design.aleixvidal.dev](https://design.aleixvidal.dev).
+React form components, checked with axe in CI: Field, Input, Textarea, Checkbox, Switch, RadioGroup, Select, Slider, TagInput, OtpInput and DatePicker. The live documentation is the Storybook at [design.aleixvidal.dev](https://design.aleixvidal.dev).
 
 ## Install (planned)
 
@@ -132,13 +132,13 @@ import { DatePicker } from "@aleixvidal/ui/date-picker";
 ```
 
 - `OtpInput` is built on `input-otp`, which a bundler cannot tree-shake. Exporting it from the main entry made every other component larger.
-- `DatePicker` is built on React Aria and weighs about 70 kB brotli: most of it is React Aria's date and calendar code, plus the translated strings of 34 locales (about 10 kB). If your app supports only some locales, drop the others with [`@react-aria/optimize-locales-plugin`](https://react-spectrum.adobe.com/react-aria/internationalization.html) in your bundler. Its value is an ISO 8601 date string (`"2026-10-30"`).
+- `DatePicker` is built on React Aria and weighs about 70 kB brotli: most of it is React Aria's date and calendar code, plus the translated strings of 34 locales. If your app supports only some locales, drop the others with [`@react-aria/optimize-locales-plugin`](https://react-spectrum.adobe.com/react-aria/internationalization.html) in your bundler. Its value is an ISO 8601 date string (`"2026-10-30"`).
 
 ## Server rendering and Content-Security-Policy
 
 - **Field:** the label, description and error are wired in the first render, so server-rendered HTML is already labelled and described, as long as `Field.Label` and `Field.Description` are written as children of the `Field`. That includes fragments, arrays and conditions. A part inside a component of your own is wired after hydration.
 - **DatePicker:** set `locale` when rendering on the server. Without it, React Aria renders `en-US` on the server and switches to the browser's locale after hydration, which reorders the date. React Aria adds one small `<style>` element, and on iOS a second one while the calendar is open. Under a Content-Security-Policy that forbids inline styles, add `<meta name="csp-nonce" content="...">` with your nonce. Without it the styles are blocked: the field still works, and only touch behavior is lost (no double-tap delay, no scrolling behind the calendar).
-- **OtpInput:** `input-otp` adds one `<style id="input-otp-style">` element to the page when the first field mounts. Under a Content-Security-Policy that forbids inline styles, pass `nonce` to `OtpInput` and allow that nonce in `style-src`. Without it the element is blocked: the field still works, and only the rules that hide the selection and the autofill highlight, and an iOS workaround, are missing.
+- **OtpInput:** `input-otp` adds one `<style id="input-otp-style">` element to the page when the first field mounts. Under a Content-Security-Policy that forbids inline styles, pass `nonce` to `OtpInput` and allow that nonce in `style-src`. Without it the element is blocked. The field still works, but the selection and the autofill highlight show through, and an iOS workaround is lost.
 
 ## Themes
 
@@ -193,7 +193,7 @@ What that means for you:
 - **A partly filled DatePicker reports `null`.** While some parts of the date are empty, `onValueChange` receives `null` and the field is not marked invalid. Your form's `required` rule catches it; use one message for an empty and an incomplete date.
 - **Slider:** horizontal only, with no marks or ticks.
 
-The accessibility audit, with what has been verified and what has not, is in the repository's `docs/accessibility.md`.
+The accessibility audit, with what has been verified and what has not, is in [docs/accessibility.md](https://github.com/thorgotothegym/design-system/blob/main/docs/accessibility.md).
 
 ## Development
 

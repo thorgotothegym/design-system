@@ -1,11 +1,11 @@
 # Console Forms, by Aleix Vidal
 
+**Live Storybook: [design.aleixvidal.dev](https://design.aleixvidal.dev)**
+
 [![CI](https://github.com/thorgotothegym/design-system/actions/workflows/ci.yml/badge.svg)](https://github.com/thorgotothegym/design-system/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Accessible React form components in a terminal style, built as a portfolio piece to show how a component library is structured, documented, tested and shipped.
-
-**Live Storybook: [design.aleixvidal.dev](https://design.aleixvidal.dev)**
+Eleven React form components with a terminal look. A portfolio project that shows how I structure, document, test and ship a component library: per-component size budgets, axe checks in both themes in CI, and every change through the same gates.
 
 <p>
   <img src="docs/readme/realistic-form-errors-dark.png" alt="The realistic form in the dark theme after a failed submit: an error summary links to each problem, and every invalid field shows its error under it." width="49%" />
@@ -14,7 +14,7 @@ Accessible React form components in a terminal style, built as a portfolio piece
 
 ## What is inside
 
-Eleven components, each with every state (hover, focus, disabled, read-only where it applies, invalid), stories, tests and its own size budget.
+Ten controls and the Field wrapper. Each control has stories for its states (hover, focus, disabled, invalid, and read-only where it applies), tests and its own size budget.
 
 | Component                                                                                | When to use it                                                                            |
 | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
@@ -30,21 +30,38 @@ Eleven components, each with every state (hover, focus, disabled, read-only wher
 | [OtpInput](https://design.aleixvidal.dev/?path=/docs/form-components-otpinput--docs)     | A one-time code of fixed length; pasting the whole code fills every box.                  |
 | [DatePicker](https://design.aleixvidal.dev/?path=/docs/form-components-datepicker--docs) | A date near today, typed part by part or chosen in a calendar.                            |
 
-Also in the Storybook: the design tokens (the [Foundations](https://design.aleixvidal.dev/?path=/docs/foundations-color--docs) pages are generated from the token files) and a [realistic form](https://design.aleixvidal.dev/?path=/docs/patterns-realistic-form--docs) that composes every component with react-hook-form.
+Not on npm yet; this is what the API looks like:
+
+```tsx
+import { Field, Input } from "@aleixvidal/ui";
+
+export const EmailField = ({ error }: { error?: string }) => (
+  <Field required invalid={error !== undefined}>
+    <Field.Label>Email</Field.Label>
+    <Input type="email" autoComplete="email" />
+    <Field.Description>We send your ticket here.</Field.Description>
+    <Field.Error>{error}</Field.Error>
+  </Field>
+);
+```
+
+The Storybook also documents the design tokens, in [Foundations](https://design.aleixvidal.dev/?path=/docs/foundations-color--docs) pages generated from the token files, and a [realistic form](https://design.aleixvidal.dev/?path=/docs/patterns-realistic-form--docs) that uses every component with react-hook-form.
+
+Scope: form controls only (no Button, Dialog or Table), for React 19, shipped as ES modules only.
 
 ## Design decisions
 
-- **Headless primitives, not hand-written ARIA.** Focus management, keyboard navigation and ARIA come from Radix (and React Aria for the DatePicker, input-otp for the code field). The components add the styling, the `Field` wiring and the states.
-- **Semantic tokens in OKLCH, with a contrast gate.** Components use semantic tokens only (`bg.surface`, `text.danger`, `focus.ring`), never raw values. The tokens are built with Style Dictionary into CSS variables. A script checks the contrast of every declared color pair in both themes and fails the build on any pair below its minimum.
+- **Headless primitives for the hard parts.** Focus management, keyboard navigation and widget roles come from Radix (React Aria for the DatePicker, input-otp for the code field). The components add the styling, the states and the `Field` wiring (ids and the `aria-*` links between label, description, error and control).
+- **Semantic tokens in OKLCH, with a contrast gate.** Components use semantic tokens only (`bg.surface`, `text.danger`, `focus.ring`), never raw values; the one exception is CSS system colors under forced colors. The tokens are built with Style Dictionary into CSS variables. A script checks the contrast of every declared color pair in both themes and fails the build on any pair below its minimum.
 - **Light and dark from the same tokens.** Every semantic color has a light and a dark value, and the theme switches with one attribute (`data-theme`). Forced colors (Windows contrast themes) are handled with system colors.
 - **A size budget per component.** Each component is measured after tree-shaking (React excluded), and CI fails if one grows past its budget. Heavy components have their own entry points: `@aleixvidal/ui/date-picker` (React Aria) and `@aleixvidal/ui/otp-input`, so importing the rest of the library does not pay for them.
-- **No layout shift.** Error messages have a line reserved, single-line controls have a fixed height per size, and a long Select value is truncated, so validation and selection do not move the page.
+- **Little layout shift by design.** An error message has one line reserved, single-line controls have a fixed height per size, and a long Select value is truncated. A message longer than one line, a Textarea that grows and a TagInput that wraps do change the height.
 
 The reasons for each rule are in [AGENTS.md](AGENTS.md) (conventions) and [DESIGN.md](DESIGN.md) (visual direction).
 
 ## What CI enforces
 
-Every pull request runs [`ci.yml`](.github/workflows/ci.yml). A single `ci-success` job fails if any of these fails.
+Every pull request runs [`ci.yml`](.github/workflows/ci.yml). The `ci-success` job passes only when all of these pass.
 
 | Job        | What it checks                                                                                                                                       |
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -59,14 +76,14 @@ Every pull request runs [`ci.yml`](.github/workflows/ci.yml). A single `ci-succe
 | changeset  | A changeset for every change to the published package                                                                                                |
 | release    | A dry run of the release versioning                                                                                                                  |
 
-Visual regression runs separately on Chromatic ([`chromatic.yml`](.github/workflows/chromatic.yml)): every story in both themes, compared with its accepted baseline.
+Visual regression runs separately on Chromatic ([`chromatic.yml`](.github/workflows/chromatic.yml)): every story in both themes (except a few that depend on today's date or repeat another story's end state), compared with its accepted baseline.
 
 ## Accessibility
 
 What is verified:
 
 - axe on every story in a real browser in both themes (CI), and in every component's unit tests;
-- keyboard operation of every component with real key events, and the visible focus indicator;
+- keyboard operation and the visible focus indicator of every component, checked with real key events in the audit (one documented deviation: Home and End on a range Slider), and the main flows in the `play` tests in CI;
 - forced colors, by emulation in Chromium;
 - an audit of the eleven components against WCAG 2.2 AA, with its findings and fixes, in [docs/accessibility.md](docs/accessibility.md).
 
@@ -74,7 +91,7 @@ What is not: **no screen reader pass has been done yet**, and forced colors have
 
 ## How it was built
 
-Built with AI coding agents (Claude Code; the same rules are set up for GitHub Copilot) working under strict automated gates: the CI jobs above, plus the conventions in [AGENTS.md](AGENTS.md), which every agent reads first. Each change is one pull request, and every pull request is reviewed and merged by a human.
+Built with AI coding agents, Claude Code among them, and GitHub Copilot has the same rules. They work under the CI jobs above and the conventions in [AGENTS.md](AGENTS.md), which every agent reads first; each component's pull request records its design decisions and trade-offs. Each change is one pull request. I read every one and merged it myself after CI passed; there is no second reviewer.
 
 ## Run it locally
 
@@ -112,6 +129,8 @@ pnpm storybook        # Storybook at http://localhost:6006
 ## Status
 
 Pre-release: `@aleixvidal/ui` is not published to npm yet. The first release is planned; the work plan and what is left are in [BACKLOG.md](BACKLOG.md).
+
+Issues and feedback are welcome. I am not accepting pull requests yet.
 
 ## License
 
