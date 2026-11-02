@@ -37,7 +37,10 @@ export type FieldProps = Omit<ComponentPropsWithRef<"div">, "id"> & {
   id?: string;
   /** Marks the control as invalid: `aria-invalid` is set and the error is linked to it. */
   invalid?: boolean;
-  /** Marks the control as required: `aria-required` is set and the label shows a marker. */
+  /**
+   * Marks the control as required: `aria-required` is set and the label shows a marker. Do not
+   * set it around a Switch or a Slider, which cannot be required: the marker would show anyway.
+   */
   required?: boolean;
   /** Disables the control and dims the label. */
   disabled?: boolean;

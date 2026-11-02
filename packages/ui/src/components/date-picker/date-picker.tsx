@@ -336,7 +336,10 @@ export type DatePickerProps = {
  * set; either one is enough. The message is always yours: put it in a `Field.Error` with the
  * Field's `invalid`. A field that is invalid with no `Field.Error` is not announced to screen
  * readers as an error and shows no reason, so validate the same rules in your form. A partly
- * filled date is reported as `null` but not marked invalid: a `required` rule in your form catches it.
+ * filled date is reported as `null` but not marked invalid, so an error does not interrupt the
+ * person while they type. Your form's `required` rule catches it, with one message for an empty
+ * and an incomplete date, such as "Enter a complete date (month, day and year)", as the realistic
+ * form does.
  *
  * `className` goes to the root; `ref` goes to the first editable part (see `ref`). React Aria
  * adds one small `<style>` element at runtime (and on iOS a second one while the calendar is
@@ -417,10 +420,10 @@ export const DatePicker = ({
   const renderPicker = (lang: string | undefined) => (
     <AriaDatePicker<CalendarDate>
       id={state.id}
+      lang={lang}
       value={ariaValue}
       onChange={setAriaValue}
       minValue={toOptionalDate(min, "min")}
-      lang={lang}
       maxValue={toOptionalDate(max, "max")}
       isDateUnavailable={
         isDateDisabled && ((date) => isDateDisabled(date.toString()))
@@ -522,11 +525,11 @@ export const DatePicker = ({
     </AriaDatePicker>
   );
 
+  const picker = <LanguageOfLocale>{renderPicker}</LanguageOfLocale>;
+
   return locale === undefined ? (
     picker
   ) : (
-  const picker = <LanguageOfLocale>{renderPicker}</LanguageOfLocale>;
-
     <I18nProvider locale={locale}>{picker}</I18nProvider>
   );
 };

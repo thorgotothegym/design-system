@@ -73,7 +73,9 @@ export type SwitchProps = Omit<
  *
  * It is never required: `required` and `aria-required` are not accepted, and a `required` `Field`
  * does not set them, because a switch acts as soon as it is toggled and `role="switch"` does not
- * support `aria-required`. For a consent the user must give, use a Checkbox.
+ * support `aria-required`. Do not set `required` on a `Field` around a Switch: the Field would
+ * still show its required marker, which the switch cannot honour. For a consent the user must
+ * give, use a Checkbox.
  */
 export const Switch = ({
   invalid,

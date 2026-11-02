@@ -89,11 +89,16 @@ const defaultThumbLabel = (index: number, count: number) => {
  *
  * Inside a `Field`, the `Field.Label` names it (through `aria-labelledby`, since a label cannot
  * name a slider) and `Field.Description` and `Field.Error` describe it. On its own it needs
- * `aria-label` or `aria-labelledby`. Each thumb is a `role="slider"` with `aria-valuenow`,
- * `aria-valuemin` and `aria-valuemax`; Left and Down lower it and Right and Up raise it by
- * `step`, Page Up and Page Down (or Shift with an arrow) by ten steps, Home and End go to the
- * ends. Radix does the keyboard, pointer and ARIA. A slider is never required: `required` and
- * `aria-required` are not accepted, and a required `Field` does not set them.
+ * `aria-label` or `aria-labelledby`. Clicking the `Field.Label` does not move focus to a thumb,
+ * as clicking the legend of a native `<fieldset>` does not focus its first control; the thumb is
+ * the next Tab stop. Each thumb is a `role="slider"` with `aria-valuenow`, `aria-valuemin` and
+ * `aria-valuemax`; Left and Down lower it and Right and Up raise it by `step`, Page Up and Page
+ * Down (or Shift with an arrow) by ten steps, Home and End go to the ends. In a range, Home always
+ * moves the first thumb to the minimum and End the last thumb to the maximum, whichever thumb has
+ * focus, and focus follows the thumb that moved: this is Radix's behavior, while the WAI-ARIA
+ * slider pattern moves the focused thumb. Radix does the keyboard, pointer and ARIA. A slider is
+ * never required: `required` and `aria-required` are not accepted, and a required `Field` does
+ * not set them, so do not set `required` on a `Field` around a slider.
  *
  * It is horizontal only. All native attributes are accepted and forwarded to the root, as are
  * Radix's `min`, `max`, `step`, `minStepsBetweenThumbs`, `name`, `form`, `disabled` and
