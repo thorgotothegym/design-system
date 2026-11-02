@@ -249,7 +249,7 @@ Launch each batch, review the PRs, merge, then start the next batch.
 - Mode: supervised
 - Depends on: T20
 - Acceptance criteria:
-  - [ ] **(human)** Manual keyboard and screen-reader check (VoiceOver and NVDA) of every component, with findings written down. Nothing has been checked with a real screen reader yet (#17, #18, #19).
+  - [ ] **(human)** Manual keyboard and screen-reader check (VoiceOver and NVDA) of every component, with findings written down. Nothing has been checked with a real screen reader yet (#17, #18, #19). Steps and expected content: the checklist in [docs/accessibility.md](docs/accessibility.md#manual-verification-checklist); the automated part of the audit and its findings (A11Y-01 to A11Y-14) are in the same file.
   - [x] a11y addon clean on all stories in both themes (the `a11y` CI job, #25)
   - [x] Contrast gate green; size budgets green; Lighthouse thresholds met on the built Storybook (CI, #41)
   - [ ] Clicking the label of Slider, RadioGroup and DatePicker does nothing (the control is not labelable; #16, #18, #21): decide whether to focus the control, and test it

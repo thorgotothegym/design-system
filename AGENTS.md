@@ -190,6 +190,7 @@ Form controls (Input, Textarea, Select, Checkbox, RadioGroup, Switch, DatePicker
 - Respect `prefers-reduced-motion`.
 - Error messages are programmatically associated with their field and announced to assistive tech.
 - The Storybook a11y addon must report no violations for any story. If you believe a violation is a false positive, say so in the PR and explain; do not silently disable the rule.
+- The audit of the components, its findings and the manual screen-reader checklist are in [docs/accessibility.md](docs/accessibility.md) (re-run it with `node scripts/a11y-audit.mts`).
 
 ## Performance and Core Web Vitals
 
