@@ -411,6 +411,25 @@ describe("Select", () => {
     expect(onSubmit).toHaveBeenCalledWith("fr");
   });
 
+  it("should give autoComplete to the hidden native select of a form, not to the trigger", () => {
+    render(
+      <form>
+        <CountrySelect name="country" autoComplete="country-name" />
+      </form>,
+    );
+
+    // The native select Radix renders for forms is aria-hidden and has no name, so it is the
+    // combo box that only appears when hidden elements are included.
+    const trigger = screen.getByRole("combobox", { name: "Country" });
+    const [nativeSelect] = screen
+      .getAllByRole("combobox", { hidden: true })
+      .filter((element) => element !== trigger);
+    expect(nativeSelect).toHaveAttribute("autocomplete", "country-name");
+    expect(nativeSelect).toHaveAttribute("name", "country");
+    expect(trigger).not.toHaveAttribute("autocomplete");
+    expect(screen.getAllByRole("combobox")).toEqual([trigger]);
+  });
+
   it("should forward the ref and className to the trigger", () => {
     const ref = createRef<HTMLButtonElement>();
     render(<CountrySelect ref={ref} className="custom" />);

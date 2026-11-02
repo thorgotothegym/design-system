@@ -30,7 +30,31 @@ const narrowMode = {
   chromatic: { modes: { "narrow dark": { theme: "dark", viewport: 320 } } },
 };
 
-export const Default: Story = { parameters: narrowMode };
+/**
+ * The fields that ask for the person's own data declare their purpose (WCAG 1.3.5), so the browser
+ * can fill them in: `name`, `email`, and `country-name` on the native select that the Select renders
+ * for forms. The play function only reads, so the snapshot is the untouched form.
+ */
+export const Default: Story = {
+  parameters: narrowMode,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const country = canvas.getByRole("combobox", { name: /Country/ });
+    // That native select is aria-hidden and has no name: it is the combo box that only appears
+    // when hidden elements are included.
+    const [nativeCountry] = canvas
+      .getAllByRole("combobox", { hidden: true })
+      .filter((element) => element !== country);
+
+    await expect(
+      canvas.getByRole("textbox", { name: /Full name/ }),
+    ).toHaveAttribute("autocomplete", "name");
+    await expect(
+      canvas.getByRole("textbox", { name: /Email/ }),
+    ).toHaveAttribute("autocomplete", "email");
+    await expect(nativeCountry).toHaveAttribute("autocomplete", "country-name");
+  },
+};
 
 /**
  * Submitted with the arrival date only partly typed and everything else empty: the error summary
