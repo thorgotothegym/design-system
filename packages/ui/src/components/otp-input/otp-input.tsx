@@ -22,6 +22,7 @@ const isDevelopment =
  * One box per character, drawn over a single transparent `<input>` (that is how input-otp works),
  * so the browser sees one field: one tab stop, one caret and a working autofill and paste. Box
  * state is `data-*` attributes on the root, styled with Tailwind data variants, as in `Input`.
+ * With forced colors, invalid is a dashed border, disabled is `GrayText` and the caret `CanvasText`.
  */
 const slotClasses = [
   "relative box-border flex h-12 w-10 items-center justify-center rounded-lg border border-border-control bg-bg-input font-mono text-lg text-text-default",
@@ -30,6 +31,8 @@ const slotClasses = [
   "in-data-invalid:border-border-danger",
   "in-data-readonly:bg-bg-subtle",
   "in-data-disabled:cursor-not-allowed in-data-disabled:bg-bg-subtle in-data-disabled:text-text-muted",
+  "forced-colors:in-data-invalid:border-dashed",
+  "forced-colors:in-data-disabled:border-[GrayText] forced-colors:in-data-disabled:text-[GrayText]",
   "motion-safe:transition-[border-color]",
 ];
 
@@ -144,6 +147,8 @@ export const OtpInput = ({
         aria-describedby={state["aria-describedby"]}
         aria-invalid={state["aria-invalid"] ?? props["aria-invalid"]}
         aria-required={state["aria-required"] ?? props["aria-required"]}
+        // input-otp makes the input's text transparent; forced colors would paint it over the boxes.
+        className="forced-color-adjust-none"
         containerClassName="flex items-center gap-2"
         render={({ slots, isHovering }) => {
           let position = 0;
@@ -178,7 +183,7 @@ export const OtpInput = ({
                   >
                     {slot.char}
                     {slot.hasFakeCaret && (
-                      <span className="absolute h-5 w-px bg-text-default motion-safe:animate-pulse" />
+                      <span className="absolute h-5 w-px bg-text-default motion-safe:animate-pulse forced-colors:bg-[CanvasText]" />
                     )}
                   </div>
                 ))}

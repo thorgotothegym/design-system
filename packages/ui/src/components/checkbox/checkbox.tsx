@@ -19,6 +19,7 @@ const checkboxClasses = [
   "not-data-disabled:not-data-invalid:data-[state=checked]:border-brand-primary not-data-disabled:not-data-invalid:data-[state=indeterminate]:border-brand-primary",
   "data-invalid:border-border-danger",
   "data-disabled:cursor-not-allowed data-disabled:bg-bg-subtle data-disabled:text-text-muted",
+  "forced-colors:data-invalid:border-dashed",
   "motion-safe:transition-[border-color]",
 ];
 

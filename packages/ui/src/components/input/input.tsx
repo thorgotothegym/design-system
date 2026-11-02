@@ -20,6 +20,8 @@ const inputVariants = cva(
     "data-invalid:border-border-danger",
     "data-readonly:bg-bg-subtle",
     "data-disabled:cursor-not-allowed data-disabled:bg-bg-subtle data-disabled:text-text-muted",
+    "forced-colors:data-invalid:border-dashed",
+    "forced-colors:data-disabled:border-[GrayText]",
     "motion-safe:transition-[border-color]",
   ],
   {
@@ -73,7 +75,7 @@ const Spinner = () => (
     aria-hidden="true"
     viewBox="0 0 24 24"
     fill="none"
-    className="size-4 shrink-0 animate-spin text-text-muted motion-reduce:animate-none"
+    className="size-4 shrink-0 animate-spin text-text-muted motion-reduce:animate-none forced-colors:text-[CanvasText]"
   >
     <circle
       cx="12"

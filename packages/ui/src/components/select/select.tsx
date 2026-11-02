@@ -22,6 +22,7 @@ const triggerVariants = cva(
     "focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-focus-ring",
     "data-invalid:border-border-danger",
     "data-disabled:cursor-not-allowed data-disabled:bg-bg-subtle data-disabled:text-text-muted",
+    "forced-colors:data-invalid:border-dashed",
     "motion-safe:transition-[border-color]",
   ],
   {
@@ -192,7 +193,8 @@ const SelectRoot = ({
           <SelectPrimitive.Value placeholder={placeholder} />
         </span>
         <SelectPrimitive.Icon asChild>
-          <ChevronIcon className="text-text-muted" />
+          {/* An SVG keeps its own color under forced colors (`preserve-parent-color`), so the token is replaced there. */}
+          <ChevronIcon className="text-text-muted forced-colors:text-[CanvasText]" />
         </SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
       <SelectPrimitive.Portal>

@@ -45,6 +45,7 @@ const groupClasses = [
   "in-data-invalid:border-border-danger",
   "in-data-readonly:bg-bg-subtle",
   "in-data-disabled:cursor-not-allowed in-data-disabled:bg-bg-subtle in-data-disabled:text-text-muted",
+  "forced-colors:in-data-invalid:border-dashed forced-colors:in-data-disabled:border-[GrayText]",
   "motion-safe:transition-[border-color]",
 ];
 
@@ -58,6 +59,7 @@ const groupClasses = [
 const segmentClasses = [
   "box-border rounded-md px-px tabular-nums outline-transparent",
   "not-data-focused:data-placeholder:text-text-placeholder in-data-disabled:text-text-muted",
+  "forced-colors:in-data-disabled:text-[GrayText]",
   "data-focused:bg-brand-primary data-focused:text-text-on-primary",
 ];
 
@@ -88,22 +90,32 @@ const popoverClasses =
  *   so they differ from the others without relying on color;
  * - hover: a `bg.subtle` fill, a pointer hint only (the keyboard indicator is the ring);
  * - outside the month: not painted, but it keeps its place in the grid.
+ *
+ * With forced colors the backgrounds are painted as `Canvas`, so the selected day is filled with
+ * `Highlight` and `HighlightText`, and stays marked when the focus moves to another day. It opts
+ * out of the forced palette (`forced-color-adjust: none`, keeping those system colors), because
+ * Chromium otherwise paints a `Canvas` backplate behind the number that hides it; its focus ring
+ * is set to `CanvasText` for the same reason.
  */
 const cellClasses = [
   "relative m-0 box-border flex size-10 cursor-pointer items-center justify-center rounded-lg text-md text-text-default tabular-nums outline-transparent",
   "not-data-selected:not-data-disabled:not-data-unavailable:data-hovered:bg-bg-subtle",
   "data-selected:bg-brand-primary data-selected:text-text-on-primary",
+  "forced-colors:data-selected:bg-[Highlight] forced-colors:data-selected:text-[HighlightText] data-selected:forced-color-adjust-none forced-colors:data-focus-visible:outline-[CanvasText]",
   "data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-solid data-focus-visible:outline-focus-ring",
   "data-disabled:cursor-not-allowed data-disabled:line-through not-data-selected:data-disabled:text-text-muted",
   "data-unavailable:cursor-not-allowed data-unavailable:line-through not-data-selected:data-unavailable:text-text-muted",
   "data-outside-month:invisible",
 ];
 
-/** Today: a 4px dot, `brand.primary` on the page, `text.on-primary` when today is also selected. */
+/**
+ * Today: a 4px dot, `brand.primary` on the page, `text.on-primary` when today is also selected.
+ * With forced colors, `CanvasText`, or `HighlightText` on the selected fill.
+ */
 const TodayDot = () => (
   <span
     aria-hidden="true"
-    className="absolute bottom-1 size-1 rounded-full bg-brand-primary in-data-selected:bg-text-on-primary"
+    className="absolute bottom-1 size-1 rounded-full bg-brand-primary in-data-selected:bg-text-on-primary forced-colors:bg-[CanvasText] forced-colors:in-data-selected:bg-[HighlightText]"
   />
 );
 
