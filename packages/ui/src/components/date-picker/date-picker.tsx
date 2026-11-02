@@ -6,8 +6,9 @@ import {
   useImperativeHandle,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
-import type { ContextType, FocusEventHandler, Ref } from "react";
+import type { ContextType, FocusEventHandler, ReactNode, Ref } from "react";
 import { Button } from "react-aria-components/Button";
 import {
   Calendar,
@@ -26,7 +27,7 @@ import {
 } from "react-aria-components/DatePicker";
 import { DateFieldStateContext } from "react-aria-components/DateField";
 import { Dialog } from "react-aria-components/Dialog";
-import { I18nProvider } from "react-aria-components/I18nProvider";
+import { I18nProvider, useLocale } from "react-aria-components/I18nProvider";
 import { Popover } from "react-aria-components/Popover";
 import { cn } from "../../lib/cn";
 import { useFieldState } from "../field/use-field-state";
@@ -212,6 +213,36 @@ const ShownDateReporter = ({
   return null;
 };
 
+/** The language part of a BCP 47 tag, lowercased: `"es"` for `"es-ES"`, `""` for none. */
+const languageOf = (tag: string) => tag.split("-")[0]?.toLowerCase() ?? "";
+
+// The page's language does not change while a field is shown, so there is nothing to subscribe to.
+const noSubscription = () => () => {};
+const readPageLanguage = () => document.documentElement.lang;
+// Unknown on the server: the field then declares its own language, which is never wrong.
+const readServerPageLanguage = () => "";
+
+/**
+ * Gives the picker a `lang` when its locale's language is not the page's (WCAG 3.1.2), so a
+ * Spanish calendar in an English page is read with Spanish pronunciation. The locale is React
+ * Aria's, inside its provider: the `locale` prop, an enclosing `I18nProvider` or the browser's.
+ */
+const LanguageOfLocale = ({
+  children,
+}: {
+  children: (lang: string | undefined) => ReactNode;
+}) => {
+  const { locale } = useLocale();
+  const pageLanguage = useSyncExternalStore(
+    noSubscription,
+    readPageLanguage,
+    readServerPageLanguage,
+  );
+  return children(
+    languageOf(locale) === languageOf(pageLanguage) ? undefined : locale,
+  );
+};
+
 export type DatePickerProps = {
   /** Controlled date, as an ISO 8601 date string (`"2026-10-30"`), or `null` for no date. */
   value?: string | null;
@@ -232,7 +263,9 @@ export type DatePickerProps = {
   /**
    * The locale (BCP 47, such as `"es-ES"`) that sets the order of the parts, the month names and
    * the first day of the week. Defaults to the enclosing React Aria locale or the browser's.
-   * Set it when rendering on the server, where the browser's locale is unknown.
+   * Set it when rendering on the server, where the browser's locale is unknown. When its language
+   * is not the page's (`<html lang>`), the field and the calendar get a `lang` attribute, so screen
+   * readers pronounce the month and day names in that language (WCAG 3.1.2).
    */
   locale?: string;
   /** The first day of the week in the calendar. Defaults to the locale's. */
@@ -293,15 +326,20 @@ export type DatePickerProps = {
  * not move by a day in other time zones and goes into a form or a schema as it is.
  *
  * Inside a `Field`, the `Field.Label` names it through `aria-labelledby`, since a label cannot
- * name a group: clicking the label does not focus the field. `Field.Description` and
- * `Field.Error` describe every part. On its own it needs `aria-label` or `aria-labelledby`.
+ * name a group: clicking the label does not focus the field, as clicking the legend of a native
+ * `<fieldset>` does not focus its first control; the first part is the next Tab stop.
+ * `Field.Description` and `Field.Error` describe every part. On its own it needs `aria-label` or
+ * `aria-labelledby`.
  *
  * Validation: a typed date before `min`, after `max` or rejected by `isDateDisabled` is marked
  * invalid by React Aria itself (red border and `aria-invalid`), as is any date while `invalid` is
  * set; either one is enough. The message is always yours: put it in a `Field.Error` with the
  * Field's `invalid`. A field that is invalid with no `Field.Error` is not announced to screen
  * readers as an error and shows no reason, so validate the same rules in your form. A partly
- * filled date is reported as `null` but not marked invalid: a `required` rule in your form catches it.
+ * filled date is reported as `null` but not marked invalid, so an error does not interrupt the
+ * person while they type. Your form's `required` rule catches it, with one message for an empty
+ * and an incomplete date, such as "Enter a complete date (month, day and year)", as the realistic
+ * form does.
  *
  * `className` goes to the root; `ref` goes to the first editable part (see `ref`). React Aria
  * adds one small `<style>` element at runtime (and on iOS a second one while the calendar is
@@ -378,9 +416,11 @@ export const DatePicker = ({
     onValueChange?.(next);
   };
 
-  const picker = (
+  // `lang` goes on the root (the field) and on the calendar dialog, which is portalled out of it.
+  const renderPicker = (lang: string | undefined) => (
     <AriaDatePicker<CalendarDate>
       id={state.id}
+      lang={lang}
       value={ariaValue}
       onChange={setAriaValue}
       minValue={toOptionalDate(min, "min")}
@@ -442,7 +482,7 @@ export const DatePicker = ({
         data-slot="date-picker-popover"
         className={popoverClasses}
       >
-        <Dialog className="outline-transparent">
+        <Dialog lang={lang} className="outline-transparent">
           <Calendar data-slot="date-picker-calendar">
             <header className="flex items-center gap-2 pb-2">
               <Button slot="previous" className={cn(iconButtonClasses)}>
@@ -484,6 +524,8 @@ export const DatePicker = ({
       )}
     </AriaDatePicker>
   );
+
+  const picker = <LanguageOfLocale>{renderPicker}</LanguageOfLocale>;
 
   return locale === undefined ? (
     picker

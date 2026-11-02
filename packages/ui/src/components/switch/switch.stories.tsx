@@ -12,7 +12,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "A control that turns a setting on or off. Use it for a setting that takes effect as soon as it is toggled. Use a Checkbox when the choice is applied on submit or is one of several options, and a RadioGroup to pick exactly one option. Inside a `Field`, place it beside the `Field.Label` so the label toggles it; on its own it needs an `aria-label` or an external label. A switch is never required (`required` is not accepted and a required `Field` does not set it): use a Checkbox for a consent the user must give. It is announced as a switch, and Space toggles it. The thumb only slides when the user has not asked for reduced motion.",
+          "A control that turns a setting on or off. Use it for a setting that takes effect as soon as it is toggled. Use a Checkbox when the choice is applied on submit or is one of several options, and a RadioGroup to pick exactly one option. Inside a `Field`, place it beside the `Field.Label` so the label toggles it; on its own it needs an `aria-label` or an external label. A switch is never required (`required` is not accepted and a required `Field` does not set it), so do not set `required` on its `Field`, which would still show the marker: use a Checkbox for a consent the user must give. It is announced as a switch, and Space toggles it. The thumb only slides when the user has not asked for reduced motion.",
       },
     },
   },

@@ -485,6 +485,7 @@ export const RegistrationForm = ({
               <Select
                 ref={field.ref}
                 name={field.name}
+                autoComplete="country-name"
                 placeholder="Choose a country"
                 value={field.value}
                 onValueChange={field.onChange}

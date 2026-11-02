@@ -79,7 +79,6 @@ export type SelectProps = Omit<
     | "onOpenChange"
     | "name"
     | "required"
-    | "autoComplete"
     | "form"
     | "dir"
   > & {
@@ -91,6 +90,11 @@ export type SelectProps = Omit<
     size?: SelectVariantProps["size"];
     /** Marks the value as invalid. Inside a `Field`, the Field's `invalid` is used as well. */
     invalid?: boolean;
+    /**
+     * The purpose of the value for autofill (WCAG 1.3.5), such as `"country-name"`. It goes to the
+     * hidden native `<select>` that Radix renders inside a `<form>`, not to the trigger.
+     */
+    autoComplete?: SelectRootProps["autoComplete"];
   };
 
 const ChevronIcon = ({ className }: { className?: string }) => (

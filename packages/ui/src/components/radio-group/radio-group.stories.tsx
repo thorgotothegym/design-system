@@ -70,7 +70,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'A set of options of which exactly one can be selected. Use it for two to about five options that should all stay visible. Use a Select for a longer list, a Checkbox for an independent yes/no, and a Switch for a setting that applies at once. Inside a `Field`, the `Field.Label` names the group and `Field.Description` and `Field.Error` describe it; each option is a `RadioGroup.Item` in its own `<Field orientation="horizontal">`, item first, with its own label and optional description. Tab moves into and out of the group (one tab stop); the arrow keys move between options and select them; Space selects the focused option.',
+          'A set of options of which exactly one can be selected. Use it for two to about five options that should all stay visible. Use a Select for a longer list, a Checkbox for an independent yes/no, and a Switch for a setting that applies at once. Inside a `Field`, the `Field.Label` names the group and `Field.Description` and `Field.Error` describe it; each option is a `RadioGroup.Item` in its own `<Field orientation="horizontal">`, item first, with its own label and optional description. Clicking the `Field.Label` of the group does nothing, like the legend of a native `<fieldset>`; the label of each option selects it. Tab moves into and out of the group (one tab stop); the arrow keys move between options and select them; Space selects the focused option.',
       },
     },
   },

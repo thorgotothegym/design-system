@@ -141,15 +141,6 @@ export const CalendarDays: Story = {
   render: () => (
     <DatePicker aria-label="Date" defaultValue={otherDay()} defaultOpen />
   ),
-  // The open calendar hides the date parts from assistive technology while focus stays in the
-  // calendar; see `openCalendarA11y` in date-picker.stories.tsx, the same false positive.
-  parameters: {
-    a11y: {
-      config: {
-        rules: [forcedContrast, { id: "aria-hidden-focus", enabled: false }],
-      },
-    },
-  },
   play: async () => {
     const grid = await screen.findByRole("grid");
     await waitFor(() =>

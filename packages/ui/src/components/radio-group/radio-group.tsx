@@ -65,7 +65,8 @@ export type RadioGroupProps = ComponentPropsWithRef<
  * cannot be labelled with `htmlFor`), and `Field.Description` and `Field.Error` describe it. Each
  * option is a `RadioGroup.Item` inside its own `<Field orientation="horizontal">`, item first,
  * then its label and an optional description. On its own the group needs an `aria-label` or
- * `aria-labelledby`.
+ * `aria-labelledby`. Clicking the group's `Field.Label` does nothing, as clicking the legend of a
+ * native `<fieldset>` does not; each option's own label selects it, and Tab reaches the group.
  *
  * Tab moves into the group (to the selected option, or the first one) and out of it; the arrow
  * keys move between options and select them; Space selects the focused option. Radix handles
