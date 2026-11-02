@@ -1,11 +1,14 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRef } from "react";
+import { hydrateRoot } from "react-dom/client";
+import { renderToString } from "react-dom/server";
 import { useForm } from "react-hook-form";
 import { describe, expect, it, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/axe";
 import { Checkbox } from "../checkbox";
 import { Input } from "../input";
+import { RadioGroup } from "../radio-group";
 import { Field } from "./field";
 
 type FieldStateProps = {
@@ -13,6 +16,35 @@ type FieldStateProps = {
   required?: boolean;
   disabled?: boolean;
 };
+
+const NameField = ({ invalid, required }: FieldStateProps) => (
+  <Field id="name" invalid={invalid} required={required}>
+    <Field.Label>Name</Field.Label>
+    <Input />
+    <Field.Description>As on your passport.</Field.Description>
+    <Field.Error>{invalid ? "Name is required" : null}</Field.Error>
+  </Field>
+);
+
+/** The HTML a server sends, in a container of the page, as the browser parses it before hydration. */
+const serverHtml = (html: string) => {
+  const container = document.createElement("div");
+  container.innerHTML = html;
+  document.body.append(container);
+  return container;
+};
+
+const SERVER_STATES = [
+  ["default", {}, "name-description", null, null],
+  ["required", { required: true }, "name-description", null, "true"],
+  [
+    "invalid",
+    { invalid: true, required: true },
+    "name-description name-error",
+    "true",
+    "true",
+  ],
+] as const;
 
 type EmailFormProps = { onSubmit: (values: { email: string }) => void };
 
@@ -87,6 +119,24 @@ describe("Field", () => {
     );
 
     expect(screen.getByRole("textbox")).not.toHaveAttribute("aria-describedby");
+  });
+
+  it("should reference a description wrapped in another component once it mounts", () => {
+    const Help = () => (
+      <Field.Description>As on your passport.</Field.Description>
+    );
+
+    render(
+      <Field>
+        <Field.Label>Name</Field.Label>
+        <Input />
+        <Help />
+      </Field>,
+    );
+
+    expect(screen.getByRole("textbox")).toHaveAccessibleDescription(
+      "As on your passport.",
+    );
   });
 
   it("should link the error to the control after the description when invalid", () => {
@@ -417,4 +467,85 @@ describe("Field", () => {
 
     await expectNoA11yViolations();
   });
+});
+
+describe("Field on the server", () => {
+  it.each(SERVER_STATES)(
+    "should already wire the control in the server HTML when %s",
+    (_, props, describedBy, invalid, required) => {
+      const container = serverHtml(renderToString(<NameField {...props} />));
+
+      const control = within(container).getByRole("textbox", { name: /Name/ });
+      expect(control).toHaveAttribute("id", "name");
+      expect(control).toHaveAttribute("aria-describedby", describedBy);
+      expect(control.getAttribute("aria-invalid")).toBe(invalid);
+      expect(control.getAttribute("aria-required")).toBe(required);
+      expect(control).toHaveAccessibleDescription(
+        invalid
+          ? "As on your passport. Name is required"
+          : "As on your passport.",
+      );
+      container.remove();
+    },
+  );
+
+  it("should already name a group control by its label in the server HTML", () => {
+    const container = serverHtml(
+      renderToString(
+        <Field id="plan">
+          <Field.Label>Plan</Field.Label>
+          <RadioGroup aria-label="Ignored while labelled" defaultValue="free">
+            <Field orientation="horizontal">
+              <RadioGroup.Item value="free" />
+              <Field.Label>Free</Field.Label>
+            </Field>
+          </RadioGroup>
+          <Field.Description>You can change it later.</Field.Description>
+        </Field>,
+      ),
+    );
+
+    expect(within(container).getByRole("radiogroup")).toHaveAttribute(
+      "aria-labelledby",
+      "plan-label",
+    );
+    expect(
+      within(container).getByRole("radiogroup"),
+    ).toHaveAccessibleDescription("You can change it later.");
+    container.remove();
+  });
+
+  it.each(SERVER_STATES)(
+    "should hydrate the server HTML when %s without a warning or a change to the wiring",
+    async (_, props) => {
+      const container = serverHtml(renderToString(<NameField {...props} />));
+      const control = within(container).getByRole("textbox");
+      const wiring = () =>
+        ["id", "aria-describedby", "aria-invalid", "aria-required"].map(
+          (name) => control.getAttribute(name),
+        );
+      const before = wiring();
+      const onRecoverableError = vi.fn();
+      const error = vi.spyOn(console, "error");
+      const warn = vi.spyOn(console, "warn");
+
+      let root: ReturnType<typeof hydrateRoot> | undefined;
+
+      await act(async () => {
+        root = hydrateRoot(container, <NameField {...props} />, {
+          onRecoverableError,
+        });
+      });
+
+      expect(onRecoverableError).not.toHaveBeenCalled();
+      expect(error).not.toHaveBeenCalled();
+      expect(warn).not.toHaveBeenCalled();
+      expect(within(container).getByRole("textbox")).toBe(control);
+      expect(wiring()).toEqual(before);
+      error.mockRestore();
+      warn.mockRestore();
+      act(() => root?.unmount());
+      container.remove();
+    },
+  );
 });

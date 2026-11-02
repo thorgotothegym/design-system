@@ -1,8 +1,15 @@
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { cva } from "class-variance-authority";
 import type { VariantProps } from "class-variance-authority";
-import { useId, useLayoutEffect, useState } from "react";
-import type { ComponentPropsWithRef } from "react";
+import {
+  Children,
+  Fragment,
+  isValidElement,
+  useId,
+  useLayoutEffect,
+  useState,
+} from "react";
+import type { ComponentPropsWithRef, ElementType, ReactNode } from "react";
 import { cn } from "../../lib/cn";
 import { FieldContext, useRequiredFieldContext } from "./field-context";
 
@@ -24,6 +31,19 @@ const fieldVariants = cva("", {
 });
 
 type FieldVariantProps = VariantProps<typeof fieldVariants>;
+
+/**
+ * Whether `part` is among `children`, directly or inside fragments, read during render. The
+ * control renders before the description, so this is how the server HTML (and the first client
+ * render) already reference it. Nested Fields are not searched: their parts are their own.
+ */
+const containsPart = (children: ReactNode, part: ElementType): boolean =>
+  Children.toArray(children).some(
+    (child) =>
+      isValidElement<{ children?: ReactNode }>(child) &&
+      (child.type === part ||
+        (child.type === Fragment && containsPart(child.props.children, part))),
+  );
 
 export type FieldProps = Omit<ComponentPropsWithRef<"div">, "id"> & {
   /**
@@ -54,6 +74,12 @@ export type FieldProps = Omit<ComponentPropsWithRef<"div">, "id"> & {
  * The control inside keeps all its native attributes: `Input` accepts every native `<input>`
  * attribute and forwards it to the `<input>`, and `Field` only adds the `id`, `aria-describedby`,
  * `aria-invalid`, `aria-required` and `disabled` it needs. Native `<div>` props go to the root.
+ *
+ * The wiring is complete in the first render, so server-rendered HTML is already labelled and
+ * described: the Field finds its `Field.Label` and `Field.Description` among its children (also
+ * inside fragments). Write them as children of the Field, as in the examples. A part wrapped in a
+ * component of your own is found only once it mounts, so the server HTML lacks that reference
+ * until the page is hydrated.
  */
 const FieldRoot = ({
   orientation,
@@ -67,8 +93,13 @@ const FieldRoot = ({
 }: FieldProps) => {
   const generatedId = useId();
   const baseId = id ?? generatedId;
-  const [hasLabel, setHasLabel] = useState(false);
-  const [hasDescription, setHasDescription] = useState(false);
+  // A part found in `children` is known during render. One wrapped in another component is only
+  // known once it mounts and registers itself (see Field.Label and Field.Description).
+  const [labelMounted, setHasLabel] = useState(false);
+  const [descriptionMounted, setHasDescription] = useState(false);
+  const hasLabel = labelMounted || containsPart(children, FieldLabel);
+  const hasDescription =
+    descriptionMounted || containsPart(children, FieldDescription);
 
   return (
     <FieldContext
@@ -114,7 +145,8 @@ const FieldLabel = ({ className, children, ...props }: FieldLabelProps) => {
   const field = useRequiredFieldContext("Field.Label");
   const { setHasLabel } = field;
 
-  // Tell the Field this element exists, before paint, so aria-labelledby never points at nothing.
+  // Tell the Field this element exists, before paint, when it is wrapped in another component and
+  // the Field could not see it in its children; aria-labelledby never points at nothing.
   useLayoutEffect(() => {
     setHasLabel(true);
     return () => setHasLabel(false);
@@ -148,7 +180,8 @@ const FieldDescription = ({ className, ...props }: FieldDescriptionProps) => {
   const field = useRequiredFieldContext("Field.Description");
   const { setHasDescription } = field;
 
-  // Tell the Field this element exists, before paint, so aria-describedby never points at nothing.
+  // Tell the Field this element exists, before paint, when it is wrapped in another component and
+  // the Field could not see it in its children; aria-describedby never points at nothing.
   useLayoutEffect(() => {
     setHasDescription(true);
     return () => setHasDescription(false);
