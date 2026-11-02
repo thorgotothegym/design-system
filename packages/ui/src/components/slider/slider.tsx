@@ -14,16 +14,18 @@ const sliderClasses =
   "relative flex h-12 w-full touch-none items-center select-none data-disabled:cursor-not-allowed";
 
 /**
- * The track is a `bg.input` bar with a `border.control` outline: the outline keeps 3:1 against the
+ * The track is a `bg.input` bar with a `border.control` border: that border keeps 3:1 against the
  * page, a card and a field, and the fill (`brand.primary`) sits on `bg.input`, which is also 3:1 or
  * more, so the filled part is told apart from the rest without relying on one fill against the other.
+ * With forced colors the backgrounds are painted as `Canvas`, so the fill uses `Highlight` (`GrayText`
+ * when disabled): filled against empty.
  */
 const trackClasses =
-  "relative box-border h-2 grow overflow-hidden rounded-lg border border-border-control bg-bg-input in-data-disabled:bg-bg-subtle";
+  "relative box-border h-2 grow overflow-hidden rounded-lg border border-border-control bg-bg-input in-data-disabled:bg-bg-subtle forced-colors:in-data-disabled:border-[GrayText]";
 
 /** The filled part: the value. It turns to the danger color when the slider is invalid. */
 const rangeClasses =
-  "absolute h-full bg-brand-primary in-data-invalid:bg-border-danger in-data-disabled:bg-text-muted";
+  "absolute h-full bg-brand-primary in-data-invalid:bg-border-danger in-data-disabled:bg-text-muted forced-colors:bg-[Highlight] forced-colors:in-data-disabled:bg-[GrayText]";
 
 const thumbClasses = [
   "m-0 box-border block size-6 cursor-grab appearance-none rounded-full border-2 border-brand-primary bg-bg-input p-0",
@@ -31,6 +33,7 @@ const thumbClasses = [
   "focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-focus-ring",
   "in-data-invalid:border-border-danger",
   "data-disabled:cursor-not-allowed data-disabled:border-text-muted data-disabled:bg-bg-subtle",
+  "forced-colors:in-data-invalid:border-dashed forced-colors:in-data-disabled:border-[GrayText]",
 ];
 
 export type SliderProps = Omit<
@@ -57,7 +60,7 @@ export type SliderProps = Omit<
   /** Shows the current value above the track, right-aligned. It is hidden from assistive technology, which reads the thumb. */
   showValue?: boolean;
   /**
-   * Turns a value into text, such as `` `${value}%` ``. Used for the visible label and for
+   * Turns a value into text, such as `` `${value}%` ``. Used for the label shown above the track and for
    * `aria-valuetext`, so a screen reader says "40%" instead of "40".
    */
   formatValue?: (value: number) => string;
@@ -119,7 +122,7 @@ export const Slider = ({
     "aria-describedby": props["aria-describedby"],
   });
   const baseId = state.id ?? generatedId;
-  // Value state is kept here, not in Radix, only because the visible label and `aria-valuetext`
+  // Value state is kept here, not in Radix, only because the label shown on screen and `aria-valuetext`
   // need the current numbers; Radix is controlled with them. `value` still wins when it is set.
   const [ownValue, setOwnValue] = useState(defaultValue ?? [min]);
   const current = value ?? ownValue;

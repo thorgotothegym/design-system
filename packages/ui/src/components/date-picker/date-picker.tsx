@@ -32,8 +32,8 @@ import { cn } from "../../lib/cn";
 import { useFieldState } from "../field/use-field-state";
 
 /**
- * The drawn box, as in `Input`: border, background and focus ring are on the group that holds
- * the segments and the calendar button. The ring shows while a segment has focus (the button has
+ * The drawn box, as in `Input`: border, background and focus indicator are on the group that holds
+ * the segments and the calendar button. The indicator shows while a segment has focus (the button has
  * its own). State comes from the `data-*` attributes React Aria sets on the root (`data-invalid`,
  * `data-disabled`, `data-readonly`) and on the group (`data-hovered`), styled with Tailwind data
  * variants.
@@ -45,6 +45,7 @@ const groupClasses = [
   "in-data-invalid:border-border-danger",
   "in-data-readonly:bg-bg-subtle",
   "in-data-disabled:cursor-not-allowed in-data-disabled:bg-bg-subtle in-data-disabled:text-text-muted",
+  "forced-colors:in-data-invalid:border-dashed forced-colors:in-data-disabled:border-[GrayText]",
   "motion-safe:transition-[border-color]",
 ];
 
@@ -58,6 +59,7 @@ const groupClasses = [
 const segmentClasses = [
   "box-border rounded-md px-px tabular-nums outline-transparent",
   "not-data-focused:data-placeholder:text-text-placeholder in-data-disabled:text-text-muted",
+  "forced-colors:in-data-disabled:text-[GrayText]",
   "data-focused:bg-brand-primary data-focused:text-text-on-primary",
 ];
 
@@ -71,8 +73,8 @@ const iconButtonClasses = [
 
 /**
  * Portalled and positioned by React Aria below the field, aligned to its start, flipping above
- * when there is no room. It uses the same layer token as the Select list (React Aria's own inline
- * z-index is replaced through `style`) and the same surface.
+ * when there is no room. It uses the same layer token as the Select list (the z-index React Aria
+ * sets in the element's style is replaced through `style`) and the same surface.
  */
 const popoverClasses =
   "z-(--ds-z-dropdown) box-border rounded-lg border border-border-decorative bg-bg-surface p-2 font-mono text-text-default shadow-md outline-transparent";
@@ -81,29 +83,39 @@ const popoverClasses =
  * A day is a 40px square (above the 24px WCAG 2.2 minimum target). States, each a `data-*`
  * attribute from React Aria:
  * - selected: filled with `brand.primary` (7:1 or more against `bg.surface`);
- * - focused (keyboard): a `focus.ring` outline set 2px off the cell, so it shows on the selected
+ * - focused (keyboard): an `outline-focus-ring` line set 2px off the cell, so it shows on the selected
  *   fill too;
  * - today: a dot under the number (see `TodayDot`);
  * - disabled (outside `min` and `max`) or unavailable (`isDateDisabled`): muted and struck through,
  *   so they differ from the others without relying on color;
- * - hover: a `bg.subtle` fill, a pointer hint only (the keyboard indicator is the ring);
+ * - hover: a `bg.subtle` fill, a pointer hint only (the keyboard indicator is the `outline-focus-ring` line);
  * - outside the month: not painted, but it keeps its place in the grid.
+ *
+ * With forced colors the backgrounds are painted as `Canvas`, so the selected day is filled with
+ * `Highlight` and `HighlightText`, and stays marked when the focus moves to another day. It opts
+ * out of the forced palette (`forced-color-adjust: none`, keeping those system colors), because
+ * Chromium otherwise paints a `Canvas` backplate behind the number that hides it; its focus indicator
+ * is set to `CanvasText` for the same reason.
  */
 const cellClasses = [
   "relative m-0 box-border flex size-10 cursor-pointer items-center justify-center rounded-lg text-md text-text-default tabular-nums outline-transparent",
   "not-data-selected:not-data-disabled:not-data-unavailable:data-hovered:bg-bg-subtle",
   "data-selected:bg-brand-primary data-selected:text-text-on-primary",
+  "forced-colors:data-selected:bg-[Highlight] forced-colors:data-selected:text-[HighlightText] data-selected:forced-color-adjust-none forced-colors:data-focus-visible:outline-[CanvasText]",
   "data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-solid data-focus-visible:outline-focus-ring",
   "data-disabled:cursor-not-allowed data-disabled:line-through not-data-selected:data-disabled:text-text-muted",
   "data-unavailable:cursor-not-allowed data-unavailable:line-through not-data-selected:data-unavailable:text-text-muted",
   "data-outside-month:invisible",
 ];
 
-/** Today: a 4px dot, `brand.primary` on the page, `text.on-primary` when today is also selected. */
+/**
+ * Today: a 4px dot, `brand.primary` on the page, `text.on-primary` when today is also selected.
+ * With forced colors, `CanvasText`, or `HighlightText` on the selected fill.
+ */
 const TodayDot = () => (
   <span
     aria-hidden="true"
-    className="absolute bottom-1 size-1 rounded-full bg-brand-primary in-data-selected:bg-text-on-primary"
+    className="absolute bottom-1 size-1 rounded-full bg-brand-primary in-data-selected:bg-text-on-primary forced-colors:bg-[CanvasText] forced-colors:in-data-selected:bg-[HighlightText]"
   />
 );
 

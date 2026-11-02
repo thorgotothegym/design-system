@@ -4,10 +4,15 @@ import { cn } from "../../lib/cn";
 import { useFieldState } from "../field/use-field-state";
 
 /**
- * The track is the Radix root (a `<button role="switch">`), so border, background and focus ring
+ * The track is the Radix root (a `<button role="switch">`), so border, background and focus indicator
  * are on it. State comes from Radix's `data-state` and `data-disabled`, plus our `data-invalid`,
  * and is styled with Tailwind data variants, as in `Input`. There are no variants: a switch has
  * one size.
+ *
+ * With forced colors the browser paints every background as `Canvas`, which hid the thumb and the
+ * on fill. The `forced-colors:` lines use system colors instead: on is a `Highlight` track with a
+ * `HighlightText` thumb on the right, off an empty track with a `CanvasText` thumb on the left,
+ * disabled is `GrayText` and invalid a dashed border.
  */
 const switchClasses = [
   "m-0 box-border inline-flex h-6 w-12 shrink-0 appearance-none items-center rounded-lg border border-border-control bg-bg-input p-px",
@@ -18,6 +23,8 @@ const switchClasses = [
   "not-data-disabled:not-data-invalid:data-[state=checked]:border-brand-primary",
   "data-invalid:border-border-danger",
   "data-disabled:cursor-not-allowed data-disabled:bg-bg-subtle",
+  "forced-colors:not-data-disabled:data-[state=checked]:bg-[Highlight]",
+  "forced-colors:data-invalid:border-dashed",
   "motion-safe:transition-[border-color]",
 ];
 
@@ -30,6 +37,8 @@ const thumbClasses = [
   "pointer-events-none block size-5 rounded-md bg-text-muted",
   "data-[state=checked]:translate-x-6",
   "not-data-disabled:data-[state=checked]:bg-text-on-primary",
+  "forced-colors:bg-[CanvasText] forced-colors:in-data-disabled:bg-[GrayText]",
+  "forced-colors:not-data-disabled:data-[state=checked]:bg-[HighlightText]",
   "motion-safe:transition-transform",
 ];
 

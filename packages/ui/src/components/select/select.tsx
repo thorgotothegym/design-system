@@ -8,9 +8,9 @@ import { useFieldState } from "../field/use-field-state";
 const DEFAULT_SIZE = "md";
 
 /**
- * The trigger is the drawn box, as in `Input`: border, background and focus ring are on it. States
+ * The trigger is the drawn box, as in `Input`: border, background and focus indicator are on it. States
  * are `data-*` attributes (Radix's `data-state`, `data-disabled` and `data-placeholder`, plus our
- * `data-invalid`) styled with Tailwind data variants. The height is fixed per size and the value
+ * `data-invalid`) styled with Tailwind data variants. The height is set per size and the value
  * is truncated, so choosing a long option never resizes it.
  */
 const triggerVariants = cva(
@@ -22,6 +22,7 @@ const triggerVariants = cva(
     "focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-focus-ring",
     "data-invalid:border-border-danger",
     "data-disabled:cursor-not-allowed data-disabled:bg-bg-subtle data-disabled:text-text-muted",
+    "forced-colors:data-invalid:border-dashed",
     "motion-safe:transition-[border-color]",
   ],
   {
@@ -115,7 +116,7 @@ const scrollButtonClasses =
 /**
  * A button that opens a list of options to pick one from. Use it for a single choice from a
  * list too long to show at once (more than about five options); use a RadioGroup when the
- * options should all stay visible, and a Checkbox group to pick several.
+ * options should all stay on screen, and a Checkbox group to pick several.
  *
  * When not to use: for a simple, flat list on a mobile-first form, a native `<select>` is usually
  * better: the platform's own picker is easier to use on a phone and costs no JavaScript.
@@ -192,7 +193,8 @@ const SelectRoot = ({
           <SelectPrimitive.Value placeholder={placeholder} />
         </span>
         <SelectPrimitive.Icon asChild>
-          <ChevronIcon className="text-text-muted" />
+          {/* An SVG keeps its own color under forced colors (`preserve-parent-color`), so the token is replaced there. */}
+          <ChevronIcon className="text-text-muted forced-colors:text-[CanvasText]" />
         </SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
       <SelectPrimitive.Portal>
@@ -222,8 +224,8 @@ export type SelectItemProps = ComponentPropsWithRef<
 
 /**
  * One option. The highlighted option (keyboard focus, and the pointer too: Radix highlights on
- * pointer move) is an inset `focus.ring` outline over a `bg.subtle` fill. The fill alone is about
- * 1.1:1 against the popover, so the ring is the indicator (WCAG 1.4.11, 3:1 against `bg.surface`
+ * pointer move) is an inset `outline-focus-ring` line over a `bg.subtle` fill. The fill alone is about
+ * 1.1:1 against the popover, so that line is the indicator (WCAG 1.4.11, 3:1 against `bg.surface`
  * and `bg.subtle`, both in the contrast gate).
  *
  * `value` is required and `children` is its text, which is also what the trigger shows once it is

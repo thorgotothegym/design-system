@@ -42,8 +42,8 @@ const DEFAULT_MESSAGES: TagInputMessages = {
 const SEPARATORS = /[,\n\r\t]+/;
 
 /**
- * The drawn box, as in `Input`: border, background and focus ring live on the box, which holds the
- * tags and the text input. The ring shows for the input only (`:focus-visible`); a tag's button
+ * The drawn box, as in `Input`: border, background and focus indicator live on the box, which holds the
+ * tags and the text input. The indicator shows for the input only (`:focus-visible`); a tag's button
  * has its own. States are `data-*` attributes styled with Tailwind data variants.
  */
 const boxClasses = [
@@ -53,6 +53,8 @@ const boxClasses = [
   "data-invalid:border-border-danger",
   "data-readonly:bg-bg-subtle",
   "data-disabled:cursor-not-allowed data-disabled:bg-bg-subtle data-disabled:text-text-muted",
+  "forced-colors:data-invalid:border-dashed",
+  "forced-colors:data-disabled:border-[GrayText] forced-colors:data-disabled:text-[GrayText]",
   "motion-safe:transition-[border-color]",
 ];
 

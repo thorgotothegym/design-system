@@ -8,7 +8,7 @@ const DEFAULT_SIZE = "md";
 
 /**
  * The `<textarea>` is its own box (there is no prefix or suffix to share it with), so the border,
- * background and focus ring are on the element itself. States are `data-*` attributes set from
+ * background and focus indicator are on the element itself. States are `data-*` attributes set from
  * props and styled with Tailwind data variants, as in `Input`.
  */
 const textareaVariants = cva(
@@ -20,6 +20,8 @@ const textareaVariants = cva(
     "data-invalid:border-border-danger",
     "data-readonly:bg-bg-subtle",
     "data-disabled:cursor-not-allowed data-disabled:bg-bg-subtle data-disabled:text-text-muted",
+    "forced-colors:data-invalid:border-dashed",
+    "forced-colors:data-disabled:border-[GrayText] forced-colors:data-disabled:text-[GrayText]",
     "motion-safe:transition-[border-color]",
   ],
   {
@@ -30,7 +32,7 @@ const textareaVariants = cva(
         lg: "text-lg",
       },
       // `field-sizing: content` grows the box with its text with no script, so the layout never
-      // jumps. Where it is not supported the textarea keeps its rows and its resize handle.
+      // jumps. Where it is not supported the textarea keeps its rows and its handle for resizing.
       autoGrow: {
         true: "min-h-24 field-sizing-content supports-[field-sizing:content]:resize-none",
         false: "",
@@ -48,7 +50,7 @@ export type TextareaProps = Omit<ComponentPropsWithRef<"textarea">, "size"> & {
   /**
    * Grow with the text instead of scrolling. Set a maximum height with `className` (for example
    * `max-h-[10lh]`); past it the textarea scrolls. Browsers without `field-sizing` keep `rows` and
-   * the resize handle.
+   * the handle for resizing.
    */
   autoGrow?: TextareaVariantProps["autoGrow"];
   /** Marks the value as invalid. Inside a `Field`, the Field's `invalid` is used as well. */

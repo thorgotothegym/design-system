@@ -22,9 +22,12 @@ const radioGroupVariants = cva("flex", {
 });
 
 /**
- * The circle is the Radix item (a `<button role="radio">`), so border, background and focus ring
+ * The circle is the Radix item (a `<button role="radio">`), so border, background and focus indicator
  * are on it, as in `Checkbox`. The group's invalid state reaches it through the `data-invalid`
  * on the group, so every option shows the danger border.
+ *
+ * With forced colors the backgrounds are painted as `Canvas`, so the dot uses `Highlight`
+ * (`GrayText` when disabled) and invalid is a dashed border.
  */
 const radioItemClasses = [
   "m-0 box-border inline-flex size-5 shrink-0 appearance-none items-center justify-center rounded-full border border-border-control bg-bg-input p-0 text-text-on-primary",
@@ -35,6 +38,7 @@ const radioItemClasses = [
   "not-data-disabled:not-in-data-invalid:data-[state=checked]:border-brand-primary",
   "in-data-invalid:border-border-danger",
   "data-disabled:cursor-not-allowed data-disabled:bg-bg-subtle data-disabled:text-text-muted",
+  "forced-colors:in-data-invalid:border-dashed",
   "motion-safe:transition-[border-color]",
 ];
 
@@ -54,7 +58,7 @@ export type RadioGroupProps = ComponentPropsWithRef<
 
 /**
  * A set of options of which exactly one can be selected. Use it for two to about five options
- * that should all be visible; use a Select for a longer list, a Checkbox for an independent
+ * that should all be shown at once; use a Select for a longer list, a Checkbox for an independent
  * yes/no, and a Switch for a setting that applies at once.
  *
  * Inside a `Field`, the `Field.Label` names the group (through `aria-labelledby`, since a group
@@ -135,7 +139,7 @@ const RadioGroupItem = ({
       data-slot="radio-group-item"
       className={cn(radioItemClasses, className)}
     >
-      <RadioGroupPrimitive.Indicator className="block size-2 rounded-full bg-current" />
+      <RadioGroupPrimitive.Indicator className="block size-2 rounded-full bg-current forced-colors:bg-[Highlight] forced-colors:in-data-disabled:bg-[GrayText]" />
     </RadioGroupPrimitive.Item>
   );
 };
