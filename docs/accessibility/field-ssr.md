@@ -152,3 +152,37 @@ Chrome ignores a missing id, and axe reports no violation. But with option (a), 
 React 19 has no API that lets a later sibling register during render. `useId` gives stable ids, but it cannot tell whether the part exists. A component that renders before the description can only know about it in two ways: by reading its own children, or with a second pass after mount, which is what the current effect already does.
 
 Option (b) is the smallest change that makes the server HTML complete for the documented structure without dangling references. It keeps the effect for a part wrapped in another component, so that case behaves as it does today.
+
+## Structures of real forms (#52)
+
+The Field finds a part only among its own children: directly, or inside fragments and arrays. These are the structures real forms use, each tested twice:
+
+- `field-ssr.test.tsx`: the server HTML from `renderToReadableStream`, after `allReady`.
+- `field.test.tsx`: hydration from `renderToString`, with `console.error`, `console.warn` and `onRecoverableError` asserted unused.
+
+In every case, before and after hydration, the test also asserts that no element references an id that is not in the page.
+
+| Structure                                                                              | Server HTML                                                     | After hydration                  |
+| -------------------------------------------------------------------------------------- | --------------------------------------------------------------- | -------------------------------- |
+| `{shown && <Field.Description />}`, `shown` true                                       | referenced                                                      | referenced                       |
+| the same, `shown` false                                                                | not referenced; no description                                  | not referenced                   |
+| `{a ? <Field.Description>One</…> : <Field.Description>Two</…>}`                        | referenced                                                      | referenced                       |
+| `{a ? <Field.Description /> : null}`, `a` false                                        | not referenced; no description                                  | not referenced                   |
+| `{a ? <Help /> : <Field.Description />}`, `a` true, `Help` a component of the consumer | not referenced                                                  | referenced (registered on mount) |
+| `null` and `false` next to the description                                             | referenced                                                      | referenced                       |
+| an array from `map`                                                                    | referenced                                                      | referenced                       |
+| a fragment                                                                             | referenced                                                      | referenced                       |
+| nested fragments, one with a `key`                                                     | referenced                                                      | referenced                       |
+| a component of the consumer that renders the description                               | not referenced                                                  | referenced                       |
+| a `memo` component                                                                     | not referenced                                                  | referenced                       |
+| a `forwardRef` component                                                               | not referenced                                                  | referenced                       |
+| a render prop (`<WithHelp render={() => <Help />} />`)                                 | not referenced                                                  | referenced                       |
+| a `lazy` component in `Suspense`                                                       | not referenced (the description itself is in the streamed HTML) | referenced                       |
+| a nested Field, inside a fragment, with its own description                            | the outer control does not reference it                         | not referenced                   |
+
+No structure produced a reference to a missing id, so the children scan needed no change.
+
+- When the scan finds nothing, the server HTML has no reference at all, and the part registers itself on mount, as before #51.
+- A scan only finds a `Field.Description` element that React will render, and that element always renders the element with the id. So the scan cannot add a reference to an id that is not in the page.
+
+Hydration tests use `renderToString`, never a stream. The streaming renderer leaves a development-only marker (`_currentRenderer`) on each context it renders. A client renderer in the same process then logs "Detected multiple renderers concurrently rendering the same context provider". `renderToString` uses another marker (`_currentRenderer2`). A real app never runs both renderers in one process, so the streaming server tests live in their own file, which Vitest runs with its own modules. The `lazy` structure is hydrated the way a server that has already loaded the component renders it.

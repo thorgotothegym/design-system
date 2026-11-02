@@ -75,11 +75,17 @@ export type FieldProps = Omit<ComponentPropsWithRef<"div">, "id"> & {
  * attribute and forwards it to the `<input>`, and `Field` only adds the `id`, `aria-describedby`,
  * `aria-invalid`, `aria-required` and `disabled` it needs. Native `<div>` props go to the root.
  *
- * The wiring is complete in the first render, so server-rendered HTML is already labelled and
- * described: the Field finds its `Field.Label` and `Field.Description` among its children (also
- * inside fragments). Write them as children of the Field, as in the examples. A part wrapped in a
- * component of your own is found only once it mounts, so the server HTML lacks that reference
- * until the page is hydrated.
+ * Server rendering: the Field finds its `Field.Label` and `Field.Description` among its children
+ * during render, so the first render (and server HTML) already labels and describes the control.
+ * - Complete in the server HTML: a part written as a child of the Field, also inside a fragment
+ *   (nested or keyed), an array (`map`), a condition (`{shown && <Field.Description />}`) or a
+ *   ternary between parts; `null`, `false` and `undefined` next to it are ignored.
+ * - Completed after hydration: a part inside any other component, such as your own wrapper, a
+ *   `memo` or `forwardRef` component, a render prop or a `lazy` component in `Suspense`. The
+ *   server HTML then has no reference to it, and the part adds it when it mounts.
+ *
+ * Either way the control never references a part that is not rendered: a condition that is false,
+ * or a part of a nested Field, is left out.
  */
 const FieldRoot = ({
   orientation,
