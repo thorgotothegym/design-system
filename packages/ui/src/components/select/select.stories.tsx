@@ -68,9 +68,11 @@ export const WithValue: Story = { args: { defaultValue: "fr" } };
 /**
  * The stories that only show the open list start with it open (`defaultOpen`) instead of opening
  * it in a `play` function, which would flash the list for a frame or two on every load. While the
- * list is open Radix hides the rest of the page from assistive technology and traps focus in the
- * list, so axe reports the (unreachable) trigger under `aria-hidden-focus`: a false positive, and
- * the only rule turned off, for these stories only.
+ * list is open Radix sets `aria-hidden` on the rest of the page (the story root, which holds the
+ * trigger) and keeps focus in the list. axe flags that root under `aria-hidden-focus` because it
+ * contains a focusable trigger, but Tab and Shift+Tab never reach it: a false positive, and the
+ * only rule turned off, for these stories only. (The DatePicker needs no exception: React Aria
+ * hides the page with `inert`, which also removes it from the focus order.)
  */
 const openListA11y = {
   config: { rules: [{ id: "aria-hidden-focus", enabled: false }] },

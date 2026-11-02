@@ -36,16 +36,6 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-/**
- * While the calendar is open React Aria hides the rest of the page from assistive technology and
- * keeps focus in the calendar, so axe reports the (unreachable) date parts under
- * `aria-hidden-focus`. This is the same false positive as the open Select list, and the only rule
- * turned off, for the stories that render the calendar open only.
- */
-const openCalendarA11y = {
-  config: { rules: [{ id: "aria-hidden-focus", enabled: false }] },
-};
-
 const calendarButton = (canvasElement: HTMLElement) =>
   within(canvasElement).getByRole("button", { name: /Calendar/ });
 
@@ -102,7 +92,6 @@ export const CalendarStates: Story = {
     isDateDisabled: (date) => [0, 6].includes(new Date(date).getUTCDay()),
     defaultOpen: true,
   },
-  parameters: { a11y: openCalendarA11y },
   play: async () => {
     await expect(await screen.findByRole("dialog")).toBeVisible();
     await waitFor(() =>
@@ -119,7 +108,6 @@ export const MinMax: Story = {
     max: "2025-03-20",
     defaultOpen: true,
   },
-  parameters: { a11y: openCalendarA11y },
 };
 
 /** `isDateDisabled` rejects days one by one; here, weekends. */
@@ -129,13 +117,11 @@ export const DisabledDates: Story = {
     isDateDisabled: (date) => [0, 6].includes(new Date(date).getUTCDay()),
     defaultOpen: true,
   },
-  parameters: { a11y: openCalendarA11y },
 };
 
 /** The week starts on Monday, whatever the locale says. */
 export const FirstDayOfWeek: Story = {
   args: { defaultValue: FIXED_DATE, firstDayOfWeek: "mon", defaultOpen: true },
-  parameters: { a11y: openCalendarA11y },
 };
 
 /** The locale sets the order of the parts, the separators, the month names and the first day. */
@@ -157,7 +143,6 @@ export const Locales: Story = {
 /** In Spanish the calendar names the months and days in Spanish and starts on Monday. */
 export const SpanishCalendar: Story = {
   args: { locale: "es-ES", defaultValue: FIXED_DATE, defaultOpen: true },
-  parameters: { a11y: openCalendarA11y },
 };
 
 /**
@@ -166,7 +151,7 @@ export const SpanishCalendar: Story = {
  */
 export const Today: Story = {
   args: { defaultOpen: true },
-  parameters: { a11y: openCalendarA11y, chromatic: { disableSnapshot: true } },
+  parameters: { chromatic: { disableSnapshot: true } },
 };
 
 export const Disabled: Story = {
