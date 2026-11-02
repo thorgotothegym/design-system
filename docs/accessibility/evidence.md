@@ -336,7 +336,7 @@ Playwright aria snapshots of the story root. States that the snapshot format omi
 />
 ```
 
-The `<input>` of a `Field` with a `Field.Description` has no `aria-describedby` in the server HTML. After hydration the client adds it (the description registers in a layout effect).
+The `<input>` of a `Field` with a `Field.Description` has no `aria-describedby` in the server HTML. After hydration the client adds it (the description registers in a layout effect). Fixed in #51: the server HTML now has it; see [field-ssr.md](field-ssr.md).
 
 A `required` `Field` around a `Switch`:
 
