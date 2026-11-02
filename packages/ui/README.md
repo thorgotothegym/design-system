@@ -120,7 +120,9 @@ export const Details = () => (
 
 Each component's props, states and keyboard behavior are documented in its Storybook page.
 
-## Entry points
+<!-- The scaffold-component skill adds a subpath component's import and paragraph to this section: keep the "### Entry points" heading and a "## " heading after it. -->
+
+### Entry points
 
 Everything is exported from `@aleixvidal/ui`, except two components that have their own entry point, so that they only cost something when you import them:
 
