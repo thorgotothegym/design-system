@@ -1,11 +1,19 @@
 import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { createRef } from "react";
+import { Suspense, createRef } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { useForm } from "react-hook-form";
-import { describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/axe";
+import {
+  FIELD_STRUCTURES,
+  LazyHelp,
+  StructuredName,
+  danglingReferences,
+  describesWithHelp,
+  serverHtml,
+} from "../../test/field-structures";
 import { Checkbox } from "../checkbox";
 import { Input } from "../input";
 import { RadioGroup } from "../radio-group";
@@ -25,14 +33,6 @@ const NameField = ({ invalid, required }: FieldStateProps) => (
     <Field.Error>{invalid ? "Name is required" : null}</Field.Error>
   </Field>
 );
-
-/** The HTML a server sends, in a container of the page, as the browser parses it before hydration. */
-const serverHtml = (html: string) => {
-  const container = document.createElement("div");
-  container.innerHTML = html;
-  document.body.append(container);
-  return container;
-};
 
 const SERVER_STATES = [
   ["default", {}, "name-description", null, null],
@@ -542,6 +542,48 @@ describe("Field on the server", () => {
       expect(warn).not.toHaveBeenCalled();
       expect(within(container).getByRole("textbox")).toBe(control);
       expect(wiring()).toEqual(before);
+      error.mockRestore();
+      warn.mockRestore();
+      act(() => root?.unmount());
+      container.remove();
+    },
+  );
+});
+
+describe("Field children structures after hydration", () => {
+  // `renderToString` cannot wait for a lazy component, so the lazy structure is hydrated as a
+  // server that has already loaded it renders it (field-ssr.test.tsx streams it while it loads).
+  beforeAll(async () => {
+    const { unmount } = render(
+      <StructuredName>
+        <Suspense fallback={null}>
+          <LazyHelp />
+        </Suspense>
+      </StructuredName>,
+    );
+    await screen.findByText("As on your passport.");
+    unmount();
+  });
+
+  it.each(FIELD_STRUCTURES)(
+    "should hydrate $name without a warning, then reference only what exists",
+    async ({ part, hydrated }) => {
+      const ui = <StructuredName>{part()}</StructuredName>;
+      const container = serverHtml(renderToString(ui));
+      const onRecoverableError = vi.fn();
+      const error = vi.spyOn(console, "error");
+      const warn = vi.spyOn(console, "warn");
+      let root: ReturnType<typeof hydrateRoot> | undefined;
+
+      await act(async () => {
+        root = hydrateRoot(container, ui, { onRecoverableError });
+      });
+
+      expect(onRecoverableError).not.toHaveBeenCalled();
+      expect(error).not.toHaveBeenCalled();
+      expect(warn).not.toHaveBeenCalled();
+      expect(describesWithHelp(container)).toBe(hydrated === "present");
+      expect(danglingReferences(container)).toEqual([]);
       error.mockRestore();
       warn.mockRestore();
       act(() => root?.unmount());
