@@ -7,11 +7,12 @@ This file only adds things specific to Claude Code.
 
 ## How to work
 
+- Where to look first: AGENTS.md (conventions, section 4 for commands and CI, section 11 for verifying and reporting), DESIGN.md (tokens and visual rules), BACKLOG.md (the task and its criteria), and `docs/` (deployment, the theme switch).
 - For anything bigger than a small fix, plan first: list the files you will create or change, then implement.
 - Before using an API from Radix, Storybook, Tailwind or Style Dictionary, verify it against the current docs (Context7 MCP if available).
 - Implement one component per task and per PR. Do not batch several components into one change.
 - When creating a new component, copy the structure and style of the reference component (`Field` / `Input`) instead of inventing a new pattern. If a new pattern seems necessary, explain why in the PR before implementing it.
-- Run the quality gates from AGENTS.md section 4 yourself and fix failures before reporting completion. Report the real result of each command.
+- Run the quality gates from AGENTS.md section 4 yourself and fix failures before reporting completion. Report the real result of each command, following AGENTS.md section 11, "Verifying and reporting": a check that must run is never replayed from the cache, a failed job is reported, not re-run until green, and tokens are never printed.
 
 ## Commits and PRs
 - Do not add Co-Authored-By trailers, session links, "Generated with" footers or any other tool-generated attribution to commit messages or PR descriptions.

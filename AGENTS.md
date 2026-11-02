@@ -27,7 +27,7 @@ Work as a senior React/TypeScript engineer would: simple over clever, small publ
 - Tests: Vitest + Testing Library; Storybook `play` functions for interaction flows
 - Build: `tsup` for `packages/ui`
 - Versioning: Changesets
-- CI: GitHub Actions; visual regression with Chromatic
+- CI: GitHub Actions (`ci.yml`, with Lighthouse CI on the built Storybook), visual regression with Chromatic (`chromatic.yml`), dependency updates with Dependabot. A release workflow is planned for the first release (T23)
 
 **Do not trust memory for library APIs.** Radix, Storybook, Tailwind and Style Dictionary change often.
 Check the current docs (Context7 MCP if available, otherwise the official docs) before using an API you are not sure about.
@@ -40,13 +40,16 @@ The repository is named `design-system` (root package name `design-system`, priv
 ```
 apps/
   storybook/          Storybook app (consumes packages/ui)
-  docs/               (optional, later) Next.js landing for the design system
+  docs/               (not created; optional, later) Next.js landing for the design system
 packages/
   tokens/             Design tokens (JSON source -> CSS vars / TS / Tailwind preset)
   ui/                 The components (published as @aleixvidal/ui)
   eslint-config/      Shared ESLint config
-.github/workflows/    ci.yml, chromatic.yml (release.yml comes with the first release, T23)
+  typescript-config/  Shared strict tsconfig
+.github/workflows/    ci.yml, chromatic.yml (release.yml is planned for the first release, T23)
 .github/dependabot.yml
+scripts/              repository checks run by the root scripts (check:placeholders, check:release, test:scaffold, ...)
+docs/                 deployment.md, theme-switch.md
 .changeset/
 ```
 
@@ -74,6 +77,7 @@ pnpm check:release  # `changeset version` dry run over every pending changeset, 
 pnpm test:storybook # every story in Chromium, both themes: play functions and axe
 pnpm test:consumer  # the packed package in a clean app, checked in Chrome
 pnpm test:scaffold  # one component per scaffold variant, in a throwaway worktree
+pnpm lighthouse     # Lighthouse CI on the built Storybook (run pnpm build first; needs Google Chrome)
 pnpm changeset      # add a changeset for any user-facing change
 ```
 
@@ -98,7 +102,8 @@ Before saying a task is done, `pnpm lint && pnpm typecheck && pnpm test && pnpm 
 
 - `STORYBOOK_PLAY_DELAY` sets the pace of the demo `play` functions (`startDemo()` in `packages/ui/src/test/demo.ts`): milliseconds after each step, 250 when unset, and a pause of 2.4 steps before the first one. CI sets it to `0`. It applies to `pnpm storybook`, `storybook build` and `pnpm test:storybook`.
 - A story that logs `console.error` or `console.warn` fails `pnpm test:storybook` (`apps/storybook/.storybook/vitest.setup.ts`), so React's development-only warnings (duplicate keys, invalid props) cannot pass CI silently. Fix the cause; a message that is expected and not ours goes in its `ALLOWED` list with the reason.
-- `ci-success` is the single required check: it waits for every other job and fails if any failed or was cancelled. When you add a job, add it to its `needs`.
+- `ci-success` is the single check meant to be required: it waits for every other job and fails if any failed or was cancelled. When you add a job, add it to its `needs`. It cannot be enforced yet: branch protection and rulesets are not available for a private repository on GitHub's free plan. It becomes enforceable (branch protection on `main`, requiring `ci-success`) when the repository goes public (T23). Until then, do not merge a pull request whose `ci-success` is not green.
+- `ci.yml` uses no secrets and no remote caches: the Turborepo cache is local, restored with `actions/cache`. Official `actions/*` are pinned by major version; any other action by full commit SHA with the version in a comment on the same line.
 
 #### Chromatic (visual regression)
 
@@ -120,7 +125,6 @@ Before saying a task is done, `pnpm lint && pnpm typecheck && pnpm test && pnpm 
 - **npm:** majors are never proposed (section 2). Minor and patch updates come grouped in one pull request. The dependencies pinned for a reason come in their own pull requests: Storybook and its addons (an update needs the manual check in `docs/theme-switch.md` and an update of `VERIFIED_STORYBOOK_VERSION`), React Aria with `@internationalized/date` (check the DatePicker stories and budget), `turbo`, and `typescript` (pinned to 6.0.3 in `packages/eslint-config`).
 - **GitHub Actions:** grouped, majors included. A SHA-pinned action keeps its version comment on the same line, which Dependabot updates with the SHA.
 - **Changesets:** a Dependabot pull request that changes only `devDependencies` or `size-limit` in the published packages' `package.json` needs no changeset. The `changeset` job checks this with `scripts/dependabot-changeset.mts` and passes. An update to `dependencies` or `peerDependencies`, which consumers install, still requires one: add a `patch` changeset to the pull request. Updates to the root, `apps/storybook` and the private packages never need one.
-- No secrets, tokens or remote caches: the Turborepo cache is local, restored with `actions/cache`. Official `actions/*` are pinned by major version; any other action by full commit SHA with the version in a comment.
 
 ### Deployment
 
@@ -141,8 +145,8 @@ packages/ui/src/components/<name>/
 - File and folder names: `kebab-case`. Component names: `PascalCase`.
 - Named exports only. No default exports. Re-export every public component from `packages/ui/src/index.ts`.
   - Exception: a component whose dependency cannot be tree-shaken (the package has no `"sideEffects": false`, so a bundler keeps it for anyone who imports the root entry) ships as its own entry point, `@aleixvidal/ui/<name>`, with a `src/<name>.ts` entry in `tsup.config.ts`, an `exports` entry and its own `size-limit` path. It is not exported from `index.ts`. `OtpInput` (`input-otp`) is the first: exporting it from the root made every other component about 2.7 kB larger. The same applies to a heavy component (see Performance): `DatePicker` (React Aria, about 70 kB brotli) has its own entry point although its dependencies tree-shake.
-- Forward refs on components that wrap a DOM element. Spread remaining props onto the root element and merge `className` with `cn()`.
-- Props: extend the native element's props (`React.ComponentPropsWithoutRef<'input'>`) instead of redefining them. Document each prop with a JSDoc comment so autodocs picks it up.
+- Pass `ref` to the DOM element a component wraps. With React 19 `ref` is a regular prop: no `forwardRef`. Spread remaining props onto the root element and merge `className` with `cn()`.
+- Props: extend the native element's props (`ComponentPropsWithRef<"input">`, or the primitive's with `ComponentPropsWithRef<typeof Primitive.Root>`) instead of redefining them. Document each prop with a JSDoc comment so autodocs picks it up.
 - Variants and sizes: use `cva`. Keep the variant surface small and justified. Do not add a prop "just in case".
 - Support both controlled and uncontrolled usage when the component holds state.
 - No business logic, no data fetching, no global state, no side effects outside effects tied to the component.
@@ -169,7 +173,7 @@ Form controls (Input, Textarea, Select, Checkbox, RadioGroup, Switch, DatePicker
 ## 6. Design tokens
 
 - Never hardcode colors, spacing, radii, font sizes, shadows or z-indexes in components. Use tokens only.
-- Use **semantic** tokens in components (`color.bg.surface`, `color.text.danger`, `color.border.focus`), not raw palette values (`blue-500`).
+- Use **semantic** tokens in components (`bg.surface`, `text.danger`, `focus.ring`; Tailwind classes such as `bg-bg-surface`), not raw palette values.
 - Palette tokens are the lowest layer; semantic tokens reference them; components reference only semantic tokens.
 - Dark mode is part of the token system (theme switch via CSS variables), not a per-component afterthought. Every semantic color needs a light and a dark value.
 - Changing a token's name or meaning is a breaking change and needs a changeset.
@@ -198,7 +202,7 @@ What we can do is write components that do not hurt them, and enforce it with au
 - **Bundle size**: every component has a size budget enforced with `size-limit` in CI. Adding a dependency that grows a component noticeably needs justification in the PR.
 - **CSS size**: if the CSS exceeds 4 kB brotli, look for repeated utility patterns to share before raising the budget again.
 - **Runtime hygiene**: no layout thrashing, no unnecessary effects, clean up listeners and observers.
-- **Storybook site**: run Lighthouse CI against the built Storybook (static) in CI and keep Performance and Accessibility scores above the thresholds set in `lighthouserc`. Do not lower thresholds to make a build pass.
+- **Storybook site**: Lighthouse CI runs on the built Storybook in CI (the `lighthouse` job, part of `ci-success`; section 4). Thresholds are in `lighthouserc.json`, asserted on the median of five runs: Performance 0.70 on the Storybook root, 0.90 on the Input docs page, 0.84 on the realistic form; Accessibility 0.98 on all three. Do not lower a threshold to make a build pass.
 
 ## 8. Storybook conventions
 
@@ -260,7 +264,7 @@ A component is done only when ALL of this is true:
 - [ ] Uses `type` (no `interface`), no `any`; props type exported
 - [ ] No layout shift in any state; size-limit budget respected
 - [ ] Props documented via JSDoc; autodocs renders correctly
-- [ ] Exported from the package entry point
+- [ ] Exported from the package entry point, or from its own entry point (section 5)
 - [ ] Changeset added
 - [ ] `lint`, `typecheck`, `test`, `build` and `storybook build` pass
 - [ ] No SCAFFOLD-PLACEHOLDER left (`pnpm check:placeholders` passes)
@@ -274,6 +278,17 @@ A component is done only when ALL of this is true:
 - Never push directly to `main`. Never force-push shared branches.
 - PR description: what changed, why, how it was verified, screenshots or Storybook link for visual changes.
 
+### Verifying and reporting (lessons learned)
+
+- **A green job is not proof that a check ran.** A check that must execute is never satisfied from the Turborepo cache: run it with `--force` or give the task `cache: false`, and print the cache line (`cache bypass, force executing`) so the log shows it ran.
+- **Never re-run a failed job to get it green.** Report the failing job and its log, and find the cause. Re-running is for a documented step, such as Chromatic after its changes are accepted.
+- **A script that reads a status field is not a verification.** Check the observable result: the rendered pixels, the computed color, the focused element, the served header.
+- **Never print or paste a token** (Chromatic, Vercel, npm, GitHub) in a log, a chat, a screenshot, a commit or a file. Pass it from secrets through `env`.
+- **Storybook tests fail on any `console.error` or `console.warn`** (section 4, CI): fix the cause rather than silencing it.
+- **In `play` functions and tests, wait for the observable result of an action** (section 9, "Waiting for asynchronous results").
+- **Changesets treat private workspace packages as ignored.** A changeset never names `@aleixvidal/tokens` (or any private package) together with `@aleixvidal/ui`; describe a token change consumers see in the `ui` changeset (section 4, the `release` job).
+- **Pinned versions are updated in their own pull request**, with their check: Storybook needs the manual check in `docs/theme-switch.md` and a new `VERIFIED_STORYBOOK_VERSION`; `react-aria-components` needs the DatePicker stories and budget; `turbo` and `typescript` (6.0.3 in `packages/eslint-config`) need the full CI.
+
 ## 12. Things NOT to do
 
 - Do not add dependencies without a clear reason. Justify every new one in the PR.
@@ -286,7 +301,7 @@ A component is done only when ALL of this is true:
 
 ## 13. Employer and confidentiality safety
 
-This is a public repository owned by an individual. Never include anything from any current or past employer:
+This repository is owned by an individual and is meant to be public (it is private until the first release, T23). Never include anything from any current or past employer:
 no code, component names, internal product names, business data, client names, screenshots or assets.
 All example content (form copy, sample data, product names) must be generic or fictional.
 
@@ -297,3 +312,4 @@ When running without a human in the loop:
 - If a decision is genuinely ambiguous AND hard to reverse (public API shape, a token rename, a new dependency, a licensing question), stop, write down the options in the PR or a note, and do not guess.
 - If the quality gates fail and you cannot fix them within a few attempts, stop and report what is failing and what you tried, instead of weakening the checks.
 - Never mark a task complete if anything in section 10 is unverified. Say what is missing instead.
+- Report real results: the output of the command, the run and job, and the duration. Follow section 11, "Verifying and reporting".
