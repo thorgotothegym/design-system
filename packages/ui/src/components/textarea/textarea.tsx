@@ -21,7 +21,7 @@ const textareaVariants = cva(
     "data-readonly:bg-bg-subtle",
     "data-disabled:cursor-not-allowed data-disabled:bg-bg-subtle data-disabled:text-text-muted",
     "forced-colors:data-invalid:border-dashed",
-    "forced-colors:data-disabled:border-[GrayText]",
+    "forced-colors:data-disabled:border-[GrayText] forced-colors:data-disabled:text-[GrayText]",
     "motion-safe:transition-[border-color]",
   ],
   {

@@ -4,12 +4,8 @@ import { OtpInput } from "@aleixvidal/ui/otp-input";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, screen, userEvent, waitFor, within } from "storybook/test";
 
-/**
- * Under forced colors the text colors are the user's palette, not the tokens, and axe's
- * `color-contrast` mixes the two: it reports the dark token green (#6bc670) on the forced white
- * `Canvas`, where the page paints black on white. That is a false positive, so the rule is off
- * for these stories only; the dark and light projects check contrast on every story.
- */
+// False positive: under forced colors axe pairs the token text color with the forced `Canvas`,
+// not with the colors the page actually paints.
 const forcedContrast = { id: "color-contrast", enabled: false };
 
 const meta = {
@@ -100,6 +96,9 @@ export const StatesKeepAShape: Story = {
     const disabled = canvas
       .getByRole("textbox", { name: "Disabled" })
       .closest("[data-slot=input]");
+    const disabledText = getComputedStyle(
+      canvas.getByRole("textbox", { name: "Disabled" }),
+    );
     const chevron = part(
       canvas.getByRole("combobox", { name: "Country" }),
       "svg",
@@ -121,6 +120,7 @@ export const StatesKeepAShape: Story = {
     await expect(disabled && getComputedStyle(disabled).borderTopColor).toBe(
       systemColor("GrayText"),
     );
+    await expect(disabledText.color).toBe(systemColor("GrayText"));
     await expect(chevron.color).toBe(systemColor("CanvasText"));
   },
 };
