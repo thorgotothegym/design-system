@@ -46,4 +46,7 @@ storybook-static
 
 # Lighthouse CI runs and reports (pnpm lighthouse)
 .lighthouseci
+
+# Raw results of scripts/a11y-audit.mts
+a11y-audit-results.json
 apps/storybook/public/fonts/files
