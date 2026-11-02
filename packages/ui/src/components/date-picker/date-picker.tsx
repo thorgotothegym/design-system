@@ -32,8 +32,8 @@ import { cn } from "../../lib/cn";
 import { useFieldState } from "../field/use-field-state";
 
 /**
- * The drawn box, as in `Input`: border, background and focus ring are on the group that holds
- * the segments and the calendar button. The ring shows while a segment has focus (the button has
+ * The drawn box, as in `Input`: border, background and focus indicator are on the group that holds
+ * the segments and the calendar button. The indicator shows while a segment has focus (the button has
  * its own). State comes from the `data-*` attributes React Aria sets on the root (`data-invalid`,
  * `data-disabled`, `data-readonly`) and on the group (`data-hovered`), styled with Tailwind data
  * variants.
@@ -73,8 +73,8 @@ const iconButtonClasses = [
 
 /**
  * Portalled and positioned by React Aria below the field, aligned to its start, flipping above
- * when there is no room. It uses the same layer token as the Select list (React Aria's own inline
- * z-index is replaced through `style`) and the same surface.
+ * when there is no room. It uses the same layer token as the Select list (the z-index React Aria
+ * sets in the element's style is replaced through `style`) and the same surface.
  */
 const popoverClasses =
   "z-(--ds-z-dropdown) box-border rounded-lg border border-border-decorative bg-bg-surface p-2 font-mono text-text-default shadow-md outline-transparent";
@@ -83,18 +83,18 @@ const popoverClasses =
  * A day is a 40px square (above the 24px WCAG 2.2 minimum target). States, each a `data-*`
  * attribute from React Aria:
  * - selected: filled with `brand.primary` (7:1 or more against `bg.surface`);
- * - focused (keyboard): a `focus.ring` outline set 2px off the cell, so it shows on the selected
+ * - focused (keyboard): an `outline-focus-ring` line set 2px off the cell, so it shows on the selected
  *   fill too;
  * - today: a dot under the number (see `TodayDot`);
  * - disabled (outside `min` and `max`) or unavailable (`isDateDisabled`): muted and struck through,
  *   so they differ from the others without relying on color;
- * - hover: a `bg.subtle` fill, a pointer hint only (the keyboard indicator is the ring);
+ * - hover: a `bg.subtle` fill, a pointer hint only (the keyboard indicator is the `outline-focus-ring` line);
  * - outside the month: not painted, but it keeps its place in the grid.
  *
  * With forced colors the backgrounds are painted as `Canvas`, so the selected day is filled with
  * `Highlight` and `HighlightText`, and stays marked when the focus moves to another day. It opts
  * out of the forced palette (`forced-color-adjust: none`, keeping those system colors), because
- * Chromium otherwise paints a `Canvas` backplate behind the number that hides it; its focus ring
+ * Chromium otherwise paints a `Canvas` backplate behind the number that hides it; its focus indicator
  * is set to `CanvasText` for the same reason.
  */
 const cellClasses = [

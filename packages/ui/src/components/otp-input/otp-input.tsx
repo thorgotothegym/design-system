@@ -72,7 +72,7 @@ export type OtpInputProps = Omit<
 
 /**
  * A field for a one-time code, such as the six digits sent by SMS or an authenticator. Use it for
- * a short code of fixed length; use an Input for anything else.
+ * a short code of a set length; use an Input for anything else.
  *
  * Import it from `@aleixvidal/ui/otp-input`, its own entry point (see AGENTS.md section 5).
  *
@@ -159,7 +159,7 @@ export const OtpInput = ({
 
             return (
               <div
-                // Groups are fixed by `groups`, so the position is a stable identity.
+                // Groups are set by `groups`, so the position is a stable identity.
                 key={group}
                 data-slot="otp-input-group"
                 className="flex items-center gap-2"

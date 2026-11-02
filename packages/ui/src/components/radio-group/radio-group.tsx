@@ -22,7 +22,7 @@ const radioGroupVariants = cva("flex", {
 });
 
 /**
- * The circle is the Radix item (a `<button role="radio">`), so border, background and focus ring
+ * The circle is the Radix item (a `<button role="radio">`), so border, background and focus indicator
  * are on it, as in `Checkbox`. The group's invalid state reaches it through the `data-invalid`
  * on the group, so every option shows the danger border.
  *
@@ -58,7 +58,7 @@ export type RadioGroupProps = ComponentPropsWithRef<
 
 /**
  * A set of options of which exactly one can be selected. Use it for two to about five options
- * that should all be visible; use a Select for a longer list, a Checkbox for an independent
+ * that should all be shown at once; use a Select for a longer list, a Checkbox for an independent
  * yes/no, and a Switch for a setting that applies at once.
  *
  * Inside a `Field`, the `Field.Label` names the group (through `aria-labelledby`, since a group

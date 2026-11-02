@@ -5,7 +5,7 @@ import { cn } from "../../lib/cn";
 import { useFieldState } from "../field/use-field-state";
 
 /**
- * The box is the Radix root (a `<button role="checkbox">`), so border, background and focus ring
+ * The box is the Radix root (a `<button role="checkbox">`), so border, background and focus indicator
  * are on it. State comes from Radix's `data-state` and `data-disabled`, plus our `data-invalid`,
  * and is styled with Tailwind data variants, as in `Input`. There are no variants: a checkbox
  * has one size.

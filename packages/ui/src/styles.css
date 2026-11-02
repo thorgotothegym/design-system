@@ -14,9 +14,3 @@
 /* Only the components generate classes; stories and tests are not shipped. */
 @source "./components";
 @source not "./**/*.{stories,test}.tsx";
-
-/*
- * Words in comments ("focus ring", "fixed", "visible") are detected as classes too. No component
- * uses these as classes, so they are not generated.
- */
-@source not inline("{visible,fixed,inline,resize,ring,outline}");

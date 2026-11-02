@@ -7,7 +7,7 @@ import { useFieldState } from "../field/use-field-state";
 const DEFAULT_SIZE = "md";
 
 /**
- * The drawn box: border, background and focus ring live on the wrapper, so a prefix and a
+ * The drawn box: border, background and focus indicator live on the wrapper, so a prefix and a
  * suffix sit inside the same box as the `<input>`. States are `data-*` attributes set from props
  * and styled with Tailwind data variants, not cva variants.
  */
