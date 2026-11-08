@@ -34,7 +34,7 @@
     "@aleixvidal/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "eslint": "catalog:",
-    "style-dictionary": "5.7.1",
+    "style-dictionary": "5.8.0",
     "tsup": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
