@@ -10,12 +10,12 @@ allowBuilds:
 # Versions shared by several workspace packages live here so they cannot drift.
 catalog:
   "@eslint/js": 10.0.1
-  "@types/node": 26.4.1
-  "@types/react": 19.2.18
-  "@types/react-dom": 19.2.5
-  eslint: 10.9.1
-  react: 19.2.8
-  react-dom: 19.2.8
+  "@types/node": 26.6.6
+  "@types/react": 19.3.0
+  "@types/react-dom": 19.3.0
+  eslint: 10.14.0
+  react: 19.3.1
+  react-dom: 19.3.1
   tsup: 9.0.0
   typescript: 7.0.2
-  vitest: 5.0.5
+  vitest: 5.1.0
